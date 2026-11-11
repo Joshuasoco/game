@@ -63,7 +63,17 @@ function App() {
       });
       game.current = g;
       g.onPhase = (p) => socket.current?.emit("game:phase", p);
-      g.onHaptic = () => socket.current?.emit("haptic", { pattern: [25] });
+      g.onHaptic = (kind) =>
+        socket.current?.emit("haptic", {
+          pattern:
+            kind === "perfect"
+              ? [12, 18, 25]
+              : kind === "fault"
+                ? [65]
+                : kind === "point"
+                  ? [20, 35, 20]
+                  : [22],
+        });
       void g
         .init()
         .then(() => {

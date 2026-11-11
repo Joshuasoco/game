@@ -48,6 +48,7 @@ export class Game {
   private spin = 0;
   private results: boolean[] = [];
   private adaptation = 1;
+  private hitStop = 0;
   private stats: MatchStats = {
     longestRally: 0,
     winners: 0,
@@ -91,7 +92,7 @@ export class Game {
   private history: { at: number; p: Vec }[] = [];
   private clockOffset = 0;
   private rtt = 0;
-  onHaptic?: () => void;
+  onHaptic?: (kind: "hit" | "perfect" | "fault" | "point") => void;
   onPhase?: (s: GamePhase) => void;
   constructor(
     readonly scene: CourtScene,
@@ -153,7 +154,8 @@ export class Game {
       this.frameTime = 0;
       if (this.phase === "rally") this.emit(false);
     }
-    if (this.phase === "rally") {
+    this.hitStop = Math.max(0, this.hitStop - dt);
+    if (this.phase === "rally" && this.hitStop === 0) {
       this.accumulator += dt;
       while (this.accumulator >= PHYSICS.dt) {
         this.step();
@@ -206,6 +208,7 @@ export class Game {
     if (network) this.onPhase?.(s);
   }
   setPhase(phase: GamePhase["phase"], message: string) {
+    this.scene.matchState?.(this.rules.score);
     this.phase = phase;
     this.message = message;
     this.accumulator = 0;
@@ -258,6 +261,7 @@ export class Game {
   }
   setRival(id: RivalId) {
     this.rival = id;
+    this.scene.setRival?.(id);
   }
   positionIntent(value: number) {
     this.intent = clamp(value, -1, 1);
@@ -370,7 +374,7 @@ export class Game {
     this.aiWait = 0;
     this.aiMiss = this.random() < SKILL[this.difficulty].miss;
     this.setPhase("rally", "Let it bounce.");
-    if (input) this.onHaptic?.();
+    if (input) this.onHaptic?.("hit");
   }
   private launch(p: Vec, target: Vec, shot: Shot, power = 0.65) {
     this.body.setTranslation(p, true);
@@ -452,6 +456,12 @@ export class Game {
           : 0.5;
     this.body.setAngvel({ x: this.spin * 45, y: 0, z: 0 }, true);
     this.scene.hit(side, input?.side === "backhand", shot === "smash");
+    this.scene.impact?.(
+      p,
+      side === "player" && this.timing === "perfect",
+      power,
+    );
+    this.hitStop = this.timing === "perfect" ? 0.075 : power > 0.6 ? 0.06 : 0;
     this.audio.play("hit");
     this.rally++;
     this.stats.longestRally = Math.max(this.stats.longestRally, this.rally);
@@ -470,7 +480,8 @@ export class Game {
         /* Storage may be disabled. */
       }
     }
-    if (side === "player") this.onHaptic?.();
+    if (side === "player")
+      this.onHaptic?.(this.timing === "perfect" ? "perfect" : "hit");
     this.message = "";
     this.emit();
   }
@@ -490,6 +501,7 @@ export class Game {
         const p = this.body.translation();
         point = this.rules.apply({ type: "bounce", x: p.x, z: p.z });
         this.audio.play("bounce");
+        this.scene.impact?.(p, false, 0.1, true);
         if (!point)
           this.body.setLinvel(spinBounce(this.body.linvel(), this.spin), true);
         if (!point) {
@@ -570,6 +582,8 @@ export class Game {
     }
   }
   private finish(winner: Side, fault: string) {
+    this.scene.react?.(winner);
+    this.onHaptic?.(winner === "player" ? "point" : "fault");
     if (winner === "ai") this.stats.faults++;
     else if (fault === "missed return" || fault === "double bounce")
       this.stats.winners++;

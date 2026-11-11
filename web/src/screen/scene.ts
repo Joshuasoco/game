@@ -1,6 +1,8 @@
 import * as T from "three";
 import { COURT } from "../game/tuning";
 import type { Vec } from "../game/solver";
+import { RIVALS, type RivalId } from "../game/ai";
+import { ImpactEffects } from "./effects";
 const mat = (color: number, roughness = 0.9) =>
   new T.MeshStandardMaterial({ color, roughness });
 function box(
@@ -50,8 +52,9 @@ export interface Character {
   rightLeg: T.Mesh;
   arm: T.Group;
   swing: number;
+  reaction: number;
 }
-function character(color: number, opponent = false): Character {
+function character(color: number, opponent = false, hat = "cap"): Character {
   const g = new T.Group();
   const skin = 0xeab896;
   g.add(capsule(0.29, 0.38, color, 0, 0.85, 0));
@@ -64,6 +67,16 @@ function character(color: number, opponent = false): Character {
     box(0.22, 0.12, 0.38, 0xf9f8ed, -0.15, 0.08, -0.06),
     box(0.22, 0.12, 0.38, 0xf9f8ed, 0.15, 0.08, -0.06),
   );
+  if (hat === "sunhat") {
+    const brim = cylinder(0.43, 0.045, 0xf5e1b5, 0, 1.56, 0);
+    g.add(brim);
+  }
+  if (hat === "visor") {
+    g.add(box(0.52, 0.04, 0.38, 0xf5f1df, 0, 1.55, -0.2));
+  }
+  if (hat === "headband") {
+    g.add(cylinder(0.263, 0.055, 0xf5f1df, 0, 1.49, 0));
+  }
   g.add(sphere(0.25, skin, 0, 1.37, 0));
   g.add(capsule(0.255, 0.02, 0x3d302c, 0, 1.48, 0.025));
   g.add(
@@ -99,14 +112,14 @@ function character(color: number, opponent = false): Character {
   g.add(arm);
   g.add(capsule(0.08, 0.28, skin, -0.35, 0.76, 0));
   if (opponent) g.rotation.y = Math.PI;
-  return { group: g, paddle, leftLeg, rightLeg, arm, swing: 0 };
+  return { group: g, paddle, leftLeg, rightLeg, arm, swing: 0, reaction: 0 };
 }
 export class CourtScene {
   readonly scene = new T.Scene();
   readonly renderer: T.WebGLRenderer;
   readonly camera = new T.PerspectiveCamera(40, 1, 0.1, 180);
   readonly player = character(0xf27c61);
-  readonly ai = character(0x7b90d4, true);
+  ai = character(0x83966d, true);
   readonly ball: T.Mesh;
   private observer: ResizeObserver;
   private shadow: T.Mesh;
@@ -116,9 +129,13 @@ export class CourtScene {
   private disposed = false;
   private alternate = false;
   private active = false;
+  private effects = new ImpactEffects();
+  private hitPush = 0;
+  private matchPoint = false;
   private shake = 0;
   private reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   constructor(private container: HTMLElement) {
+    this.scene.add(this.effects.group);
     this.renderer = new T.WebGLRenderer({
       antialias: true,
       alpha: false,
@@ -370,6 +387,39 @@ export class CourtScene {
       85,
     );
   }
+  setRival(id: RivalId) {
+    const old = this.ai;
+    const position = old.group.position.clone();
+    this.scene.remove(old.group);
+    old.group.traverse((o) => {
+      if (o instanceof T.Mesh) {
+        o.geometry.dispose();
+        (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) =>
+          m.dispose(),
+        );
+      }
+    });
+    const r = RIVALS[id];
+    this.ai = character(parseInt(r.color.slice(1), 16), true, r.hat);
+    this.ai.group.position.copy(position);
+    this.scene.add(this.ai.group);
+  }
+  matchState(score: [number, number]) {
+    this.matchPoint =
+      Math.max(...score) >= 10 && Math.abs(score[0] - score[1]) >= 1;
+  }
+  react(winner: "player" | "ai") {
+    this.player.reaction = winner === "player" ? 1 : -1;
+    this.ai.reaction = winner === "ai" ? 1 : -1;
+  }
+  impact(p: Vec, perfect: boolean, power: number, bounce = false) {
+    this.effects.enabled = !this.reduced;
+    this.effects.impact(p, perfect, bounce);
+    if (!bounce && !this.reduced) {
+      this.shake = 0.018 + power * 0.05;
+      this.hitPush = power;
+    }
+  }
   setBall(p: Vec, target?: Vec) {
     this.ball.position.set(p.x, p.y, p.z);
     this.shadow.position.set(p.x, 0.055, p.z);
@@ -387,7 +437,7 @@ export class CourtScene {
   render(dt: number, time: number, playing: boolean, roll = 0) {
     if (this.disposed) return;
     const dest = this.alternate
-      ? new T.Vector3(0, 11.5, 17.8)
+      ? new T.Vector3(this.player.group.position.x * 0.2, 9.8, 17.5)
       : new T.Vector3(
           12 +
             (!this.active && !this.reduced ? Math.sin(time * 0.12) * 1.2 : 0),
@@ -395,17 +445,40 @@ export class CourtScene {
           18,
         );
     this.camera.position.lerp(dest, Math.min(1, dt * 2));
-    this.camera.lookAt(0, 0.1, 0);
+    if (this.active) {
+      const target = new T.Vector3(this.ball.position.x * 0.08, 0.1, -0.4);
+      this.camera.lookAt(target);
+      this.hitPush = Math.max(0, this.hitPush - dt * 3);
+      const fov = 40 + this.hitPush * 3 - (this.matchPoint ? 2 : 0);
+      this.camera.fov += (fov - this.camera.fov) * Math.min(1, dt * 4);
+      this.camera.updateProjectionMatrix();
+    }
+    if(!this.active)this.camera.lookAt(0, 0.1, 0);
     this.shake = Math.max(0, this.shake - dt * 0.4);
     this.camera.position.x += Math.sin(time * 95) * this.shake;
     for (const [i, c] of [this.player, this.ai].entries()) {
       c.swing = Math.sign(c.swing) * Math.max(0, Math.abs(c.swing) - dt * 3.5);
       c.arm.rotation.x = -Math.sin(c.swing * Math.PI) * 1.8;
+      c.paddle.rotation.x = Math.sin(Math.abs(c.swing) * Math.PI) * 0.45;
+      c.reaction *= Math.max(0, 1 - dt * 1.6);
+      c.group.position.y = this.reduced
+        ? 0
+        : c.reaction > 0
+          ? Math.abs(Math.sin(time * 9)) * c.reaction * 0.22
+          : 0;
+      c.group.rotation.z = this.reduced
+        ? 0
+        : c.reaction < 0
+          ? Math.sin(time * 6) * Math.abs(c.reaction) * 0.07
+          : 0;
       c.arm.rotation.z = i === 0 ? roll * 0.007 : 0;
+      if(playing&&c.swing===0&&Math.abs(this.ball.position.z-c.group.position.z)<3)c.arm.rotation.x-=.24;
+      if(c.reaction<0)c.arm.rotation.z+=Math.abs(c.reaction)*.4;
       if (!this.reduced) {
         const walk = playing
           ? Math.sin(time * 12 + c.group.position.x) * 0.16
           : Math.sin(time * 2 + i) * 0.025;
+        c.group.scale.y = 1 + Math.sin(time * 2 + i) * 0.012;
         c.leftLeg.rotation.x = walk;
         c.rightLeg.rotation.x = -walk;
       }
@@ -414,7 +487,29 @@ export class CourtScene {
       const p = this.trailPoints[(i + 1) * 2];
       m.visible = playing && !!p;
       if (p) m.position.set(p.x, p.y, p.z);
+      m.scale.setScalar(
+        Math.max(
+          0.5,
+          Math.min(
+            1.7,
+            this.trailPoints.length > 2
+              ? Math.hypot(
+                  this.trailPoints[0].x - this.trailPoints[2].x,
+                  this.trailPoints[0].z - this.trailPoints[2].z,
+                ) * 6
+              : 1,
+          ),
+        ),
+      );
     });
+    if (this.marker.visible) {
+      this.marker.scale.setScalar(
+        this.reduced ? 1 : 1 + Math.sin(time * 4) * 0.09,
+      );
+      (this.marker.material as T.MeshBasicMaterial).opacity =
+        0.5 + Math.sin(time * 3) * 0.15;
+    }
+    this.effects.update(dt, this.camera, this.ball);
     this.renderer.render(this.scene, this.camera);
   }
   dispose() {

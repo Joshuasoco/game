@@ -25,3 +25,8 @@ Arrow up / down select forward / retreat intent; neutral settles at midcourt. Mo
 Three consecutive player wins increase AI pace/reduce reaction delay by 8%; three losses ease it by 10%. Mixed results restore baseline. This adjustment never changes sensor thresholds. Adaptation is session-local and is not shown in the HUD.
 
 Statistics are match-local: longest rally, forced missed/double-bounce winners, player faults, and timing average. Lifetime rally best remains separate.
+
+## Contact feedback
+Solid contacts stop physics for 60 ms; perfect contacts for 75 ms. Rendering and input collection continue. A 32-particle pool supplies court dust and perfect-hit sparks, with a small ring at contact, ball squash, recoil and power-scaled camera shake. Reduced motion disables particles, shake and squash. Hats distinguish cap/visor/sunhat/headband variants; ready anticipation and win/loss poses use procedural joints.
+
+The camera follows lateral movement gently, widens on impact and tightens at match point. The optional replay camera is deferred: readable live play and contact correctness take priority over a second timeline.
