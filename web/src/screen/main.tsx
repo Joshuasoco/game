@@ -7,6 +7,7 @@ import { CourtScene } from "./scene";
 import { Game, type Snapshot } from "../game/engine";
 import { Icon } from "./icons";
 import { Settings } from "./settings";
+import { ChoiceGroup } from "./choice-group";
 import { RivalPortrait } from "./rival-portrait";
 import { RIVALS, type RivalId } from "../game/ai";
 import "../style.css";
@@ -171,7 +172,9 @@ function App() {
     const down = (e: KeyboardEvent) => {
       if (
         e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLSelectElement
+        e.target instanceof HTMLSelectElement ||
+        (e.target instanceof HTMLElement &&
+          !!e.target.closest("button, a, [role=dialog]"))
       )
         return;
       held.add(e.code);
@@ -316,46 +319,45 @@ function App() {
               Singles against a rival who always has time.
             </p>
             <div className="title-settings">
-              <label>
-                Rival
-                <select
-                  aria-label="Rival"
-                  value={rival}
-                  onChange={(e) => {
-                    setRival(e.target.value as RivalId);
-                    game.current?.setRival(e.target.value as RivalId);
-                  }}
-                >
-                  {(Object.keys(RIVALS) as RivalId[]).map((id) => (
-                    <option key={id} value={id}>
-                      {RIVALS[id].name} · {RIVALS[id].style}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Mode
-                <select
-                  aria-label="Game mode"
-                  value={mode}
-                  onChange={(e) => setMode(e.target.value as typeof mode)}
-                >
-                  <option value="match">Quick match · first to 11</option>
-                  <option value="challenge">Rally challenge</option>
-                </select>
-              </label>
-              <label>
-                Difficulty
-                <select
-                  aria-label="Opponent difficulty"
-                  value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-                >
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
-              </label>
+              <ChoiceGroup
+                label="Rival"
+                value={rival}
+                options={(Object.keys(RIVALS) as RivalId[]).map((id) => ({
+                  value: id,
+                  label: RIVALS[id].name,
+                }))}
+                onChange={(id) => {
+                  setRival(id);
+                  game.current?.setRival(id);
+                }}
+              />
+              <ChoiceGroup
+                label="Game mode"
+                value={mode}
+                options={[
+                  {
+                    value: "match",
+                    label: "Quick match",
+                    caption: "First to 11",
+                  },
+                  {
+                    value: "challenge",
+                    label: "Rally challenge",
+                    caption: "Keep it going",
+                  },
+                ]}
+                onChange={setMode}
+              />
+              <ChoiceGroup
+                label="Opponent difficulty"
+                value={difficulty}
+                options={[
+                  { value: "easy", label: "Easy" },
+                  { value: "medium", label: "Medium" },
+                  { value: "hard", label: "Hard" },
+                ]}
+                onChange={setDifficulty}
+              />
             </div>
             <div className="rival-summary">
               <RivalPortrait id={rival} />

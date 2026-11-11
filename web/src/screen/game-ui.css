@@ -56,14 +56,6 @@
 .title-card {
   width: 390px;
 }
-.title-settings {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.title-settings label:first-child {
-  grid-column: 1/-1;
-}
 .title-card::before {
   content: "";
   position: absolute;
@@ -246,7 +238,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 3px solid var(--clay);
+  outline: 3px solid #32766b;
   outline-offset: 4px;
 }
 .game-app {
@@ -305,28 +297,6 @@ select:focus-visible {
   font-size: 13px;
   line-height: 1.8;
   color: var(--text-muted);
-}
-.title-settings {
-  display: flex;
-  gap: 12px;
-  margin: 24px 0;
-}
-.title-settings label {
-  font-size: 10px;
-  color: var(--text-muted);
-  flex: 1;
-  min-width: 0;
-}
-.title-settings select {
-  display: block;
-  width: 100%;
-  margin-top: 6px;
-  padding: 10px 5px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  font-size: 10px;
-  background: var(--paper);
-  color: var(--ink);
 }
 .title-record {
   display: flex;
@@ -704,5 +674,244 @@ select:focus-visible {
   .result-card,
   .game-app .modal {
     animation: none;
+  }
+}
+
+/* Menu presentation: keep the court visible and every option readable. */
+.at-title {
+  --text-muted: #52674e;
+}
+.title-ui {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  pointer-events: none;
+}
+.title-ui > * {
+  pointer-events: auto;
+}
+.title-card {
+  top: 104px;
+  left: clamp(24px, 4vw, 64px);
+  bottom: auto;
+  transform: none;
+  width: 410px;
+  padding: 26px;
+  background: linear-gradient(145deg, #fffdf6f7, #f6f2e5f5);
+  border: 1px solid #ffffffb8;
+  box-shadow:
+    0 24px 70px #233e3226,
+    0 3px 8px #233e3210;
+  margin-bottom: 90px;
+}
+.title-card h1 {
+  font-size: 39px;
+  margin: 12px 0;
+  line-height: 1.1;
+}
+.title-card > p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.game-app .eyebrow {
+  font-size: 13px;
+  letter-spacing: 1.4px;
+}
+.title-settings {
+  display: grid;
+  gap: 14px;
+  margin: 20px 0 16px;
+}
+.choice-group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.choice-group legend {
+  padding: 0;
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 650;
+  color: #3e584d;
+}
+.choice-options {
+  display: flex;
+  gap: 5px;
+  padding: 4px;
+  background: #e7eadd;
+  border-radius: 12px;
+}
+.choice-option {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.choice-option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.choice-option > span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 42px;
+  padding: 9px 5px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: #435b4f;
+  text-align: center;
+  transition:
+    background 160ms,
+    box-shadow 160ms,
+    color 160ms;
+}
+.choice-option b {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.choice-option small {
+  font-size: 13px;
+  line-height: 1.3;
+}
+.choice-option:hover > span {
+  background: #f6f6ec;
+}
+.choice-option:active > span {
+  background: #d3ddc8;
+}
+.choice-option input:checked + span {
+  background: #244c3e;
+  color: #fffdf1;
+  box-shadow: 0 2px 5px #193f3524;
+}
+.choice-option input:checked + span b::after {
+  content: " \2713";
+  font-size: 12px;
+}
+.choice-option input:focus-visible + span {
+  outline: 3px solid #32766b;
+  outline-offset: 3px;
+}
+.rival-summary {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid #d8dfcd;
+}
+.rival-summary small {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #52674e;
+}
+.game-app .primary-button {
+  min-height: 52px;
+  font-size: 14px;
+  box-shadow: 0 5px 12px #193f3520;
+}
+.game-app .keyboard-button {
+  font-size: 13px;
+  padding: 14px 0 4px;
+  color: #435b4f;
+}
+.title-record {
+  flex-wrap: wrap;
+  font-size: 13px;
+  margin-top: 16px;
+  padding-top: 13px;
+}
+.title-record button {
+  font-size: 13px;
+  min-height: 32px;
+}
+.title-location,
+.title-connection {
+  font-size: 13px;
+  background: #fffdf1eb;
+}
+.studio-header .text-button {
+  font-size: 14px;
+  min-height: 44px;
+}
+.game-app button {
+  transition:
+    background 180ms,
+    color 180ms,
+    box-shadow 180ms,
+    transform 140ms;
+}
+.game-app button:hover:not(:disabled) {
+  filter: none;
+  background-color: #dfe6d5;
+}
+.game-app .primary-button:hover:not(:disabled) {
+  background: #31634f;
+  box-shadow: 0 7px 18px #193f3530;
+}
+.game-app button:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+.game-app .icon-button {
+  min-width: 40px;
+  min-height: 40px;
+}
+.settings-dialog h3,
+.setting-row > span,
+.setting-check {
+  font-size: 14px;
+}
+.settings-note,
+.setting-row select {
+  font-size: 13px;
+}
+.settings-dialog {
+  width: 430px;
+}
+@media (max-width: 600px) {
+  .studio-header {
+    inset: 16px 18px auto;
+  }
+  .studio-header > div {
+    gap: 10px;
+  }
+  .studio-header .text-button {
+    font-size: 13px;
+  }
+  .title-card {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    margin: 100px 16px 80px;
+    width: auto;
+    padding: 22px;
+  }
+  .title-card h1 {
+    font-size: 34px;
+  }
+  .title-card > p {
+    font-size: 14px;
+  }
+  .title-record {
+    font-size: 13px;
+  }
+  .title-connection {
+    position: fixed;
+    font-size: 13px;
+    bottom: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-app *,
+  .settings-dialog * {
+    transition: none !important;
+    animation: none !important;
   }
 }
