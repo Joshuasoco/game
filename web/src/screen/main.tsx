@@ -7,6 +7,7 @@ import { CourtScene } from "./scene";
 import { Game, type Snapshot } from "../game/engine";
 import { Icon } from "./icons";
 import { Settings } from "./settings";
+import { RivalPortrait } from "./rival-portrait";
 import { RIVALS, type RivalId } from "../game/ai";
 import "../style.css";
 import "./game-ui.css";
@@ -183,6 +184,7 @@ function App() {
         game.current?.input({
           seq: ++seq,
           power: 0.64,
+          ...(held.has("KeyC") ? { power: 0.24 } : {}),
           side: "forehand",
           tilt: held.has("ArrowLeft") ? -0.8 : held.has("ArrowRight") ? 0.8 : 0,
           lob: held.has("ShiftLeft") || held.has("ShiftRight"),
@@ -321,6 +323,7 @@ function App() {
                   value={rival}
                   onChange={(e) => {
                     setRival(e.target.value as RivalId);
+                    game.current?.setRival(e.target.value as RivalId);
                   }}
                 >
                   {(Object.keys(RIVALS) as RivalId[]).map((id) => (
@@ -353,6 +356,16 @@ function App() {
                   <option value="hard">Hard</option>
                 </select>
               </label>
+            </div>
+            <div className="rival-summary">
+              <RivalPortrait id={rival} />
+              <span>
+                <b>{RIVALS[rival].name}</b>
+                <small>
+                  {RIVALS[rival].style}
+                  {rival === "june" ? " · Club boss" : ""}
+                </small>
+              </span>
             </div>
             <button
               className="primary-button"
@@ -410,6 +423,7 @@ function App() {
             <span className="score-divider">:</span>
             <div>
               <b>{state.score[1]}</b>
+              <RivalPortrait id={state.rival} size={28} />
               {RIVALS[state.rival].name.toUpperCase()}{" "}
               <span className="player-dot lilac" />
             </div>
@@ -474,6 +488,36 @@ function App() {
               ? "Phone connected · P to pause"
               : "SPACE hit · ← → aim · SHIFT lob · P pause"}
           </span>
+          {state.tutorial && (
+            <aside className="tutorial-card" role="status">
+              <span className="eyebrow">
+                PRACTICE{" "}
+                {state.tutorial === "serve"
+                  ? "1"
+                  : state.tutorial === "dink"
+                    ? "2"
+                    : "3"}{" "}
+                / 3
+              </span>
+              <h3>
+                {state.tutorial === "serve"
+                  ? "Serve once."
+                  : state.tutorial === "dink"
+                    ? "Try a soft dink."
+                    : "Now try a lob."}
+              </h3>
+              <p>
+                {state.tutorial === "serve"
+                  ? "Swing or press Space."
+                  : state.tutorial === "dink"
+                    ? "Soft swing, quick touch tap, or C + Space."
+                    : "Hold LOB or Shift while swinging."}
+              </p>
+              <button onClick={() => game.current?.skipTutorial()}>
+                Skip practice
+              </button>
+            </aside>
+          )}
           {state.phase === "paused" && (
             <div className="state-backdrop">
               <section
@@ -670,6 +714,20 @@ function App() {
                   </li>
                 </ol>
                 <div className="keyboard-guide">
+                  <div className="shot-legend">
+                    {["Dink", "Drive", "Drop", "Lob", "Smash"].map(
+                      (shot, i) => (
+                        <span key={shot}>
+                          <i
+                            style={{
+                              backgroundPosition: `-${(i % 4) * 32}px -${Math.floor(i / 4) * 32}px`,
+                            }}
+                          />
+                          {shot}
+                        </span>
+                      ),
+                    )}
+                  </div>
                   <p>
                     <kbd>Space</kbd> hit · <kbd>← →</kbd> aim
                     <br />

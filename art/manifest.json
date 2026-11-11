@@ -1,0 +1,1168 @@
+{
+  "version": 1,
+  "styleReference": "art/selected/style-frame.png",
+  "humanApproval": "pending",
+  "candidates": [
+    {
+      "asset": "app-icon",
+      "variant": 1,
+      "file": "art/raw/app-icon-v1.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square app icon on transparent background: a chunky rounded evergreen pickleball paddle with a cream stripe, clay handle and a small cream perforated pickleball, simple warm hand-cut wood-and-clay diorama styling, strong silhouette readable at 64 pixels, centered with transparent padding, no letters, logos, border or cast shadow. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:19:37.268Z",
+      "sha256": "b7ae6d1ec8635d2870777cb85e35037a231be324504c2a33200ca73896cd569c",
+      "selected": false,
+      "reason": "Unrequested tree, court and pot reduce the small-icon silhouette.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "app-icon",
+      "variant": 2,
+      "file": "art/raw/app-icon-v2.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square app icon on transparent background: a chunky rounded evergreen pickleball paddle with a cream stripe, clay handle and a small cream perforated pickleball, simple warm hand-cut wood-and-clay diorama styling, strong silhouette readable at 64 pixels, centered with transparent padding, no letters, logos, border or cast shadow. Variant 2: slightly simpler shapes. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:18:12.572Z",
+      "sha256": "cb8ff5e0e71f67a8f12bc7b926b53ad78736bc9674c6f0dd90d18298060fa67a",
+      "selected": false,
+      "reason": "Unrequested tree, base and violet handle mismatch the requested simple icon.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "app-icon",
+      "variant": 3,
+      "file": "art/raw/app-icon-v3.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square app icon on transparent background: a chunky rounded evergreen pickleball paddle with a cream stripe, clay handle and a small cream perforated pickleball, simple warm hand-cut wood-and-clay diorama styling, strong silhouette readable at 64 pixels, centered with transparent padding, no letters, logos, border or cast shadow. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:18:52.646Z",
+      "sha256": "35e7af99c5f0b4f9fdcda3e267fc7ca3bab7a852efbaf88d81518cf4b40f7d70",
+      "selected": true,
+      "reason": "Selected: only paddle and ball, strongest 64-pixel silhouette, cream band and clay grip.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "app-icon",
+      "variant": 4,
+      "file": "art/raw/app-icon-v4.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square app icon on transparent background: a chunky rounded evergreen pickleball paddle with a cream stripe, clay handle and a small cream perforated pickleball, simple warm hand-cut wood-and-clay diorama styling, strong silhouette readable at 64 pixels, centered with transparent padding, no letters, logos, border or cast shadow. Variant 4: quieter finer detail. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:19:41.466Z",
+      "sha256": "21f2a886ef4eed84cc6c61566b0ddfaed04028411dd5fd95b07c42aee27fdbe6",
+      "selected": false,
+      "reason": "Unrequested scenery makes the icon too detailed.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-june",
+      "variant": 1,
+      "file": "art/raw/concept-june-v1.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for June, confident adult female club pickleball champion, evergreen polo, cream shorts, cream headband, short dark hair, tan skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, quietly pleased, shrugging. Plain cream paper, no text or labels. Variant 1: clear neutral poses. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:06:38.080Z",
+      "sha256": "8ba47611f91a00854b7221a277e72118031842eb4a4d6e8749e22d50bb276c7e",
+      "selected": false,
+      "reason": "Medal was not requested and competes with the paddle.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-june",
+      "variant": 2,
+      "file": "art/raw/concept-june-v2.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for June, confident adult female club pickleball champion, evergreen polo, cream shorts, cream headband, short dark hair, tan skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, quietly pleased, shrugging. Plain cream paper, no text or labels. Variant 2: slightly softer rounded silhouette. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:07:08.454Z",
+      "sha256": "26d04298bd2d919a3f25e8210f5a26405f5cc03cbe967c7070e338342e76dc7a",
+      "selected": true,
+      "reason": "Selected: clear headband, simple evergreen polo, clean turnaround and restrained shrug.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-june",
+      "variant": 3,
+      "file": "art/raw/concept-june-v3.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for June, confident adult female club pickleball champion, evergreen polo, cream shorts, cream headband, short dark hair, tan skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, quietly pleased, shrugging. Plain cream paper, no text or labels. Variant 3: more expressive brows, restrained. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:07:39.107Z",
+      "sha256": "3997c28df42486fcc387cb9caa16f82cc35bde95763d60f648be8359489d0e4d",
+      "selected": false,
+      "reason": "Medal and crossed-arm pose complicate the neutral modeling reference.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-june",
+      "variant": 4,
+      "file": "art/raw/concept-june-v4.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for June, confident adult female club pickleball champion, evergreen polo, cream shorts, cream headband, short dark hair, tan skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, quietly pleased, shrugging. Plain cream paper, no text or labels. Variant 4: slightly different clothing seams. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:07:42.448Z",
+      "sha256": "d608ffcb0bd78889087edd392a788b88ada4456d4981bc7728313053a8f7cc67",
+      "selected": false,
+      "reason": "Trophy and piping add unrelated props and clothing detail.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-mabel",
+      "variant": 1,
+      "file": "art/raw/concept-mabel-v1.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Mabel, patient older adult female pickleball dinker, dusk-violet polo, sage shorts, broad cream sunhat, silver hair, warm light skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions patient, pleased, surprised. Plain cream paper, no text or labels. Variant 1: clear neutral poses. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:04:32.740Z",
+      "sha256": "d78ad2f11546c813c1ec6140ff3f606959c659ebc7780785ce852ad412cb39aa",
+      "selected": false,
+      "reason": "Clear option but the paddle-down pose gives less grip reference.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-mabel",
+      "variant": 2,
+      "file": "art/raw/concept-mabel-v2.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Mabel, patient older adult female pickleball dinker, dusk-violet polo, sage shorts, broad cream sunhat, silver hair, warm light skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions patient, pleased, surprised. Plain cream paper, no text or labels. Variant 2: slightly softer rounded silhouette. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:05:00.821Z",
+      "sha256": "2a4c10783cefc81ec66f0925119591d9cde9940de4cb6e6867d97ea9964e254d",
+      "selected": true,
+      "reason": "Selected: consistent patient expression, visible paddle grip, clear sunhat silhouette and back view.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-mabel",
+      "variant": 3,
+      "file": "art/raw/concept-mabel-v3.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Mabel, patient older adult female pickleball dinker, dusk-violet polo, sage shorts, broad cream sunhat, silver hair, warm light skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions patient, pleased, surprised. Plain cream paper, no text or labels. Variant 3: more expressive brows, restrained. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:06:11.278Z",
+      "sha256": "f7b740ba5b8150baa5b0f90181b0c7c86d09cd006e58cec4b168c1690ddd7e88",
+      "selected": false,
+      "reason": "Extra ball adds a modeling prop that was not requested.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-mabel",
+      "variant": 4,
+      "file": "art/raw/concept-mabel-v4.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Mabel, patient older adult female pickleball dinker, dusk-violet polo, sage shorts, broad cream sunhat, silver hair, warm light skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions patient, pleased, surprised. Plain cream paper, no text or labels. Variant 4: slightly different clothing seams. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:06:09.372Z",
+      "sha256": "574eab3711d8151fa78c0960a044875026b137cd76d371c8b9f97263ada3541d",
+      "selected": false,
+      "reason": "Denser outfit seams add little at small scale.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-pip",
+      "variant": 1,
+      "file": "art/raw/concept-pip-v1.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Pip, friendly balanced adult pickleball player, sage polo, cream shorts, cream baseball cap, short dark hair, medium warm skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three small facial expressions ready, quietly pleased, disappointed. Plain cream paper, no text or labels. Variant 1: clear neutral poses. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:03:37.408Z",
+      "sha256": "7feec20d5a13c93a53bb71d274e653d5a892b80d8482850353c9e9a67104d384",
+      "selected": true,
+      "reason": "Selected: neutral full-body views, clean silhouette and three readable understated expressions.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-pip",
+      "variant": 2,
+      "file": "art/raw/concept-pip-v2.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Pip, friendly balanced adult pickleball player, sage polo, cream shorts, cream baseball cap, short dark hair, medium warm skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three small facial expressions ready, quietly pleased, disappointed. Plain cream paper, no text or labels. Variant 2: slightly softer rounded silhouette. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:03:37.407Z",
+      "sha256": "86417fef3d78d605fd715f592987d0d005f6fda05a41891494961500eba08172",
+      "selected": false,
+      "reason": "Paddle crosses the torso and hides modeling seams.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-pip",
+      "variant": 3,
+      "file": "art/raw/concept-pip-v3.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Pip, friendly balanced adult pickleball player, sage polo, cream shorts, cream baseball cap, short dark hair, medium warm skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three small facial expressions ready, quietly pleased, disappointed. Plain cream paper, no text or labels. Variant 3: more expressive brows, restrained. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:03:37.429Z",
+      "sha256": "98afa249de4df762e17bdde9cbfdd29b15a0a821bc62e57f15e9f4e88c7932f3",
+      "selected": false,
+      "reason": "Exaggerated frown is less neutral than the selected model sheet.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-pip",
+      "variant": 4,
+      "file": "art/raw/concept-pip-v4.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Pip, friendly balanced adult pickleball player, sage polo, cream shorts, cream baseball cap, short dark hair, medium warm skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three small facial expressions ready, quietly pleased, disappointed. Plain cream paper, no text or labels. Variant 4: slightly different clothing seams. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:03:37.433Z",
+      "sha256": "a5bb171e7d4ccdf83090bb16836d8a8dcf5b9dc7e935d4f466820676d5b281a8",
+      "selected": false,
+      "reason": "Added pocket seams and broad grin are busier at game scale.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-rocket",
+      "variant": 1,
+      "file": "art/raw/concept-rocket-v1.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Rocket, energetic adult female pickleball power player, clay-orange polo, cream shorts, cream sport visor, tied dark curly hair, brown skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, pleased, rueful. Plain cream paper, no text or labels. Variant 1: clear neutral poses. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:04:08.293Z",
+      "sha256": "7474daf0c955f14c92ba23f5a183163dd0c5d363296121c4ba2e5d54812ff630",
+      "selected": true,
+      "reason": "Selected: clear neutral turnaround, athletic silhouette and consistent visor/hair identity.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-rocket",
+      "variant": 2,
+      "file": "art/raw/concept-rocket-v2.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Rocket, energetic adult female pickleball power player, clay-orange polo, cream shorts, cream sport visor, tied dark curly hair, brown skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, pleased, rueful. Plain cream paper, no text or labels. Variant 2: slightly softer rounded silhouette. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:05:00.821Z",
+      "sha256": "57ab126839081f52fd6024ebf56f1af5dde599801bfd05ca36622386fc25ac85",
+      "selected": false,
+      "reason": "Action pose makes front proportions harder to compare.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-rocket",
+      "variant": 3,
+      "file": "art/raw/concept-rocket-v3.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Rocket, energetic adult female pickleball power player, clay-orange polo, cream shorts, cream sport visor, tied dark curly hair, brown skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, pleased, rueful. Plain cream paper, no text or labels. Variant 3: more expressive brows, restrained. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:06:09.368Z",
+      "sha256": "7ec91892eab3b3a253fbf779bf2240ee35bd3e41b53e13578a4c071f546a7eb3",
+      "selected": false,
+      "reason": "High energy is useful but overlaps the paddle with the torso.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "concept-rocket",
+      "variant": 4,
+      "file": "art/raw/concept-rocket-v4.png",
+      "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Rocket, energetic adult female pickleball power player, clay-orange polo, cream shorts, cream sport visor, tied dark curly hair, brown skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, pleased, rueful. Plain cream paper, no text or labels. Variant 4: slightly different clothing seams. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:06:11.299Z",
+      "sha256": "228dd381257ac3f3af6cd779e3f998262b1dfb9d28d81acf53e329104c40a21b",
+      "selected": false,
+      "reason": "Cream piping adds an unneeded outfit detail outside the restrained design.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "logo-exploration",
+      "variant": 1,
+      "file": "art/raw/logo-exploration-v1.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square logo exploration sheet, four distinct understated wordmark directions for the exact lowercase text dinkduel, each paired with a simple rounded paddle-and-ball club mark. Evergreen ink on cream paper, a small clay dot accent. Crafted confident sporty typography, no extra taglines or text, no neon or gloss. Four equal quadrants, each a coherent design option. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:17:54.558Z",
+      "sha256": "950e98c71cbc25cc1a72e6405a401f3516b3011597cee7710719e1ded261b278",
+      "selected": false,
+      "reason": "Paddle pair and badge options are bulkier.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "logo-exploration",
+      "variant": 2,
+      "file": "art/raw/logo-exploration-v2.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square logo exploration sheet, four distinct understated wordmark directions for the exact lowercase text dinkduel, each paired with a simple rounded paddle-and-ball club mark. Evergreen ink on cream paper, a small clay dot accent. Crafted confident sporty typography, no extra taglines or text, no neon or gloss. Four equal quadrants, each a coherent design option. Variant 2: slightly simpler shapes. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:17:02.377Z",
+      "sha256": "09041e55289a23b04b30b21f488ffc347169590e5426985376d7c21989fd807f",
+      "selected": true,
+      "reason": "Selected exploration: clear exact wordmark and simpler paddle/ball directions; live wordmark stays accessible native text.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "logo-exploration",
+      "variant": 3,
+      "file": "art/raw/logo-exploration-v3.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square logo exploration sheet, four distinct understated wordmark directions for the exact lowercase text dinkduel, each paired with a simple rounded paddle-and-ball club mark. Evergreen ink on cream paper, a small clay dot accent. Crafted confident sporty typography, no extra taglines or text, no neon or gloss. Four equal quadrants, each a coherent design option. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:17:31.981Z",
+      "sha256": "5ba6d204f6fe3fd632bf6a259da7798be54190e5c51dd287d8418d7609e2be0a",
+      "selected": false,
+      "reason": "Extra colored dots and badges add weight.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "logo-exploration",
+      "variant": 4,
+      "file": "art/raw/logo-exploration-v4.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square logo exploration sheet, four distinct understated wordmark directions for the exact lowercase text dinkduel, each paired with a simple rounded paddle-and-ball club mark. Evergreen ink on cream paper, a small clay dot accent. Crafted confident sporty typography, no extra taglines or text, no neon or gloss. Four equal quadrants, each a coherent design option. Variant 4: quieter finer detail. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:18:11.615Z",
+      "sha256": "94f53c4a1962e72d9c138e7cfb6cba1abbea747dffb3270ae6bb6ea242529291",
+      "selected": false,
+      "reason": "Heavy frames and underline treatment compete with the lettering.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "og-share",
+      "variant": 1,
+      "file": "art/raw/og-share-v1.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Landscape social share artwork for Dink Duel. Warm handcrafted toy-diorama neighborhood pickleball court at golden hour, soft upper-left light, sage court, clay pavement, rounded trees and two adult sporting figures, clean cream space on the left for separately typeset text. No text in this image, no logo, no frame, no glossy gradients. Restrained evergreen sage cream clay violet palette. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:19:16.255Z",
+      "sha256": "3a24c2ce0bc5c454153219dd754780de363645ae639f91c4171e5de922e96478",
+      "selected": false,
+      "reason": "More village detail competes with the simple court.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "og-share",
+      "variant": 2,
+      "file": "art/raw/og-share-v2.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Landscape social share artwork for Dink Duel. Warm handcrafted toy-diorama neighborhood pickleball court at golden hour, soft upper-left light, sage court, clay pavement, rounded trees and two adult sporting figures, clean cream space on the left for separately typeset text. No text in this image, no logo, no frame, no glossy gradients. Restrained evergreen sage cream clay violet palette. Variant 2: slightly simpler shapes. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:19:42.559Z",
+      "sha256": "a54ab2ae4cca47f4b73ebdf5144ff8ff9a4c69a4e9a786ee6d0adbffe1819cbc",
+      "selected": true,
+      "reason": "Selected: complete diorama, generous left copy area and quiet background.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "og-share",
+      "variant": 3,
+      "file": "art/raw/og-share-v3.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Landscape social share artwork for Dink Duel. Warm handcrafted toy-diorama neighborhood pickleball court at golden hour, soft upper-left light, sage court, clay pavement, rounded trees and two adult sporting figures, clean cream space on the left for separately typeset text. No text in this image, no logo, no frame, no glossy gradients. Restrained evergreen sage cream clay violet palette. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:20:11.757Z",
+      "sha256": "6ca86a08078c44cbc8582e2abe635ed1f317b68126e1ca1d5bff7feca5e785b4",
+      "selected": false,
+      "reason": "Square composition does not suit the landscape share card.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "og-share",
+      "variant": 4,
+      "file": "art/raw/og-share-v4.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Landscape social share artwork for Dink Duel. Warm handcrafted toy-diorama neighborhood pickleball court at golden hour, soft upper-left light, sage court, clay pavement, rounded trees and two adult sporting figures, clean cream space on the left for separately typeset text. No text in this image, no logo, no frame, no glossy gradients. Restrained evergreen sage cream clay violet palette. Variant 4: quieter finer detail. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:21:01.393Z",
+      "sha256": "9cfd2a338cd08f9891cfe22cabf2d4e348b8c6dd94c48e393994d72c9442f90d",
+      "selected": false,
+      "reason": "Very wide crop gives the court less readable height.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "paddle-skins",
+      "variant": 1,
+      "file": "art/raw/paddle-skins-v1.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent sprite sheet of six separate pickleball paddles, flat orthographic top-down with handles pointing down, exactly three equal columns and two equal rows, generous transparent gaps, no perspective or shadow. Designs row order: evergreen stripe; clay sun; sage checker; violet arch; cream court diagram; evergreen champion band. Matte cream edges, wrapped clay handles, bold simple readable motifs. No text or logos. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:11:09.861Z",
+      "sha256": "f0c778bd8b595feee6d41e8d371b03a194056a9afd689ab556aba7319a01b41b",
+      "selected": false,
+      "reason": "Thicker horizontal bands make the first design less distinct.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "paddle-skins",
+      "variant": 2,
+      "file": "art/raw/paddle-skins-v2.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent sprite sheet of six separate pickleball paddles, flat orthographic top-down with handles pointing down, exactly three equal columns and two equal rows, generous transparent gaps, no perspective or shadow. Designs row order: evergreen stripe; clay sun; sage checker; violet arch; cream court diagram; evergreen champion band. Matte cream edges, wrapped clay handles, bold simple readable motifs. No text or logos. Variant 2: slightly simpler shapes. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:11:09.861Z",
+      "sha256": "c383dc8a99aba0fc8e11b4ac07cc12630603bb4431b3639943ed7842c0e8b424",
+      "selected": true,
+      "reason": "Selected: six clean orthographic silhouettes, simple stripe and star, clear court motif, no text.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "paddle-skins",
+      "variant": 3,
+      "file": "art/raw/paddle-skins-v3.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent sprite sheet of six separate pickleball paddles, flat orthographic top-down with handles pointing down, exactly three equal columns and two equal rows, generous transparent gaps, no perspective or shadow. Designs row order: evergreen stripe; clay sun; sage checker; violet arch; cream court diagram; evergreen champion band. Matte cream edges, wrapped clay handles, bold simple readable motifs. No text or logos. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:10:30.489Z",
+      "sha256": "08c84ac9a632e4c1cd9164d88c4e05d8cccd55c7027a1fc6c4fc57d12e415d99",
+      "selected": false,
+      "reason": "Double stripe and heavier court net are busier at icon scale.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "paddle-skins",
+      "variant": 4,
+      "file": "art/raw/paddle-skins-v4.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent sprite sheet of six separate pickleball paddles, flat orthographic top-down with handles pointing down, exactly three equal columns and two equal rows, generous transparent gaps, no perspective or shadow. Designs row order: evergreen stripe; clay sun; sage checker; violet arch; cream court diagram; evergreen champion band. Matte cream edges, wrapped clay handles, bold simple readable motifs. No text or logos. Variant 4: quieter finer detail. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:11:14.591Z",
+      "sha256": "3a446a40f0dca17679f7e295d8aa318edbd79cf4b1d12ce636f65127ddccd3e7",
+      "selected": false,
+      "reason": "Laurel and denser checker add unneeded detail.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "rival-portraits",
+      "variant": 1,
+      "file": "art/raw/rival-portraits-v1.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent portrait atlas, exactly two columns and two rows, equal cells. Four isolated chest-up clay-diorama adult pickleball rivals, shoulders fully visible: top left Pip with sage polo cream baseball cap short dark hair and friendly dry smile; top right Rocket brown-skinned female with clay polo cream visor tied curly hair and focused expression; bottom left Mabel older female with dusk-violet polo broad cream sunhat silver hair and patient smile; bottom right June tan-skinned female with evergreen polo cream headband short dark hair and confident expression. Soft upper-left light, consistent scale, no shadows or lettering. No giant heads, warped faces or extra limbs. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:21:45.918Z",
+      "sha256": "641014023ab82b42c6dae283fe0cff0cbd101545b70af8066dabf8e2b14518b6",
+      "selected": false,
+      "reason": "Rejected: Rocket shirt is cream instead of clay-orange; used only as targeted-edit input.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "rival-portraits",
+      "variant": 2,
+      "file": "art/raw/rival-portraits-v2.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent portrait atlas, exactly two columns and two rows, equal cells. Four isolated chest-up clay-diorama adult pickleball rivals, shoulders fully visible: top left Pip with sage polo cream baseball cap short dark hair and friendly dry smile; top right Rocket brown-skinned female with clay polo cream visor tied curly hair and focused expression; bottom left Mabel older female with dusk-violet polo broad cream sunhat silver hair and patient smile; bottom right June tan-skinned female with evergreen polo cream headband short dark hair and confident expression. Soft upper-left light, consistent scale, no shadows or lettering. No giant heads, warped faces or extra limbs. Variant 2: slightly simpler shapes. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:21:45.907Z",
+      "sha256": "b780fefb501e49553063ad29056269c8883ab3f1cf036deb2312a03e03f8488b",
+      "selected": false,
+      "reason": "Rejected: Rocket shirt mismatch, and Pip loses the beard identity.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "rival-portraits",
+      "variant": 3,
+      "file": "art/raw/rival-portraits-v3.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent portrait atlas, exactly two columns and two rows, equal cells. Four isolated chest-up clay-diorama adult pickleball rivals, shoulders fully visible: top left Pip with sage polo cream baseball cap short dark hair and friendly dry smile; top right Rocket brown-skinned female with clay polo cream visor tied curly hair and focused expression; bottom left Mabel older female with dusk-violet polo broad cream sunhat silver hair and patient smile; bottom right June tan-skinned female with evergreen polo cream headband short dark hair and confident expression. Soft upper-left light, consistent scale, no shadows or lettering. No giant heads, warped faces or extra limbs. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:22:31.787Z",
+      "sha256": "38cab9df3c484d22043901346f3fe075531c5db1f448f51c00e9018dc1d54aea",
+      "selected": false,
+      "reason": "Rejected: Rocket shirt mismatch and busier face textures.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "rival-portraits",
+      "variant": 4,
+      "file": "art/raw/rival-portraits-v4.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent portrait atlas, exactly two columns and two rows, equal cells. Four isolated chest-up clay-diorama adult pickleball rivals, shoulders fully visible: top left Pip with sage polo cream baseball cap short dark hair and friendly dry smile; top right Rocket brown-skinned female with clay polo cream visor tied curly hair and focused expression; bottom left Mabel older female with dusk-violet polo broad cream sunhat silver hair and patient smile; bottom right June tan-skinned female with evergreen polo cream headband short dark hair and confident expression. Soft upper-left light, consistent scale, no shadows or lettering. No giant heads, warped faces or extra limbs. Variant 4: quieter finer detail. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:22:31.786Z",
+      "sha256": "fc9b42a2f234c2c2b29b83a526642a81626749c2233f32d5c6b163d1a7819d50",
+      "selected": false,
+      "reason": "Rejected: Rocket shirt mismatch and Pip identity drift.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "rival-portraits",
+      "variant": 5,
+      "file": "art/raw/rival-portraits-v5.png",
+      "prompt": "Image 1 is the edit target: a transparent 2x2 portrait atlas for Dink Duel. Image 2 is only the approved material/light style reference. Change ONLY the polo shirt of Rocket, the brown-skinned female in the TOP RIGHT quadrant, from cream to matte CLAY ORANGE #bd623f. Her collar, sleeves and torso must all be clay orange, retain natural material shading and seam detail. Keep her cream visor, skin, curly hair and face exactly unchanged. Keep Pip top left, Mabel bottom left, June bottom right exactly unchanged. Preserve all four portraits' positions, scale, warm handmade wood-and-clay appearance and transparent background. Do not add any lettering, props, shadows or extra features.",
+      "provider": "built-in OpenAI targeted reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": [
+          "art/raw/rival-portraits-v1.png",
+          "art/selected/style-frame.png"
+        ],
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:25:36.390Z",
+      "sha256": "49a2a94aba2b57c2ca40584dbeaf394116c6738b2c990f7b18444cd3924ae2d4",
+      "selected": true,
+      "reason": "Selected after targeted correction: Rocket clay shirt restored; all four faces, hat identities, scale and alpha retained.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "sky-day",
+      "variant": 1,
+      "file": "art/raw/sky-day-v1.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square matte painted background plate, quiet cream daytime sky fading very gently into sage rolling distant hills at bottom 20 percent, subtle handmade paper texture, no court, people, sun disc, text, buildings or frame. Very low contrast, not a glossy gradient. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:12:51.361Z",
+      "sha256": "2c0114b1227e58defaca4feceeeff8c60af9c4254ca28c01c11f6a13aa4a1e8f",
+      "selected": false,
+      "reason": "The near hill takes more of the frame.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "sky-day",
+      "variant": 2,
+      "file": "art/raw/sky-day-v2.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square matte painted background plate, quiet cream daytime sky fading very gently into sage rolling distant hills at bottom 20 percent, subtle handmade paper texture, no court, people, sun disc, text, buildings or frame. Very low contrast, not a glossy gradient. Variant 2: slightly simpler shapes. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:12:30.102Z",
+      "sha256": "6718681e61036818967ab40da0e757b85e506f4d6c9dd6ae60e8e9af93ae97b9",
+      "selected": false,
+      "reason": "Foreground hill mass is darker and more prominent.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "sky-day",
+      "variant": 3,
+      "file": "art/raw/sky-day-v3.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square matte painted background plate, quiet cream daytime sky fading very gently into sage rolling distant hills at bottom 20 percent, subtle handmade paper texture, no court, people, sun disc, text, buildings or frame. Very low contrast, not a glossy gradient. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:13:20.337Z",
+      "sha256": "3fbf813f1997850eb54a2f0055b44fab859da2562eaeaa2e156514ef64deeb52",
+      "selected": false,
+      "reason": "More hill layers than required behind the live scene.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "sky-day",
+      "variant": 4,
+      "file": "art/raw/sky-day-v4.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square matte painted background plate, quiet cream daytime sky fading very gently into sage rolling distant hills at bottom 20 percent, subtle handmade paper texture, no court, people, sun disc, text, buildings or frame. Very low contrast, not a glossy gradient. Variant 4: quieter finer detail. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:13:21.376Z",
+      "sha256": "bf5e0a5738a3029df3174bd04f8869ab16cdf9cab0c21a9e85a230469a51b07c",
+      "selected": true,
+      "reason": "Selected: quiet cream field, low horizon and restrained grain.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "sky-sunset",
+      "variant": 1,
+      "file": "art/raw/sky-sunset-v1.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square matte painted background plate, quiet warm cream and muted dusk-violet evening sky with restrained clay horizon and sage hills at bottom 20 percent, subtle paper texture, no court, people, sun disc, text, buildings or frame. Low contrast, no glossy gradient. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:13:42.159Z",
+      "sha256": "8cfeed04da0444f41ad20628e5f15b3d86a0eeb39990e6943f143231fc8c3c11",
+      "selected": false,
+      "reason": "Extra near shrubs were not requested for a background plate.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "sky-sunset",
+      "variant": 2,
+      "file": "art/raw/sky-sunset-v2.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square matte painted background plate, quiet warm cream and muted dusk-violet evening sky with restrained clay horizon and sage hills at bottom 20 percent, subtle paper texture, no court, people, sun disc, text, buildings or frame. Low contrast, no glossy gradient. Variant 2: slightly simpler shapes. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:14:03.141Z",
+      "sha256": "6628e958e3e26d8fe86b6d556746d19b220139feb2d830be5b87704d9f802914",
+      "selected": false,
+      "reason": "The taller green hill takes more space.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "sky-sunset",
+      "variant": 3,
+      "file": "art/raw/sky-sunset-v3.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square matte painted background plate, quiet warm cream and muted dusk-violet evening sky with restrained clay horizon and sage hills at bottom 20 percent, subtle paper texture, no court, people, sun disc, text, buildings or frame. Low contrast, no glossy gradient. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:14:23.367Z",
+      "sha256": "a7a8696a84d3c47cce4d4712ce37ced2ce383395fbe36e64389ada1669645ab8",
+      "selected": false,
+      "reason": "Stronger warm band and taller hills compete with the court.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "sky-sunset",
+      "variant": 4,
+      "file": "art/raw/sky-sunset-v4.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square matte painted background plate, quiet warm cream and muted dusk-violet evening sky with restrained clay horizon and sage hills at bottom 20 percent, subtle paper texture, no court, people, sun disc, text, buildings or frame. Low contrast, no glossy gradient. Variant 4: quieter finer detail. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:15:07.371Z",
+      "sha256": "27a28702b88ce9d2da49af2e882a22e9e364bef3a2df997fb78a8bb7fa97ef55",
+      "selected": true,
+      "reason": "Selected: low quiet horizon, muted violet and soft warm light, no props.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "style-frame",
+      "variant": 1,
+      "file": "art/raw/style-frame-v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: style-frame reference for Dink Duel, a warm handcrafted indie pickleball browser game. Generate a single beautiful toy-diorama court at golden hour, chunky rounded matte wood-and-clay forms, regulation green pickleball court with kitchen lines and central net, two small adult sporting figures with distinct caps and grounded shoes, benches and rounded trees. Soft warm key light from upper left, long soft shadows, subtle paper grain. Restrained palette evergreen #193f35, sage #93ad8c, cream #f5f1df, clay-orange #bd623f, dusk-violet #71628d, foliage #52674e, pavement #c5a78b, warm wood #d6ac87, ball #e5d48a, paper #fffdf1. Composition wide three-quarter view, readable whole court, court is the subject. Avoid text, logos, neon, glossy gradients, photorealism, huge heads, extra limbs, generic AI illustration. First style exploration variant; autumn-like restrained light, no orange wash.",
+      "provider": "built-in OpenAI image generation",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:01:24.403Z",
+      "sha256": "478c567a98db653aa5fce94beb5c48aed5a2113acee8a7112d612c3e4fd9d798",
+      "selected": false,
+      "reason": "Stronger orange cast and less self-contained base.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "style-frame",
+      "variant": 2,
+      "file": "art/raw/style-frame-v2.png",
+      "prompt": "Use case: stylized-concept. Asset: Dink Duel style-frame reference, one image not a collage. Warm handcrafted toy-diorama neighborhood pickleball court, chunky rounded matte wood and clay, two adult sporting figures with grounded shoes, kitchen lines and a net, rounded trees and benches. Restrained palette evergreen #193f35 sage #93ad8c cream #f5f1df clay #bd623f dusk violet #71628d pavement #c5a78b. Upper-left soft warm light, long soft shadows, subtle paper grain. Whole regulation court visible in a three-quarter view. No text, logos, neon, gloss, photorealism, giant heads, or malformed limbs. Variant two: slightly lower sideline angle, quiet balanced green scene with pale warm evening light.",
+      "provider": "built-in OpenAI image generation",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:01:25.438Z",
+      "sha256": "c26eab3b60fd656351904e9f1be51bd98f1bf3becefa3d42555f8a33feb128e6",
+      "selected": false,
+      "reason": "Side composition and houses compete with the diorama.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "style-frame",
+      "variant": 3,
+      "file": "art/raw/style-frame-v3.png",
+      "prompt": "Use case: stylized-concept. Asset: Dink Duel style-frame reference, one image not a collage. Warm handcrafted toy-diorama neighborhood pickleball court, chunky rounded matte wood and clay, two adult sporting figures with grounded shoes, kitchen lines and a net, rounded trees and benches. Restrained palette evergreen #193f35 sage #93ad8c cream #f5f1df clay #bd623f dusk violet #71628d pavement #c5a78b. Upper-left soft warm light, long soft shadows, subtle paper grain. Whole regulation court visible in a three-quarter view. No text, logos, neon, gloss, photorealism, giant heads, or malformed limbs. Variant three: higher near-baseline angle, tactile clay-pavement frame, neutral cream background.",
+      "provider": "built-in OpenAI image generation",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:01:26.512Z",
+      "sha256": "dde1b163c741cba6692cff6d8f5e94fa41a28458627907e34199587d225ae362",
+      "selected": true,
+      "reason": "Selected: complete self-contained base, readable court, quiet cream background and consistent matte materials.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "style-frame",
+      "variant": 4,
+      "file": "art/raw/style-frame-v4.png",
+      "prompt": "Use case: stylized-concept. Asset: Dink Duel style-frame reference, one image not a collage. Warm handcrafted toy-diorama neighborhood pickleball court, chunky rounded matte wood and clay, two adult sporting figures with grounded shoes, kitchen lines and a net, rounded trees and benches. Restrained palette evergreen #193f35 sage #93ad8c cream #f5f1df clay #bd623f dusk violet #71628d pavement #c5a78b. Upper-left soft warm light, long soft shadows, subtle paper grain. Whole regulation court visible in a three-quarter view. No text, logos, neon, gloss, photorealism, giant heads, or malformed limbs. Variant four: warm dusk sky with a restrained violet horizon, clearly lit green court.",
+      "provider": "built-in OpenAI image generation",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:01:27.506Z",
+      "sha256": "5f3b8d00ffc25fdd5a616c7c1d733da99d6ba61f587fdfc2c6c2a4d29d65a41d",
+      "selected": false,
+      "reason": "Useful dusk reference; sunset wash is stronger than the primary palette.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "texture-atlas",
+      "variant": 1,
+      "file": "art/raw/texture-atlas-v1.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square seamless texture reference atlas with exactly four equal square tiles in a 2 by 2 grid, no gaps or borders: top-left clay pavement grain, top-right sage painted sports court with subtle worn cream paint flecks, bottom-left short sage grass, bottom-right warm bench wood grain. Completely flat orthographic materials, even light, no objects, shadows, letters or perspective. Each individual tile should seamlessly repeat horizontally and vertically. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:10:51.439Z",
+      "sha256": "2e0da0f0000bf242663b9b0cbcc14f134ac8e45a1b3cce76356e09b75183249f",
+      "selected": false,
+      "reason": "Coarser pavement and brighter wood grain.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "texture-atlas",
+      "variant": 2,
+      "file": "art/raw/texture-atlas-v2.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square seamless texture reference atlas with exactly four equal square tiles in a 2 by 2 grid, no gaps or borders: top-left clay pavement grain, top-right sage painted sports court with subtle worn cream paint flecks, bottom-left short sage grass, bottom-right warm bench wood grain. Completely flat orthographic materials, even light, no objects, shadows, letters or perspective. Each individual tile should seamlessly repeat horizontally and vertically. Variant 2: slightly simpler shapes. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:11:15.877Z",
+      "sha256": "c665619440067c21797d6f98b430ca22e5158e110fdde54fd926ffde2fd1d89d",
+      "selected": false,
+      "reason": "Useful court wear, but the wood grain is stronger than the selected atlas.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "texture-atlas",
+      "variant": 3,
+      "file": "art/raw/texture-atlas-v3.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square seamless texture reference atlas with exactly four equal square tiles in a 2 by 2 grid, no gaps or borders: top-left clay pavement grain, top-right sage painted sports court with subtle worn cream paint flecks, bottom-left short sage grass, bottom-right warm bench wood grain. Completely flat orthographic materials, even light, no objects, shadows, letters or perspective. Each individual tile should seamlessly repeat horizontally and vertically. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:12:32.578Z",
+      "sha256": "0812b25257b7992a6d01b4ab7881da99b6a7d647a3017fd47b5623d908fb7580",
+      "selected": false,
+      "reason": "Dense grass direction and heavier grain create visible repetition.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "texture-atlas",
+      "variant": 4,
+      "file": "art/raw/texture-atlas-v4.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square seamless texture reference atlas with exactly four equal square tiles in a 2 by 2 grid, no gaps or borders: top-left clay pavement grain, top-right sage painted sports court with subtle worn cream paint flecks, bottom-left short sage grass, bottom-right warm bench wood grain. Completely flat orthographic materials, even light, no objects, shadows, letters or perspective. Each individual tile should seamlessly repeat horizontally and vertically. Variant 4: quieter finer detail. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": false
+      },
+      "date": "2026-11-11T06:12:06.116Z",
+      "sha256": "3de450ae63420825f48f8b91b61d5291c4b14b0d800ea14c0aa67164ee55f468",
+      "selected": true,
+      "reason": "Selected: fine restrained grain across the four materials; repeat edges are checked separately.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "ui-icons",
+      "variant": 1,
+      "file": "art/raw/ui-icons-v1.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent 4 column by 2 row sprite atlas, eight separate centered game icons in reading order: dink ball arc, fast drive arrow with ball, drop ball arc, high lob arc, smash downward ball, trophy, wifi, pickleball paddle. Uniform evergreen line weight, rounded caps, cream and clay accent fills, clean hand-cut sports-club design. Equal cell size and generous transparent padding. No text, labels, border, numbers or shadows. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:15:07.123Z",
+      "sha256": "973bb876387c053a5c63d35e1f5f5f7de1a1b8e17a3c12542b6bf636998a4463",
+      "selected": false,
+      "reason": "Mixed dimensional trophy and line arrows have less consistent weight.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "ui-icons",
+      "variant": 2,
+      "file": "art/raw/ui-icons-v2.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent 4 column by 2 row sprite atlas, eight separate centered game icons in reading order: dink ball arc, fast drive arrow with ball, drop ball arc, high lob arc, smash downward ball, trophy, wifi, pickleball paddle. Uniform evergreen line weight, rounded caps, cream and clay accent fills, clean hand-cut sports-club design. Equal cell size and generous transparent padding. No text, labels, border, numbers or shadows. Variant 2: slightly simpler shapes. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:15:55.414Z",
+      "sha256": "89fb9c6cb0bb04935eb4719a1514dde7e21a014c2ab40cfba8c1453f7bdfae5d",
+      "selected": true,
+      "reason": "Selected: simplest consistent line treatment, clean arcs, readable trophy, wifi and paddle.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "ui-icons",
+      "variant": 3,
+      "file": "art/raw/ui-icons-v3.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent 4 column by 2 row sprite atlas, eight separate centered game icons in reading order: dink ball arc, fast drive arrow with ball, drop ball arc, high lob arc, smash downward ball, trophy, wifi, pickleball paddle. Uniform evergreen line weight, rounded caps, cream and clay accent fills, clean hand-cut sports-club design. Equal cell size and generous transparent padding. No text, labels, border, numbers or shadows. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:17:02.354Z",
+      "sha256": "462ed939e0470046eb0bc9b41760117f87192aee2ddab7dbc4bd3b54406b259a",
+      "selected": false,
+      "reason": "Trophy decoration adds visual weight not shared by the shot icons.",
+      "reviewer": "Codex visual curation; human approval pending"
+    },
+    {
+      "asset": "ui-icons",
+      "variant": 4,
+      "file": "art/raw/ui-icons-v4.png",
+      "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent 4 column by 2 row sprite atlas, eight separate centered game icons in reading order: dink ball arc, fast drive arrow with ball, drop ball arc, high lob arc, smash downward ball, trophy, wifi, pickleball paddle. Uniform evergreen line weight, rounded caps, cream and clay accent fills, clean hand-cut sports-club design. Equal cell size and generous transparent padding. No text, labels, border, numbers or shadows. Variant 4: quieter finer detail. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+      "provider": "built-in OpenAI reference edit",
+      "model": "not exposed by built-in tool",
+      "params": {
+        "reference": "art/selected/style-frame.png",
+        "transparent_background": true
+      },
+      "date": "2026-11-11T06:16:36.970Z",
+      "sha256": "4dc9e497023949bd48542e08ed634203efd78485a1b3e9d3b73abf0e704dc62a",
+      "selected": false,
+      "reason": "Violet trophy star is an unnecessary extra accent.",
+      "reviewer": "Codex visual curation; human approval pending"
+    }
+  ],
+  "assets": {
+    "paddle-skins": {
+      "file": "/art/paddle-skins.webp",
+      "width": 482,
+      "height": 512,
+      "sha256": "34aa79763806274823a0303210f39f892f5592a91bb640d194add74f53002fe3"
+    },
+    "paddle-1": {
+      "file": "/art/paddle-1.webp",
+      "width": 143,
+      "height": 256,
+      "sha256": "4180bd9914d35a49724314c1ffa306d0e5e10596fed6bec82665035c38451456"
+    },
+    "paddle-2": {
+      "file": "/art/paddle-2.webp",
+      "width": 144,
+      "height": 256,
+      "sha256": "837fc38391206348a54f176a0b2e9a62e1da03ea4b7cbd91e6b3a009d02bbd76"
+    },
+    "paddle-3": {
+      "file": "/art/paddle-3.webp",
+      "width": 144,
+      "height": 256,
+      "sha256": "1b56f0c9dddd09d425af158c6e8054ee298fa9c15004fdc48f50d902210fc45b"
+    },
+    "paddle-4": {
+      "file": "/art/paddle-4.webp",
+      "width": 142,
+      "height": 256,
+      "sha256": "8051aca7fe625e9a16dcf1ec566ea3e0279e1ca47a83214abd25ef9c62be91ca"
+    },
+    "paddle-5": {
+      "file": "/art/paddle-5.webp",
+      "width": 140,
+      "height": 256,
+      "sha256": "9ecbdad58cb13f744c2e2202633e8caa3e2496f6f1f93ff8b256ff388c5215d6"
+    },
+    "paddle-6": {
+      "file": "/art/paddle-6.webp",
+      "width": 142,
+      "height": 256,
+      "sha256": "873f2656d68671e6b5ee85fbb67cd55f0a565926ab6c047f6c426774560a6882"
+    },
+    "texture-atlas": {
+      "file": "/art/texture-atlas.webp",
+      "width": 512,
+      "height": 512,
+      "sha256": "88f95b0ce31bf446c77329eb5bd3c827e504d253636a73f1e2d41fc9837c692a"
+    },
+    "clay": {
+      "file": "/art/clay.webp",
+      "width": 256,
+      "height": 256,
+      "sha256": "00da1ca67451e3c0c49ff4ec5bf2737430c16c318878868a54c74711858d43ad"
+    },
+    "court": {
+      "file": "/art/court.webp",
+      "width": 256,
+      "height": 256,
+      "sha256": "6ba60e6292193814f0f4b025986d0edba0c04d8e64ef278cd8b13a8bab3a964e"
+    },
+    "grass": {
+      "file": "/art/grass.webp",
+      "width": 256,
+      "height": 256,
+      "sha256": "60697e8dafe9ba4b24035ef357cee74a3ab0051581e8fa5a4b778345e5545e7b"
+    },
+    "wood": {
+      "file": "/art/wood.webp",
+      "width": 256,
+      "height": 256,
+      "sha256": "54366519222fdafb003cc494e05eac61546a1b48769fcd760d4cbd6b0f1c0001"
+    },
+    "sky-day": {
+      "file": "/art/sky-day.webp",
+      "width": 512,
+      "height": 512,
+      "sha256": "c23a7a7395d1f74eba81be036dc932ad56927034fd6f177b2db610832925cb2f"
+    },
+    "sky-sunset": {
+      "file": "/art/sky-sunset.webp",
+      "width": 512,
+      "height": 512,
+      "sha256": "544272fd025ba6788f9dad345956d687f4267cbbdf4f7454f6fe61d2e414530b"
+    },
+    "ui-icons": {
+      "file": "/art/ui-icons.webp",
+      "width": 512,
+      "height": 283,
+      "sha256": "c67a2d0a6c6c1abe106b4a1a59a5405f412c04cdf04b036d36d58b597814d356"
+    },
+    "icon-1": {
+      "file": "/art/icon-1.webp",
+      "width": 128,
+      "height": 60,
+      "sha256": "473afa8085080a18ee53889bc439cfbda6b666e069252e7a1b99f21773c0a736"
+    },
+    "icon-2": {
+      "file": "/art/icon-2.webp",
+      "width": 128,
+      "height": 49,
+      "sha256": "2e88105aca2ef948c513fd23d2e1588678bf61bb241c41252e696b4cfa541f5a"
+    },
+    "icon-3": {
+      "file": "/art/icon-3.webp",
+      "width": 128,
+      "height": 89,
+      "sha256": "2634cf2ec800d75cb02433c26a2b6f499e7e9458959c6955f32534079995a9f1"
+    },
+    "icon-4": {
+      "file": "/art/icon-4.webp",
+      "width": 128,
+      "height": 99,
+      "sha256": "4195dd0b780b0dfb61d25a06cf6ef034d49399604094707241c0fd13694de895"
+    },
+    "icon-5": {
+      "file": "/art/icon-5.webp",
+      "width": 105,
+      "height": 128,
+      "sha256": "6f810a752ee08a26256b31980fbb222c71990ab63400c00b99726fe903033364"
+    },
+    "icon-6": {
+      "file": "/art/icon-6.webp",
+      "width": 127,
+      "height": 128,
+      "sha256": "39bd97543ddb64d725a890c4e9ae0fb06be1dd2c358b337cf6e21f14210fecff"
+    },
+    "icon-7": {
+      "file": "/art/icon-7.webp",
+      "width": 128,
+      "height": 115,
+      "sha256": "b8bf26146097974717b0695a3d934567e50bfc59c91099d4217078906d0a3713"
+    },
+    "icon-8": {
+      "file": "/art/icon-8.webp",
+      "width": 82,
+      "height": 128,
+      "sha256": "29782fa33c4e9715fb4e96d57f3dc9e5d6f03e2027d93054ebe3c80d76284043"
+    },
+    "app-icon": {
+      "file": "/art/app-icon.webp",
+      "width": 107,
+      "height": 128,
+      "sha256": "781d47015c5d92ec72b58b891e0d85931a51dde87ab9b13dd85175300c0c5c10"
+    },
+    "og-share": {
+      "file": "/art/og-share.webp",
+      "width": 960,
+      "height": 504,
+      "sha256": "2b15b9474457118068d24b73abd6eb0fce0523cf66f6192108e544ea12063164"
+    },
+    "rival-portraits": {
+      "file": "/art/rival-portraits.webp",
+      "width": 496,
+      "height": 512,
+      "sha256": "dccce45882ef42d56156fcd704e4b7b2d5afcb4a886f203aadfd57377205116f"
+    },
+    "pip": {
+      "file": "/art/pip.webp",
+      "width": 178,
+      "height": 192,
+      "sha256": "fb7b875c5f5af7521093e708b970c86f5440b0995dbc379fd7a09f2ff482acf4"
+    },
+    "rocket": {
+      "file": "/art/rocket.webp",
+      "width": 177,
+      "height": 192,
+      "sha256": "a3956c83cbb527a009e6151c03e188ccafac31267d54558a27f045fadaa67e68"
+    },
+    "mabel": {
+      "file": "/art/mabel.webp",
+      "width": 178,
+      "height": 192,
+      "sha256": "9c08facfcc37ce40ae4f0524976041a577a1503054a32b6bf9f45f980cb951d3"
+    },
+    "june": {
+      "file": "/art/june.webp",
+      "width": 184,
+      "height": 192,
+      "sha256": "624e9e10c2b93b54166df3a439c93bd324ea13fe2bd789734031b3a83aea8e92"
+    },
+    "ui-atlas": {
+      "file": "/art/ui-atlas.webp",
+      "width": 256,
+      "height": 128,
+      "sha256": "ce40ab65249011b6796b7e6a6a5c603ea9097bf95c2209d17b6fd563339b1bf6"
+    }
+  },
+  "notes": [
+    "Selection is assistant art-direction review, not a human approval.",
+    "Built-in tool does not expose its underlying model; that provenance is never invented.",
+    "API generation requires OPENAI_API_KEY. No API generation was run without it."
+  ]
+}

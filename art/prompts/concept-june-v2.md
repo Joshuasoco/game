@@ -1,0 +1,3 @@
+# concept-june / variant 2
+
+Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for June, confident adult female club pickleball champion, evergreen polo, cream shorts, cream headband, short dark hair, tan skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, quietly pleased, shrugging. Plain cream paper, no text or labels. Variant 2: slightly softer rounded silhouette. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.

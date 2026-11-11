@@ -1,0 +1,17 @@
+{
+  "asset": "concept-june",
+  "variant": 3,
+  "file": "art/raw/concept-june-v3.png",
+  "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for June, confident adult female club pickleball champion, evergreen polo, cream shorts, cream headband, short dark hair, tan skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, quietly pleased, shrugging. Plain cream paper, no text or labels. Variant 3: more expressive brows, restrained. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+  "provider": "built-in OpenAI reference edit",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "reference": "art/selected/style-frame.png",
+    "transparent_background": false
+  },
+  "date": "2026-11-11T06:07:39.107Z",
+  "sha256": "computed by process-art",
+  "selected": false,
+  "reason": "Medal and crossed-arm pose complicate the neutral modeling reference.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { Game } from "../game/engine";
 import type { AudioLevels } from "../game/audio";
+import {
+  readPreferences,
+  savePreferences,
+  type Quality,
+} from "../game/preferences";
 export function Settings({
   game,
   onClose,
@@ -10,6 +15,7 @@ export function Settings({
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [levels, setLevels] = useState({ ...game.audio.levels });
+  const [preferences, setPreferences] = useState(readPreferences);
   useEffect(() => {
     dialog.current?.showModal();
     return () => dialog.current?.close();
@@ -28,6 +34,37 @@ export function Settings({
           ✕
         </button>
       </div>
+      <h3>Display</h3>
+      <label className="setting-row">
+        <span>Quality</span>
+        <select
+          aria-label="Graphics quality"
+          value={preferences.quality}
+          onChange={(e) => {
+            const next = { ...preferences, quality: e.target.value as Quality };
+            setPreferences(next);
+            savePreferences(next);
+            game.scene.setQuality(next.quality);
+          }}
+        >
+          <option value="low">Low · no shadows or particles</option>
+          <option value="medium">Medium · balanced</option>
+          <option value="high">High · full effects</option>
+        </select>
+      </label>
+      <label className="setting-check">
+        <input
+          type="checkbox"
+          checked={preferences.reducedMotion}
+          onChange={(e) => {
+            const next = { ...preferences, reducedMotion: e.target.checked };
+            setPreferences(next);
+            savePreferences(next);
+            game.scene.setReducedMotion(next.reducedMotion);
+          }}
+        />
+        Reduce motion
+      </label>
       <h3>Audio</h3>
       {(["master", "sfx", "music", "ambience"] as (keyof AudioLevels)[]).map(
         (key) => (
@@ -68,6 +105,27 @@ export function Settings({
       <p className="settings-note">
         Audio starts after your first tap. Set any channel to zero to mute it.
       </p>
+      <h3>Local tuning data</h3>
+      <label className="setting-check">
+        <input
+          type="checkbox"
+          checked={preferences.analytics}
+          onChange={(e) => {
+            const next = { ...preferences, analytics: e.target.checked };
+            setPreferences(next);
+            savePreferences(next);
+            game.metrics.enabled = next.analytics;
+          }}
+        />
+        Allow anonymous counters on this device
+      </label>
+      <p className="settings-note">
+        Off by default. Counts hits, timing grades and faults. No network
+        requests or device identifiers.
+      </p>
+      <button className="text-button" onClick={() => game.metrics.clear()}>
+        Clear local counters
+      </button>
       <button className="primary-button" onClick={onClose}>
         Done
       </button>

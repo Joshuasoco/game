@@ -1,0 +1,17 @@
+{
+  "asset": "texture-atlas",
+  "variant": 1,
+  "file": "art/raw/texture-atlas-v1.png",
+  "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square seamless texture reference atlas with exactly four equal square tiles in a 2 by 2 grid, no gaps or borders: top-left clay pavement grain, top-right sage painted sports court with subtle worn cream paint flecks, bottom-left short sage grass, bottom-right warm bench wood grain. Completely flat orthographic materials, even light, no objects, shadows, letters or perspective. Each individual tile should seamlessly repeat horizontally and vertically. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+  "provider": "built-in OpenAI reference edit",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "reference": "art/selected/style-frame.png",
+    "transparent_background": false
+  },
+  "date": "2026-11-11T06:10:51.439Z",
+  "sha256": "computed by process-art",
+  "selected": false,
+  "reason": "Coarser pavement and brighter wood grain.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

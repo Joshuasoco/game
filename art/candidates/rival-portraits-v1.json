@@ -1,0 +1,17 @@
+{
+  "asset": "rival-portraits",
+  "variant": 1,
+  "file": "art/raw/rival-portraits-v1.png",
+  "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent portrait atlas, exactly two columns and two rows, equal cells. Four isolated chest-up clay-diorama adult pickleball rivals, shoulders fully visible: top left Pip with sage polo cream baseball cap short dark hair and friendly dry smile; top right Rocket brown-skinned female with clay polo cream visor tied curly hair and focused expression; bottom left Mabel older female with dusk-violet polo broad cream sunhat silver hair and patient smile; bottom right June tan-skinned female with evergreen polo cream headband short dark hair and confident expression. Soft upper-left light, consistent scale, no shadows or lettering. No giant heads, warped faces or extra limbs. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+  "provider": "built-in OpenAI reference edit",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "reference": "art/selected/style-frame.png",
+    "transparent_background": true
+  },
+  "date": "2026-11-11T06:21:45.918Z",
+  "sha256": "computed by process-art",
+  "selected": false,
+  "reason": "Rejected: Rocket shirt is cream instead of clay-orange; used only as targeted-edit input.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

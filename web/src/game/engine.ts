@@ -15,6 +15,8 @@ import {
 } from "./solver";
 import { COURT, PHYSICS, SKILL } from "./tuning";
 import { Audio } from "./audio";
+import { LocalMetrics } from "./metrics";
+import { readPreferences } from "./preferences";
 import {
   RIVALS,
   chooseShot,
@@ -24,6 +26,7 @@ import {
 } from "./ai";
 import { judgeTiming, timingDelta, type Timing } from "./timing";
 export interface Snapshot extends GamePhase {
+  tutorial?: "serve" | "dink" | "lob";
   rival: RivalId;
   timing: Timing | undefined;
   stats: MatchStats;
@@ -42,6 +45,9 @@ export interface MatchStats {
   timedSwings: number;
 }
 export class Game {
+  readonly metrics = new LocalMetrics();
+  private tutorial: Snapshot["tutorial"];
+  private tutorialStarted = 0;
   rival: RivalId = "pip";
   private timing: Timing | undefined;
   private intent = 0;
@@ -98,6 +104,10 @@ export class Game {
     readonly scene: CourtScene,
     private update: (s: Snapshot) => void,
   ) {
+    const preferences = readPreferences();
+    this.metrics.enabled = preferences.analytics;
+    this.scene.setQuality?.(preferences.quality);
+    this.scene.setReducedMotion?.(preferences.reducedMotion);
     try {
       this.best = Number(localStorage.getItem("dink-best") ?? 0) || 0;
     } catch {
@@ -146,6 +156,8 @@ export class Game {
     const dt = Math.min((now - this.last) / 1000, 0.05);
     this.last = now;
     this.elapsed += dt;
+    if (this.tutorial && this.elapsed - this.tutorialStarted > 30)
+      this.skipTutorial();
     this.frame++;
     this.frameTime += dt;
     if (this.frameTime > 0.5) {
@@ -198,6 +210,7 @@ export class Game {
       winner: this.rules.winner,
       challenge: this.challenge,
       stats: { ...this.stats },
+      tutorial: this.tutorial,
       rival: this.rival,
       timing: this.timing,
     };
@@ -222,6 +235,14 @@ export class Game {
     this.setPhase("calibrate", "Three easy practice swings on your phone.");
   }
   start(difficulty: Difficulty, challenge = false) {
+    try {
+      this.tutorial = localStorage.getItem("dink-tutorial")
+        ? undefined
+        : "serve";
+    } catch {
+      this.tutorial = undefined;
+    }
+    this.tutorialStarted = this.elapsed;
     this.adaptation = adaptiveFactor(this.results);
     this.timing = undefined;
     this.spin = 0;
@@ -260,6 +281,15 @@ export class Game {
   skipTransition() {
     if (this.phase === "point") this.prepareServe();
   }
+  skipTutorial() {
+    this.tutorial = undefined;
+    try {
+      localStorage.setItem("dink-tutorial", "seen");
+    } catch {
+      /* Optional. */
+    }
+    this.emit(false);
+  }
   setRival(id: RivalId) {
     this.rival = id;
     this.scene.setRival?.(id);
@@ -293,6 +323,7 @@ export class Game {
   input(input: Swing) {
     if (input.seq <= this.lastSwing) return;
     this.lastSwing = input.seq;
+    this.metrics.record("swing");
     if (this.phase === "serve" && this.rules.serving === "player") {
       this.serve("player", input);
       return;
@@ -361,6 +392,7 @@ export class Game {
     );
   }
   private serve(side: Side, input?: Swing) {
+    if (side === "player" && this.tutorial === "serve") this.tutorial = "dink";
     this.history = [];
     const p = { ...this.body.translation() };
     this.rules.start(side, p.x);
@@ -457,6 +489,12 @@ export class Game {
           : 0.5;
     this.body.setAngvel({ x: this.spin * 45, y: 0, z: 0 }, true);
     this.scene.hit(side, input?.side === "backhand", shot === "smash");
+    if (side === "player") {
+      this.metrics.record("hit");
+      if (this.timing === "perfect") this.metrics.record("perfect");
+      if (this.tutorial === "dink" && shot === "dink") this.tutorial = "lob";
+      else if (this.tutorial === "lob" && shot === "lob") this.skipTutorial();
+    }
     this.scene.impact?.(
       p,
       side === "player" && this.timing === "perfect",
@@ -585,6 +623,7 @@ export class Game {
     }
   }
   private finish(winner: Side, fault: string) {
+    this.metrics.record(winner === "player" ? "point" : "fault");
     this.scene.react?.(winner);
     this.onHaptic?.(winner === "player" ? "point" : "fault");
     if (winner === "ai") this.stats.faults++;

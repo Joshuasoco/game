@@ -1,0 +1,3 @@
+# concept-mabel / variant 2
+
+Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Mabel, patient older adult female pickleball dinker, dusk-violet polo, sage shorts, broad cream sunhat, silver hair, warm light skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions patient, pleased, surprised. Plain cream paper, no text or labels. Variant 2: slightly softer rounded silhouette. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.

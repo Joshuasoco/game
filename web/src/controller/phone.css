@@ -2,6 +2,52 @@ html:has(.phone-app) {
   overscroll-behavior: none;
   background: #173e36;
 }
+.phone-score b {
+  font-family: var(--font-score);
+  font-variant-numeric: tabular-nums;
+}
+.paddle-art.has-skin {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  width: 150px;
+  height: 215px;
+  border-radius: 0;
+}
+.paddle-art.has-skin::after,
+.paddle-art.has-skin .paddle-perforations,
+.paddle-art.has-skin .paddle-dd {
+  display: none;
+}
+.generated-paddle {
+  display: block;
+  height: 215px;
+  width: 150px;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+.skin-picker {
+  display: flex;
+  gap: 7px;
+  margin: 10px 0 22px;
+}
+.skin-picker button {
+  flex: 1;
+  min-height: 66px;
+  border: 1px solid #93ad8c60;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  background: #193f35;
+}
+.skin-picker button[aria-pressed="true"] {
+  border-color: #d7e7a9;
+  background: #365846;
+}
+.skin-picker img {
+  object-fit: contain;
+}
 .strength-arc {
   position: absolute;
   width: 245px;

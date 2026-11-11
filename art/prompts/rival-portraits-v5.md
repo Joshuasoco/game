@@ -1,0 +1,3 @@
+# rival-portraits / variant 5
+
+Image 1 is the edit target: a transparent 2x2 portrait atlas for Dink Duel. Image 2 is only the approved material/light style reference. Change ONLY the polo shirt of Rocket, the brown-skinned female in the TOP RIGHT quadrant, from cream to matte CLAY ORANGE #bd623f. Her collar, sleeves and torso must all be clay orange, retain natural material shading and seam detail. Keep her cream visor, skin, curly hair and face exactly unchanged. Keep Pip top left, Mabel bottom left, June bottom right exactly unchanged. Preserve all four portraits' positions, scale, warm handmade wood-and-clay appearance and transparent background. Do not add any lettering, props, shadows or extra features.

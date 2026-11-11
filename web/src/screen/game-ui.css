@@ -1,4 +1,183 @@
 @import "../tokens.css";
+.shot-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px;
+  margin-bottom: 12px;
+}
+.shot-legend span {
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 4px;
+}
+.shot-legend i {
+  display: block;
+  width: 32px;
+  height: 32px;
+  background-image: url("/art/ui-atlas.webp");
+  background-size: 128px 64px;
+}
+.game-app .keyboard-guide {
+  display: block;
+}
+.rival-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: -7px 0 20px;
+  padding: 11px;
+  background: #e9edde;
+  border-radius: var(--radius-sm);
+}
+.rival-summary b {
+  display: block;
+  font: 700 14px var(--font-display);
+}
+.rival-summary small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.rival-portrait {
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.portrait-fallback {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--cream);
+  font-family: var(--font-display);
+  flex-shrink: 0;
+}
+.title-card {
+  width: 390px;
+}
+.title-settings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.title-settings label:first-child {
+  grid-column: 1/-1;
+}
+.title-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.04;
+  background-image: url("/art/clay.webp");
+  background-size: 200px;
+  pointer-events: none;
+}
+.title-card {
+  isolation: isolate;
+}
+.title-card > * {
+  position: relative;
+}
+.scoreboard .rival-portrait {
+  margin-right: -5px;
+}
+@media (max-width: 600px) {
+  .title-card {
+    width: auto;
+    padding: 20px;
+    bottom: 55px;
+  }
+  .title-card h1 {
+    font-size: 30px;
+    margin: 10px 0;
+  }
+  .rival-summary {
+    margin-bottom: 12px;
+    padding: 7px;
+  }
+  .rival-summary .rival-portrait,
+  .rival-summary .portrait-fallback {
+    width: 42px !important;
+    height: 42px !important;
+  }
+  .title-settings {
+    margin: 13px 0;
+  }
+  .scoreboard .rival-portrait {
+    display: none;
+  }
+  .title-record {
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+}
+.tutorial-card {
+  position: absolute;
+  right: 28px;
+  bottom: 26px;
+  width: 245px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 17px;
+  pointer-events: auto;
+}
+.tutorial-card h3 {
+  font: 700 14px var(--font-display);
+  margin: 9px 0;
+}
+.tutorial-card p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+.tutorial-card button {
+  font-size: 10px;
+  text-decoration: underline;
+  padding: 10px 0 0;
+}
+.setting-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  margin: 16px 0;
+  line-height: 1.7;
+}
+.setting-check input {
+  accent-color: var(--evergreen);
+}
+.setting-row select {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: 11px;
+  margin-top: 9px;
+}
+[data-reduced-motion="true"] * {
+  animation: none !important;
+  transition: none !important;
+}
+@media (max-width: 600px) {
+  .tutorial-card {
+    bottom: 100px;
+    right: 14px;
+    width: 190px;
+    padding: 12px;
+  }
+  .tutorial-card h3 {
+    font-size: 12px;
+  }
+  .tutorial-card p {
+    font-size: 9px;
+  }
+}
 .settings-dialog {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);

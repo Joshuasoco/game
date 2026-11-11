@@ -1,0 +1,16 @@
+{
+  "asset": "style-frame",
+  "variant": 1,
+  "file": "art/raw/style-frame-v1.png",
+  "prompt": "Use case: stylized-concept. Asset type: style-frame reference for Dink Duel, a warm handcrafted indie pickleball browser game. Generate a single beautiful toy-diorama court at golden hour, chunky rounded matte wood-and-clay forms, regulation green pickleball court with kitchen lines and central net, two small adult sporting figures with distinct caps and grounded shoes, benches and rounded trees. Soft warm key light from upper left, long soft shadows, subtle paper grain. Restrained palette evergreen #193f35, sage #93ad8c, cream #f5f1df, clay-orange #bd623f, dusk-violet #71628d, foliage #52674e, pavement #c5a78b, warm wood #d6ac87, ball #e5d48a, paper #fffdf1. Composition wide three-quarter view, readable whole court, court is the subject. Avoid text, logos, neon, glossy gradients, photorealism, huge heads, extra limbs, generic AI illustration. First style exploration variant; autumn-like restrained light, no orange wash.",
+  "provider": "built-in OpenAI image generation",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "transparent_background": false
+  },
+  "date": "2026-11-11T06:01:24.403Z",
+  "sha256": "computed by process-art",
+  "selected": false,
+  "reason": "Stronger orange cast and less self-contained base.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

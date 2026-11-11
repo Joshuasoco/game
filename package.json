@@ -16,7 +16,11 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "check": "npm run typecheck && npm run lint && npm test && npm run build"
+    "check": "npm run typecheck && npm run lint && npm test && npm run build && npm run check:budget",
+    "check:budget": "node scripts/check-budget.mjs",
+    "art:generate": "tsx scripts/generate-art.ts",
+    "art:process": "tsx scripts/select-art.ts && tsx scripts/process-art.ts",
+    "art:review": "tsx scripts/review-art.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
@@ -25,6 +29,7 @@
     "concurrently": "^9.2.1",
     "eslint": "^9.39.0",
     "prettier": "^3.9.10",
+    "sharp": "^0.35.5",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.0",
     "vitest": "^3.2.4"

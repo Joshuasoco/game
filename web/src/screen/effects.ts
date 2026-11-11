@@ -12,6 +12,7 @@ export class ImpactEffects {
   private flash = 0;
   private squash = 0;
   enabled = true;
+  budget = 32;
   constructor() {
     this.ring = new T.Mesh(
       new T.RingGeometry(0.14, 0.17, 32),
@@ -52,6 +53,7 @@ export class ImpactEffects {
     );
     let remaining = perfect ? 14 : bounce ? 7 : 4;
     for (const particle of this.particles) {
+      if (this.particles.indexOf(particle) >= this.budget) break;
       if (particle.life > 0) continue;
       const angle = (remaining * 2.4) % 6.283;
       particle.mesh.position.set(p.x, p.y, p.z);
@@ -77,11 +79,14 @@ export class ImpactEffects {
       this.flash * 3,
     );
     this.squash = Math.max(0, this.squash - dt * 7);
-    ball.scale.set(
-      1 + this.squash * 0.4,
-      1 - this.squash * 0.35,
-      1 + this.squash * 0.15,
-    );
+    if (!this.enabled) {
+      ball.scale.setScalar(1);
+    } else
+      ball.scale.set(
+        1 + this.squash * 0.4,
+        1 - this.squash * 0.35,
+        1 + this.squash * 0.15,
+      );
     for (const p of this.particles) {
       p.life = Math.max(0, p.life - dt);
       p.mesh.visible = this.enabled && p.life > 0;

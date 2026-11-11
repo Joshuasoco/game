@@ -1,0 +1,129 @@
+{
+  "style-frame": {
+    "variant": 3,
+    "reasons": [
+      "Stronger orange cast and less self-contained base.",
+      "Side composition and houses compete with the diorama.",
+      "Selected: complete self-contained base, readable court, quiet cream background and consistent matte materials.",
+      "Useful dusk reference; sunset wash is stronger than the primary palette."
+    ]
+  },
+  "concept-pip": {
+    "variant": 1,
+    "reasons": [
+      "Selected: neutral full-body views, clean silhouette and three readable understated expressions.",
+      "Paddle crosses the torso and hides modeling seams.",
+      "Exaggerated frown is less neutral than the selected model sheet.",
+      "Added pocket seams and broad grin are busier at game scale."
+    ]
+  },
+  "concept-rocket": {
+    "variant": 1,
+    "reasons": [
+      "Selected: clear neutral turnaround, athletic silhouette and consistent visor/hair identity.",
+      "Action pose makes front proportions harder to compare.",
+      "High energy is useful but overlaps the paddle with the torso.",
+      "Cream piping adds an unneeded outfit detail outside the restrained design."
+    ]
+  },
+  "concept-mabel": {
+    "variant": 2,
+    "reasons": [
+      "Clear option but the paddle-down pose gives less grip reference.",
+      "Selected: consistent patient expression, visible paddle grip, clear sunhat silhouette and back view.",
+      "Extra ball adds a modeling prop that was not requested.",
+      "Denser outfit seams add little at small scale."
+    ]
+  },
+  "concept-june": {
+    "variant": 2,
+    "reasons": [
+      "Medal was not requested and competes with the paddle.",
+      "Selected: clear headband, simple evergreen polo, clean turnaround and restrained shrug.",
+      "Medal and crossed-arm pose complicate the neutral modeling reference.",
+      "Trophy and piping add unrelated props and clothing detail."
+    ]
+  },
+  "paddle-skins": {
+    "variant": 2,
+    "reasons": [
+      "Thicker horizontal bands make the first design less distinct.",
+      "Selected: six clean orthographic silhouettes, simple stripe and star, clear court motif, no text.",
+      "Double stripe and heavier court net are busier at icon scale.",
+      "Laurel and denser checker add unneeded detail."
+    ]
+  },
+  "texture-atlas": {
+    "variant": 4,
+    "reasons": [
+      "Coarser pavement and brighter wood grain.",
+      "Useful court wear, but the wood grain is stronger than the selected atlas.",
+      "Dense grass direction and heavier grain create visible repetition.",
+      "Selected: fine restrained grain across the four materials; repeat edges are checked separately."
+    ]
+  },
+  "sky-day": {
+    "variant": 4,
+    "reasons": [
+      "The near hill takes more of the frame.",
+      "Foreground hill mass is darker and more prominent.",
+      "More hill layers than required behind the live scene.",
+      "Selected: quiet cream field, low horizon and restrained grain."
+    ]
+  },
+  "sky-sunset": {
+    "variant": 4,
+    "reasons": [
+      "Extra near shrubs were not requested for a background plate.",
+      "The taller green hill takes more space.",
+      "Stronger warm band and taller hills compete with the court.",
+      "Selected: low quiet horizon, muted violet and soft warm light, no props."
+    ]
+  },
+  "ui-icons": {
+    "variant": 2,
+    "reasons": [
+      "Mixed dimensional trophy and line arrows have less consistent weight.",
+      "Selected: simplest consistent line treatment, clean arcs, readable trophy, wifi and paddle.",
+      "Trophy decoration adds visual weight not shared by the shot icons.",
+      "Violet trophy star is an unnecessary extra accent."
+    ]
+  },
+  "logo-exploration": {
+    "variant": 2,
+    "reasons": [
+      "Paddle pair and badge options are bulkier.",
+      "Selected exploration: clear exact wordmark and simpler paddle/ball directions; live wordmark stays accessible native text.",
+      "Extra colored dots and badges add weight.",
+      "Heavy frames and underline treatment compete with the lettering."
+    ]
+  },
+  "app-icon": {
+    "variant": 3,
+    "reasons": [
+      "Unrequested tree, court and pot reduce the small-icon silhouette.",
+      "Unrequested tree, base and violet handle mismatch the requested simple icon.",
+      "Selected: only paddle and ball, strongest 64-pixel silhouette, cream band and clay grip.",
+      "Unrequested scenery makes the icon too detailed."
+    ]
+  },
+  "og-share": {
+    "variant": 2,
+    "reasons": [
+      "More village detail competes with the simple court.",
+      "Selected: complete diorama, generous left copy area and quiet background.",
+      "Square composition does not suit the landscape share card.",
+      "Very wide crop gives the court less readable height."
+    ]
+  },
+  "rival-portraits": {
+    "variant": 5,
+    "reasons": [
+      "Rejected: Rocket shirt is cream instead of clay-orange; used only as targeted-edit input.",
+      "Rejected: Rocket shirt mismatch, and Pip loses the beard identity.",
+      "Rejected: Rocket shirt mismatch and busier face textures.",
+      "Rejected: Rocket shirt mismatch and Pip identity drift.",
+      "Selected after targeted correction: Rocket clay shirt restored; all four faces, hat identities, scale and alpha retained."
+    ]
+  }
+}

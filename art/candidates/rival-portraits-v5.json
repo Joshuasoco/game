@@ -1,0 +1,20 @@
+{
+  "asset": "rival-portraits",
+  "variant": 5,
+  "file": "art/raw/rival-portraits-v5.png",
+  "prompt": "Image 1 is the edit target: a transparent 2x2 portrait atlas for Dink Duel. Image 2 is only the approved material/light style reference. Change ONLY the polo shirt of Rocket, the brown-skinned female in the TOP RIGHT quadrant, from cream to matte CLAY ORANGE #bd623f. Her collar, sleeves and torso must all be clay orange, retain natural material shading and seam detail. Keep her cream visor, skin, curly hair and face exactly unchanged. Keep Pip top left, Mabel bottom left, June bottom right exactly unchanged. Preserve all four portraits' positions, scale, warm handmade wood-and-clay appearance and transparent background. Do not add any lettering, props, shadows or extra features.",
+  "provider": "built-in OpenAI targeted reference edit",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "reference": [
+      "art/raw/rival-portraits-v1.png",
+      "art/selected/style-frame.png"
+    ],
+    "transparent_background": true
+  },
+  "date": "2026-11-11T06:25:36.390Z",
+  "sha256": "computed by process-art",
+  "selected": true,
+  "reason": "Selected after targeted correction: Rocket clay shirt restored; all four faces, hat identities, scale and alpha retained.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

@@ -1,0 +1,17 @@
+{
+  "asset": "paddle-skins",
+  "variant": 1,
+  "file": "art/raw/paddle-skins-v1.png",
+  "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square transparent sprite sheet of six separate pickleball paddles, flat orthographic top-down with handles pointing down, exactly three equal columns and two equal rows, generous transparent gaps, no perspective or shadow. Designs row order: evergreen stripe; clay sun; sage checker; violet arch; cream court diagram; evergreen champion band. Matte cream edges, wrapped clay handles, bold simple readable motifs. No text or logos. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+  "provider": "built-in OpenAI reference edit",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "reference": "art/selected/style-frame.png",
+    "transparent_background": true
+  },
+  "date": "2026-11-11T06:11:09.861Z",
+  "sha256": "computed by process-art",
+  "selected": false,
+  "reason": "Thicker horizontal bands make the first design less distinct.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

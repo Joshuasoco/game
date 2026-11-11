@@ -1,0 +1,17 @@
+{
+  "asset": "app-icon",
+  "variant": 1,
+  "file": "art/raw/app-icon-v1.png",
+  "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square app icon on transparent background: a chunky rounded evergreen pickleball paddle with a cream stripe, clay handle and a small cream perforated pickleball, simple warm hand-cut wood-and-clay diorama styling, strong silhouette readable at 64 pixels, centered with transparent padding, no letters, logos, border or cast shadow. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+  "provider": "built-in OpenAI reference edit",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "reference": "art/selected/style-frame.png",
+    "transparent_background": true
+  },
+  "date": "2026-11-11T06:19:37.268Z",
+  "sha256": "computed by process-art",
+  "selected": false,
+  "reason": "Unrequested tree, court and pot reduce the small-icon silhouette.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

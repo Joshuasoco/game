@@ -1,0 +1,16 @@
+{
+  "asset": "style-frame",
+  "variant": 3,
+  "file": "art/raw/style-frame-v3.png",
+  "prompt": "Use case: stylized-concept. Asset: Dink Duel style-frame reference, one image not a collage. Warm handcrafted toy-diorama neighborhood pickleball court, chunky rounded matte wood and clay, two adult sporting figures with grounded shoes, kitchen lines and a net, rounded trees and benches. Restrained palette evergreen #193f35 sage #93ad8c cream #f5f1df clay #bd623f dusk violet #71628d pavement #c5a78b. Upper-left soft warm light, long soft shadows, subtle paper grain. Whole regulation court visible in a three-quarter view. No text, logos, neon, gloss, photorealism, giant heads, or malformed limbs. Variant three: higher near-baseline angle, tactile clay-pavement frame, neutral cream background.",
+  "provider": "built-in OpenAI image generation",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "transparent_background": false
+  },
+  "date": "2026-11-11T06:01:26.512Z",
+  "sha256": "computed by process-art",
+  "selected": true,
+  "reason": "Selected: complete self-contained base, readable court, quiet cream background and consistent matte materials.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

@@ -1,0 +1,3 @@
+# concept-rocket / variant 4
+
+Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Rocket, energetic adult female pickleball power player, clay-orange polo, cream shorts, cream sport visor, tied dark curly hair, brown skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three facial expressions focused, pleased, rueful. Plain cream paper, no text or labels. Variant 4: slightly different clothing seams. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.

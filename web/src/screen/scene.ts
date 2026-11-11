@@ -3,8 +3,15 @@ import { COURT } from "../game/tuning";
 import type { Vec } from "../game/solver";
 import { RIVALS, type RivalId } from "../game/ai";
 import { ImpactEffects } from "./effects";
+import type { Quality } from "../game/preferences";
+import { surface, assets } from "./art-surface";
 const mat = (color: number, roughness = 0.9) =>
-  new T.MeshStandardMaterial({ color, roughness });
+  [0xdbbda0, 0x367e69, 0x86b49c, 0xbd8860].includes(color)
+    ? surface(
+        color,
+        color === 0xdbbda0 ? "clay" : color === 0xbd8860 ? "wood" : "court",
+      )
+    : new T.MeshStandardMaterial({ color, roughness });
 function box(
   w: number,
   h: number,
@@ -56,9 +63,12 @@ export interface Character {
 }
 function character(color: number, opponent = false, hat = "cap"): Character {
   const g = new T.Group();
-  const skin = 0xeab896;
+  const skin =
+    hat === "visor" ? 0xb78562 : hat === "headband" ? 0xc08f6c : 0xd6ac87;
   g.add(capsule(0.29, 0.38, color, 0, 0.85, 0));
-  g.add(box(0.49, 0.25, 0.38, 0x213e3c, 0, 0.45, 0));
+  const shorts = capsule(0.255, 0.1, 0xf5f1df, 0, 0.47, 0);
+  shorts.scale.z = 0.8;
+  g.add(shorts);
   const leftLeg = capsule(0.095, 0.27, skin, -0.15, 0.29, 0);
   const rightLeg = capsule(0.095, 0.27, skin, 0.15, 0.29, 0);
   g.add(
@@ -78,10 +88,27 @@ function character(color: number, opponent = false, hat = "cap"): Character {
     g.add(cylinder(0.263, 0.055, 0xf5f1df, 0, 1.49, 0));
   }
   g.add(sphere(0.25, skin, 0, 1.37, 0));
-  g.add(capsule(0.255, 0.02, 0x3d302c, 0, 1.48, 0.025));
   g.add(
-    cylinder(0.27, 0.1, color, 0, 1.58, 0),
-    box(0.46, 0.04, 0.28, color, 0, 1.56, -0.18),
+    capsule(
+      0.255,
+      0.02,
+      hat === "sunhat" ? 0xb9b9ab : 0x3d302c,
+      0,
+      1.48,
+      0.025,
+    ),
+  );
+  if (hat === "cap" || hat === "sunhat")
+    g.add(cylinder(0.27, 0.1, opponent ? 0xf5f1df : color, 0, 1.58, 0));
+  if (hat === "cap")
+    g.add(box(0.46, 0.04, 0.28, opponent ? 0xf5f1df : color, 0, 1.56, -0.18));
+  if (hat === "visor" || hat === "sunhat")
+    g.add(sphere(0.14, hat === "sunhat" ? 0xb9b9ab : 0x3d302c, 0, 1.4, 0.22));
+  g.add(
+    sphere(0.045, skin, -0.25, 1.37, 0),
+    sphere(0.045, skin, 0.25, 1.37, 0),
+    sphere(0.034, skin, 0, 1.33, -0.245),
+    box(0.085, 0.013, 0.016, 0x71523e, 0, 1.27, -0.235),
   );
   g.add(
     sphere(0.025, 0x263b36, -0.08, 1.38, -0.232),
@@ -118,7 +145,7 @@ export class CourtScene {
   readonly scene = new T.Scene();
   readonly renderer: T.WebGLRenderer;
   readonly camera = new T.PerspectiveCamera(40, 1, 0.1, 180);
-  readonly player = character(0xf27c61);
+  readonly player = character(0xbd623f);
   ai = character(0x83966d, true);
   readonly ball: T.Mesh;
   private observer: ResizeObserver;
@@ -132,6 +159,7 @@ export class CourtScene {
   private effects = new ImpactEffects();
   private hitPush = 0;
   private matchPoint = false;
+  private quality: Quality = "medium";
   private shake = 0;
   private reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   constructor(private container: HTMLElement) {
@@ -174,8 +202,8 @@ export class CourtScene {
     this.scene.add(this.player.group, this.ai.group);
     this.ball = sphere(0.09, 0xe5f55b, 1.7, 1.1, 4.7);
     this.ball.material = new T.MeshStandardMaterial({
-      color: 0xe4f65c,
-      emissive: 0x667500,
+      color: 0xe5d48a,
+      emissive: 0x554b24,
       emissiveIntensity: 0.16,
     });
     this.scene.add(this.ball);
@@ -378,6 +406,18 @@ export class CourtScene {
     this.alternate = !this.alternate;
   }
   setTheme(theme: string) {
+    const plate = assets[theme === "sunset" ? "sky-sunset" : "sky-day"];
+    if (plate)
+      new T.TextureLoader().load(plate.file, (texture) => {
+        if (this.disposed) {
+          texture.dispose();
+          return;
+        }
+        texture.colorSpace = T.SRGBColorSpace;
+        if (this.scene.background instanceof T.Texture)
+          this.scene.background.dispose();
+        this.scene.background = texture;
+      });
     this.scene.background = new T.Color(
       theme === "sunset" ? 0xedd8c6 : 0xe8eedf,
     );
@@ -404,6 +444,32 @@ export class CourtScene {
     this.ai.group.position.copy(position);
     this.scene.add(this.ai.group);
   }
+  setQuality(value: Quality) {
+    this.quality = value;
+    this.renderer.setPixelRatio(
+      Math.min(
+        devicePixelRatio,
+        value === "low" ? 1 : value === "medium" ? 1.4 : 1.75,
+      ),
+    );
+    this.renderer.shadowMap.enabled = value !== "low";
+    this.effects.budget = value === "low" ? 0 : value === "medium" ? 16 : 32;
+    const sun = this.scene.children.find(
+      (o) => o instanceof T.DirectionalLight,
+    ) as T.DirectionalLight | undefined;
+    if (sun) {
+      const size = value === "high" ? 2048 : 1024;
+      sun.shadow.mapSize.set(size, size);
+      sun.shadow.map?.dispose();
+      sun.shadow.map = null;
+    }
+    this.resize();
+  }
+  setReducedMotion(value: boolean) {
+    this.reduced =
+      value || matchMedia("(prefers-reduced-motion:reduce)").matches;
+    document.documentElement.dataset.reducedMotion = String(this.reduced);
+  }
   matchState(score: [number, number]) {
     this.matchPoint =
       Math.max(...score) >= 10 && Math.abs(score[0] - score[1]) >= 1;
@@ -413,7 +479,7 @@ export class CourtScene {
     this.ai.reaction = winner === "ai" ? 1 : -1;
   }
   impact(p: Vec, perfect: boolean, power: number, bounce = false) {
-    this.effects.enabled = !this.reduced;
+    this.effects.enabled = !this.reduced && this.quality !== "low";
     this.effects.impact(p, perfect, bounce);
     if (!bounce && !this.reduced) {
       this.shake = 0.018 + power * 0.05;

@@ -1,0 +1,10 @@
+{
+  "meanEdgeDifference": {
+    "clay": 6,
+    "court": 6,
+    "grass": 10,
+    "wood": 7
+  },
+  "acceptBelow": 24,
+  "note": "Lower is better; generated tiles above 24 are references only and must not repeat in the live court."
+}

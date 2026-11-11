@@ -1,0 +1,3 @@
+# sky-sunset / variant 3
+
+Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square matte painted background plate, quiet warm cream and muted dusk-violet evening sky with restrained clay horizon and sage hills at bottom 20 percent, subtle paper texture, no court, people, sun disc, text, buildings or frame. Low contrast, no glossy gradient. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.

@@ -9,6 +9,8 @@ import type {
 } from "@dink/shared";
 import { SwingDetector, type DetectedSwing } from "./swing";
 import { clamp } from "../game/solver";
+import { ART } from "../art-assets";
+const art = ART as Record<string, { file: string }>;
 import "../style.css";
 import "./phone.css";
 type PermissionEvent = {
@@ -42,6 +44,13 @@ function Phone() {
     message: "",
   });
   const [sensorStatus, setSensorStatus] = useState("");
+  const [skin, setSkin] = useState(() => {
+    try {
+      return clamp(Number(localStorage.getItem("dink-skin")) || 1, 1, 6);
+    } catch {
+      return 1;
+    }
+  });
   const [liveRoll, setLiveRoll] = useState(0),
     [strength, setStrength] = useState(0),
     [settingsOpen, setSettingsOpen] = useState(false),
@@ -287,7 +296,8 @@ function Phone() {
       void requestWake();
       let roll = 0,
         pitch = 0,
-        lastPose = 0;
+        lastPose = 0,
+        lastMeter = 0;
       let gotNeutral = false;
       const pose = (e: DeviceOrientationEvent) => {
         roll = e.gamma ?? 0;
@@ -313,17 +323,20 @@ function Phone() {
       const motion = (e: DeviceMotionEvent) => {
         lastMotion.current = Date.now();
         const r = e.rotationRate;
-        setStrength(
-          clamp(
-            Math.max(
-              Math.abs(r?.alpha ?? 0),
-              Math.abs(r?.beta ?? 0),
-              Math.abs(r?.gamma ?? 0),
-            ) / detector.current.scale,
-            0,
-            1,
-          ),
-        );
+        if (performance.now() - lastMeter > 33) {
+          lastMeter = performance.now();
+          setStrength(
+            clamp(
+              Math.max(
+                Math.abs(r?.alpha ?? 0),
+                Math.abs(r?.beta ?? 0),
+                Math.abs(r?.gamma ?? 0),
+              ) / detector.current.scale,
+              0,
+              1,
+            ),
+          );
+        }
         const detected = detector.current.sample({
           t: Date.now(),
           alpha: r?.alpha ?? 0,
@@ -559,6 +572,7 @@ function Phone() {
                 if (!touch) return;
                 e.currentTarget.setPointerCapture(e.pointerId);
                 press.current = { at: Date.now(), x: e.clientX };
+                setPower(0.24);
               }}
               onPointerMove={(e) => {
                 if (!touch || !press.current) return;
@@ -601,12 +615,20 @@ function Phone() {
                 />
               </svg>
               <span
-                className="paddle-art"
+                className={`paddle-art ${art[`paddle-${skin}`] ? "has-skin" : ""}`}
                 style={{
                   transform: `rotate(${clamp(liveRoll, -35, 35) - 8}deg)`,
                   filter: flash ? "brightness(1.2)" : "none",
                 }}
               >
+                {art[`paddle-${skin}`] && (
+                  <img
+                    className="generated-paddle"
+                    src={art[`paddle-${skin}`].file}
+                    alt=""
+                    draggable="false"
+                  />
+                )}
                 <span className="paddle-perforations">
                   ···
                   <br />
@@ -650,6 +672,38 @@ function Phone() {
                 <div className="phone-settings-heading">
                   <h2>Settings</h2>
                   <button onClick={() => setSettingsOpen(false)}>Done</button>
+                </div>
+                <div
+                  className="skin-picker"
+                  role="group"
+                  aria-label="Paddle skin"
+                >
+                  {[1, 2, 3, 4, 5, 6].map((id) => (
+                    <button
+                      key={id}
+                      aria-label={`Paddle skin ${id}`}
+                      aria-pressed={skin === id}
+                      onClick={() => {
+                        setSkin(id);
+                        try {
+                          localStorage.setItem("dink-skin", String(id));
+                        } catch {
+                          /* Optional. */
+                        }
+                      }}
+                    >
+                      {art[`paddle-${id}`] ? (
+                        <img
+                          src={art[`paddle-${id}`].file}
+                          width="30"
+                          height="48"
+                          alt=""
+                        />
+                      ) : (
+                        id
+                      )}
+                    </button>
+                  ))}
                 </div>
                 {touch && (
                   <div className="touch-controls">

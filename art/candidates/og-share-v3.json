@@ -1,0 +1,17 @@
+{
+  "asset": "og-share",
+  "variant": 3,
+  "file": "art/raw/og-share-v3.png",
+  "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Landscape social share artwork for Dink Duel. Warm handcrafted toy-diorama neighborhood pickleball court at golden hour, soft upper-left light, sage court, clay pavement, rounded trees and two adult sporting figures, clean cream space on the left for separately typeset text. No text in this image, no logo, no frame, no glossy gradients. Restrained evergreen sage cream clay violet palette. Variant 3: slightly warmer restrained materials. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+  "provider": "built-in OpenAI reference edit",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "reference": "art/selected/style-frame.png",
+    "transparent_background": false
+  },
+  "date": "2026-11-11T06:20:11.757Z",
+  "sha256": "computed by process-art",
+  "selected": false,
+  "reason": "Square composition does not suit the landscape share card.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

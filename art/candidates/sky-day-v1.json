@@ -1,0 +1,17 @@
+{
+  "asset": "sky-day",
+  "variant": 1,
+  "file": "art/raw/sky-day-v1.png",
+  "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square matte painted background plate, quiet cream daytime sky fading very gently into sage rolling distant hills at bottom 20 percent, subtle handmade paper texture, no court, people, sun disc, text, buildings or frame. Very low contrast, not a glossy gradient. Variant 1: clear balanced composition. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+  "provider": "built-in OpenAI reference edit",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "reference": "art/selected/style-frame.png",
+    "transparent_background": false
+  },
+  "date": "2026-11-11T06:12:51.361Z",
+  "sha256": "computed by process-art",
+  "selected": false,
+  "reason": "The near hill takes more of the frame.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

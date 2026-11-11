@@ -1,0 +1,17 @@
+{
+  "asset": "concept-pip",
+  "variant": 1,
+  "file": "art/raw/concept-pip-v1.png",
+  "prompt": "Reference image role: selected Dink Duel style frame, preserve its warm matte wood-and-clay material, adult rounded proportions, soft upper-left light and restrained evergreen sage cream clay violet palette. Produce a NEW asset using that reference. Square modeling concept sheet for Pip, friendly balanced adult pickleball player, sage polo, cream shorts, cream baseball cap, short dark hair, medium warm skin, chunky rounded adult proportions. Three full-body views front, three-quarter, back, and three small facial expressions ready, quietly pleased, disappointed. Plain cream paper, no text or labels. Variant 1: clear neutral poses. Square 1:1 image. No extra limbs, malformed hands, text, logos, watermarks or glossy plastic.",
+  "provider": "built-in OpenAI reference edit",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "reference": "art/selected/style-frame.png",
+    "transparent_background": false
+  },
+  "date": "2026-11-11T06:03:37.408Z",
+  "sha256": "computed by process-art",
+  "selected": true,
+  "reason": "Selected: neutral full-body views, clean silhouette and three readable understated expressions.",
+  "reviewer": "Codex visual curation; human approval pending"
+}

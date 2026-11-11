@@ -1,0 +1,17 @@
+{
+  "asset": "logo-exploration",
+  "variant": 2,
+  "file": "art/raw/logo-exploration-v2.png",
+  "prompt": "Use the reference image only to preserve Dink Duel's matte hand-crafted wood-and-clay style, soft upper-left light and restrained evergreen sage cream clay violet palette. Create this separate production asset: Square logo exploration sheet, four distinct understated wordmark directions for the exact lowercase text dinkduel, each paired with a simple rounded paddle-and-ball club mark. Evergreen ink on cream paper, a small clay dot accent. Crafted confident sporty typography, no extra taglines or text, no neon or gloss. Four equal quadrants, each a coherent design option. Variant 2: slightly simpler shapes. Unless explicitly landscape, use a square 1:1 canvas. Never put letters on assets unless exact wordmark text was requested. No extra fingers, warped faces, glossy materials, neon, stray text or watermarks.",
+  "provider": "built-in OpenAI reference edit",
+  "model": "not exposed by built-in tool",
+  "params": {
+    "reference": "art/selected/style-frame.png",
+    "transparent_background": false
+  },
+  "date": "2026-11-11T06:17:02.377Z",
+  "sha256": "computed by process-art",
+  "selected": true,
+  "reason": "Selected exploration: clear exact wordmark and simpler paddle/ball directions; live wordmark stays accessible native text.",
+  "reviewer": "Codex visual curation; human approval pending"
+}
