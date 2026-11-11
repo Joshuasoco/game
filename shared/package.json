@@ -1,0 +1,12 @@
+{
+  "name": "@dink/shared",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/protocol.ts"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  }
+}
