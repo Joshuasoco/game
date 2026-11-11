@@ -1,0 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap");
+:root {
+  --evergreen: #193f35;
+  --sage: #93ad8c;
+  --cream: #f5f1df;
+  --clay: #bd623f;
+  --violet: #71628d;
+  --ink: #17382e;
+  --text-muted: #52674e;
+  --line: #b9c5ac;
+  --paper: #fffdf1;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --shadow-soft: 0 12px 45px #193f351a;
+  --font-display: "Manrope", sans-serif;
+  --font-text: "DM Sans", sans-serif;
+  --font-score: "IBM Plex Mono", monospace;
+  --ease: cubic-bezier(0.22, 0.75, 0.2, 1);
+  --transition: 280ms var(--ease);
+}

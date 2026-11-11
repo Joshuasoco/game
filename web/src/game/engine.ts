@@ -16,6 +16,7 @@ import {
 import { COURT, PHYSICS, SKILL } from "./tuning";
 import { Audio } from "./audio";
 export interface Snapshot extends GamePhase {
+  stats: MatchStats;
   best: number;
   hits: number;
   fps: number;
@@ -23,7 +24,21 @@ export interface Snapshot extends GamePhase {
   winner?: Side;
   challenge: boolean;
 }
+export interface MatchStats {
+  longestRally: number;
+  winners: number;
+  faults: number;
+  timingTotalMs: number;
+  timedSwings: number;
+}
 export class Game {
+  private stats: MatchStats = {
+    longestRally: 0,
+    winners: 0,
+    faults: 0,
+    timingTotalMs: 0,
+    timedSwings: 0,
+  };
   readonly audio = new Audio();
   readonly rules = new Rules();
   private world!: RAPIER.World;
@@ -164,6 +179,7 @@ export class Game {
       shot: this.shot,
       winner: this.rules.winner,
       challenge: this.challenge,
+      stats: { ...this.stats },
     };
   }
   private emit(network = true) {
@@ -184,6 +200,13 @@ export class Game {
     this.setPhase("calibrate", "Three easy practice swings on your phone.");
   }
   start(difficulty: Difficulty, challenge = false) {
+    this.stats = {
+      longestRally: 0,
+      winners: 0,
+      faults: 0,
+      timingTotalMs: 0,
+      timedSwings: 0,
+    };
     this.difficulty = difficulty;
     this.challenge = challenge;
     this.rules.score = [0, 0];
@@ -207,6 +230,9 @@ export class Game {
   setLatency(rtt: number, offset: number) {
     this.rtt = rtt;
     this.clockOffset = offset;
+  }
+  skipTransition() {
+    if (this.phase === "point") this.prepareServe();
   }
   pose(roll: number) {
     this.roll = roll;
@@ -366,6 +392,7 @@ export class Game {
     this.scene.hit(side, input?.side === "backhand", shot === "smash");
     this.audio.play("hit");
     this.rally++;
+    this.stats.longestRally = Math.max(this.stats.longestRally, this.rally);
     this.hitCount++;
     this.swing = undefined;
     this.aiWait = 0;
@@ -466,6 +493,9 @@ export class Game {
     }
   }
   private finish(winner: Side, fault: string) {
+    if (winner === "ai") this.stats.faults++;
+    else if (fault === "missed return" || fault === "double bounce")
+      this.stats.winners++;
     this.audio.play("point");
     this.pointTimer = 2.2;
     this.swing = undefined;

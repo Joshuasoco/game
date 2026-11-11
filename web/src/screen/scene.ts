@@ -115,6 +115,7 @@ export class CourtScene {
   private trailPoints: Vec[] = [];
   private disposed = false;
   private alternate = false;
+  private active = false;
   private shake = 0;
   private reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   constructor(private container: HTMLElement) {
@@ -353,6 +354,7 @@ export class CourtScene {
     this.camera.updateProjectionMatrix();
   }
   setActive(active: boolean) {
+    this.active = active;
     this.alternate = active;
   }
   toggleCamera() {
@@ -386,7 +388,12 @@ export class CourtScene {
     if (this.disposed) return;
     const dest = this.alternate
       ? new T.Vector3(0, 11.5, 17.8)
-      : new T.Vector3(12, 14.5, 18);
+      : new T.Vector3(
+          12 +
+            (!this.active && !this.reduced ? Math.sin(time * 0.12) * 1.2 : 0),
+          14.5,
+          18,
+        );
     this.camera.position.lerp(dest, Math.min(1, dt * 2));
     this.camera.lookAt(0, 0.1, 0);
     this.shake = Math.max(0, this.shake - dt * 0.4);
