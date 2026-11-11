@@ -203,6 +203,7 @@ export class Game {
     };
   }
   private emit(network = true) {
+    this.audio.setRally?.(this.rally, this.phase === "rally");
     const s = this.snapshot();
     this.update(s);
     if (network) this.onPhase?.(s);
@@ -370,7 +371,7 @@ export class Game {
     };
     this.launch(p, target, "serve");
     this.scene.hit(side);
-    this.audio.play("hit");
+    this.audio.play("hit", 0.5);
     this.aiWait = 0;
     this.aiMiss = this.random() < SKILL[this.difficulty].miss;
     this.setPhase("rally", "Let it bounce.");
@@ -462,7 +463,9 @@ export class Game {
       power,
     );
     this.hitStop = this.timing === "perfect" ? 0.075 : power > 0.6 ? 0.06 : 0;
-    this.audio.play("hit");
+    this.audio.play("hit", power);
+    if (side === "player" && this.timing === "perfect")
+      this.audio.play("perfect");
     this.rally++;
     this.stats.longestRally = Math.max(this.stats.longestRally, this.rally);
     this.hitCount++;
@@ -500,7 +503,7 @@ export class Game {
       } else if (a === this.ground || b === this.ground) {
         const p = this.body.translation();
         point = this.rules.apply({ type: "bounce", x: p.x, z: p.z });
-        this.audio.play("bounce");
+        this.audio.play(Math.abs(p.z) < COURT.kitchen ? "kitchen" : "bounce");
         this.scene.impact?.(p, false, 0.1, true);
         if (!point)
           this.body.setLinvel(spinBounce(this.body.linvel(), this.spin), true);

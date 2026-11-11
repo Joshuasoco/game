@@ -6,6 +6,7 @@ import type { ClientEvents, ServerEvents, Difficulty } from "@dink/shared";
 import { CourtScene } from "./scene";
 import { Game, type Snapshot } from "../game/engine";
 import { Icon } from "./icons";
+import { Settings } from "./settings";
 import { RIVALS, type RivalId } from "../game/ai";
 import "../style.css";
 import "./game-ui.css";
@@ -31,6 +32,7 @@ const initial: Snapshot = {
   },
 };
 function App() {
+  const [settings, setSettings] = useState(false);
   const canvas = useRef<HTMLDivElement>(null),
     game = useRef<Game | null>(null),
     socket = useRef<Socket<ServerEvents, ClientEvents> | null>(null);
@@ -249,6 +251,7 @@ function App() {
     game.current?.start(difficulty, mode === "challenge");
   };
   const pair = () => {
+    game.current?.audio.start();
     if (paired) start();
     else {
       setModal("pair");
@@ -263,7 +266,15 @@ function App() {
     }
   };
   return (
-    <div className={`game-app ${playing ? "in-match" : "at-title"}`}>
+    <div
+      className={`game-app ${playing ? "in-match" : "at-title"}`}
+      onClickCapture={(e) => {
+        if ((e.target as HTMLElement).closest("button")) {
+          game.current?.audio.start();
+          game.current?.audio.play("ui");
+        }
+      }}
+    >
       <div ref={canvas} className="world-canvas" />
       {!ready && (
         <div className="boot-screen" role="status">
@@ -279,6 +290,9 @@ function App() {
               dinkduel<span>.</span>
             </a>
             <div>
+              <button className="text-button" onClick={() => setSettings(true)}>
+                Settings
+              </button>
               <button className="text-button" onClick={() => setModal("help")}>
                 How to play ?
               </button>
@@ -404,6 +418,16 @@ function App() {
             RALLY <b>{state.rally.toString().padStart(2, "0")}</b>
           </span>
           <div className="match-actions">
+            <button
+              className="icon-button"
+              aria-label="Settings"
+              onClick={() => {
+                if (game.current?.phase !== "paused") game.current?.pause();
+                setSettings(true);
+              }}
+            >
+              ⚙
+            </button>
             <button
               className="icon-button"
               aria-label={muted ? "Turn sound on" : "Mute sound"}
@@ -549,6 +573,9 @@ function App() {
           {state.fps} FPS · phase {state.phase} · room {room} · swings{" "}
           {state.hits}
         </div>
+      )}
+      {settings && game.current && (
+        <Settings game={game.current} onClose={() => setSettings(false)} />
       )}
       {modal && (
         <div

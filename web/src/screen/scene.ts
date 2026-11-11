@@ -453,7 +453,7 @@ export class CourtScene {
       this.camera.fov += (fov - this.camera.fov) * Math.min(1, dt * 4);
       this.camera.updateProjectionMatrix();
     }
-    if(!this.active)this.camera.lookAt(0, 0.1, 0);
+    if (!this.active) this.camera.lookAt(0, 0.1, 0);
     this.shake = Math.max(0, this.shake - dt * 0.4);
     this.camera.position.x += Math.sin(time * 95) * this.shake;
     for (const [i, c] of [this.player, this.ai].entries()) {
@@ -472,8 +472,13 @@ export class CourtScene {
           ? Math.sin(time * 6) * Math.abs(c.reaction) * 0.07
           : 0;
       c.arm.rotation.z = i === 0 ? roll * 0.007 : 0;
-      if(playing&&c.swing===0&&Math.abs(this.ball.position.z-c.group.position.z)<3)c.arm.rotation.x-=.24;
-      if(c.reaction<0)c.arm.rotation.z+=Math.abs(c.reaction)*.4;
+      if (
+        playing &&
+        c.swing === 0 &&
+        Math.abs(this.ball.position.z - c.group.position.z) < 3
+      )
+        c.arm.rotation.x -= 0.24;
+      if (c.reaction < 0) c.arm.rotation.z += Math.abs(c.reaction) * 0.4;
       if (!this.reduced) {
         const walk = playing
           ? Math.sin(time * 12 + c.group.position.x) * 0.16
