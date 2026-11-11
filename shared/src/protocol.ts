@@ -20,6 +20,7 @@ export const swingSchema = z.object({
   drop: z.boolean().optional(),
   spin: z.number().min(-1).max(1).optional(),
   intent: z.number().min(-1).max(1).optional(),
+  assisted: z.boolean().optional(),
 });
 export const poseSchema = z.object({
   seq: z.number().int().nonnegative(),

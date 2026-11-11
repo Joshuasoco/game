@@ -12,9 +12,16 @@ vi.mock("../web/src/game/audio", () => ({
   },
 }));
 afterEach(() => vi.unstubAllGlobals());
-it.each<Difficulty>(["easy", "medium", "hard"])(
-  "plays a complete match with real physics on %s",
-  async (difficulty) => {
+it.each<[Difficulty, boolean]>([
+  ["easy", false],
+  ["medium", false],
+  ["hard", false],
+  ["easy", true],
+  ["medium", true],
+  ["hard", true],
+])(
+  "plays a complete match with real physics on %s (assisted: %s)",
+  async (difficulty, assisted) => {
     let nextFrame: FrameRequestCallback = () => {};
     vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
       nextFrame = cb;
@@ -47,7 +54,8 @@ it.each<Difficulty>(["easy", "medium", "hard"])(
       )
         game.input({
           seq: ++seq,
-          power: 0.6,
+          power: assisted ? 0.55 : 0.6,
+          assisted,
           side: "forehand",
           tilt: Math.sin(frame * 0.2) * 0.7,
           lob: false,

@@ -25,6 +25,7 @@ import {
   type RivalId,
 } from "./ai";
 import { judgeTiming, timingDelta, type Timing } from "./timing";
+import { assistedDepth, assistedShot } from "./assistance";
 export interface Snapshot extends GamePhase {
   tutorial?: "serve" | "dink" | "lob";
   rival: RivalId;
@@ -51,6 +52,8 @@ export class Game {
   rival: RivalId = "pip";
   private timing: Timing | undefined;
   private intent = 0;
+  private assisted = false;
+  private lastPlayerShot: Shot = "serve";
   private spin = 0;
   private results: boolean[] = [];
   private adaptation = 1;
@@ -323,6 +326,7 @@ export class Game {
   input(input: Swing) {
     if (input.seq <= this.lastSwing) return;
     this.lastSwing = input.seq;
+    this.assisted = input.assisted ?? false;
     this.metrics.record("swing");
     if (this.phase === "serve" && this.rules.serving === "player") {
       this.serve("player", input);
@@ -392,6 +396,7 @@ export class Game {
     );
   }
   private serve(side: Side, input?: Swing) {
+    if (side === "player") this.lastPlayerShot = "serve";
     if (side === "player" && this.tutorial === "serve") this.tutorial = "dink";
     this.history = [];
     const p = { ...this.body.translation() };
@@ -454,6 +459,8 @@ export class Game {
         opponentZ: this.scene.player.group.position.z,
       });
     else if (input?.drop) shot = "drop";
+    if (side === "player" && input?.assisted)
+      shot = assistedShot(power, p.y, p.z, input.lob, input.drop);
     let accuracy = 0.16;
     if (side === "player" && input) {
       const age = clamp(Date.now() - (input.tPhone + this.clockOffset), 0, 200);
@@ -477,6 +484,7 @@ export class Game {
     );
     this.history = [];
     this.launch(p, target, shot, power);
+    if (side === "player") this.lastPlayerShot = shot;
     if (side === "player" && (this.timing === "late" || power > 0.82)) {
       target.x += (this.random() - 0.5) * (this.timing === "late" ? 1.4 : 0.7);
       this.launch(p, target, shot, power);
@@ -575,7 +583,9 @@ export class Game {
         desiredZ =
           sign *
           (side === "player"
-            ? 4.6 - this.intent * 1.9
+            ? this.assisted
+              ? assistedDepth(this.lastPlayerShot, false, 0, false)
+              : 4.6 - this.intent * 1.9
             : RIVALS[this.rival].net);
       if (receiving && p.z * sign > -0.7) {
         const prediction = trace(p, v).landing;
@@ -590,6 +600,13 @@ export class Game {
             7.3,
           );
       }
+      if (side === "player" && this.assisted && receiving && p.z > -0.7)
+        desiredZ = assistedDepth(
+          this.lastPlayerShot,
+          true,
+          Math.abs(p.z),
+          this.rules.bounces > 0,
+        );
       const speed =
         side === "player"
           ? 6.8
