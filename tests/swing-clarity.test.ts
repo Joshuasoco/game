@@ -28,7 +28,8 @@ async function setup() {
     ai: { group: { position: new Vector3() } },
     setActive() {},
     setBall() {},
-    render() {},
+    render: vi.fn(),
+    react: vi.fn(),
     hit: vi.fn(),
     dispose() {},
   } as unknown as CourtScene;
@@ -189,5 +190,14 @@ it("keeps keyboard swings usable after a phone has sent a higher sequence number
   place();
   game.input({ ...input, seq: 1 }, "keyboard");
   expect(game.rules.lastHitter).toBe("player");
+  game.dispose();
+});
+
+it("acknowledges the winner when results open without delaying match state", async () => {
+  const { game, scene } = await setup();
+  game.rules.score = [11, 9];
+  (game as unknown as { prepareServe: () => void }).prepareServe();
+  expect(game.phase).toBe("matchover");
+  expect(scene.react).toHaveBeenLastCalledWith("player");
   game.dispose();
 });

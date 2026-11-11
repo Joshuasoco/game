@@ -293,6 +293,7 @@ export class Game {
       this.renderTime,
       this.phase === "rally",
       this.roll,
+      this.hitStop,
     );
     requestAnimationFrame(this.loop);
   };
@@ -382,6 +383,7 @@ export class Game {
     this.audio.start();
     this.scene.setActive(true);
     this.prepareServe();
+    this.scene.resetPresentation?.();
     let skipped = false;
     try {
       skipped = !!localStorage.getItem("dink-practice-skipped");
@@ -415,6 +417,7 @@ export class Game {
     this.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
     this.scene.player.group.position.set(1.35, 0, 5.15);
     this.scene.ai.group.position.set(-1.1, 0, -5.05);
+    this.scene.resetPresentation?.();
     this.emit();
   }
   setLatency(rtt: number, offset: number) {
@@ -505,6 +508,7 @@ export class Game {
       ) {
         this.hit("player", input);
       } else if (raw.state === "GET_READY") {
+        this.scene.prepareShot?.("player", input.side === "backhand");
         // Only legal near misses may be buffered. Rule warnings never queue input.
         this.swing = {
           input,
@@ -538,6 +542,7 @@ export class Game {
     this.history = [];
     if (this.rules.winner && !this.challenge) {
       this.results.push(this.rules.winner === "player");
+      this.scene.react?.(this.rules.winner);
       this.setPhase(
         "matchover",
         this.rules.winner === "player"
@@ -568,6 +573,7 @@ export class Game {
       0,
       -5.8,
     );
+    this.scene.resetPresentation?.(true);
     this.body.setTranslation({ x, y: 0.85, z: sign * 5.9 }, true);
     this.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
     this.rally = 0;
@@ -593,7 +599,7 @@ export class Game {
       z: side === "player" ? -4.8 : 4.8,
     };
     this.launch(p, target, "serve");
-    this.scene.hit(side);
+    this.scene.hit(side, false, false, { shot: "serve", contact: p });
     this.audio.play("hit", 0.5);
     this.aiWait = 0;
     this.aiMiss = this.random() < SKILL[this.difficulty].miss;
@@ -694,7 +700,17 @@ export class Game {
           ? -0.5
           : 0.5;
     this.body.setAngvel({ x: this.spin * 45, y: 0, z: 0 }, true);
-    this.scene.hit(side, input?.side === "backhand", shot === "smash");
+    this.hitStop =
+      side === "player" && this.timing === "perfect"
+        ? 0.075
+        : power > 0.6
+          ? 0.06
+          : 0;
+    this.scene.hit(side, input?.side === "backhand", shot === "smash", {
+      shot,
+      backhand: input?.side === "backhand",
+      contact: p,
+    });
     if (side === "player") {
       this.metrics.record("hit");
       if (this.timing) this.metrics.record(this.timing);
@@ -705,13 +721,10 @@ export class Game {
       p,
       side === "player" && this.timing === "perfect",
       power,
+      false,
+      this.body.linvel(),
+      shot,
     );
-    this.hitStop =
-      side === "player" && this.timing === "perfect"
-        ? 0.075
-        : power > 0.6
-          ? 0.06
-          : 0;
     this.audio.play("hit", power);
     if (side === "player" && this.timing === "perfect")
       this.audio.play("perfect");
@@ -967,7 +980,11 @@ export class Game {
   }
   private whiff(input: Swing, snap: ReadinessSnapshot) {
     this.swing = undefined;
-    this.scene.hit("player", input.side === "backhand");
+    this.scene.hit("player", input.side === "backhand", false, {
+      shot: "drive",
+      backhand: input.side === "backhand",
+      whiff: true,
+    });
     this.audio.play("whiff");
     this.whiffText =
       COPY.whiffs[snap.state as keyof typeof COPY.whiffs] ?? COPY.whiffs.FAR;
@@ -1003,6 +1020,7 @@ export class Game {
     if (!feed.mustBounce) this.rules.shots = 3;
     else this.rules.shots = 2;
     this.scene.player.group.position.set(-1.4, 0, 5.8);
+    this.scene.resetPresentation?.();
     this.launch(feed.origin, feed.target, "serve");
     this.setPhase("rally", "");
   }

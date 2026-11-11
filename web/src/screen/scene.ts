@@ -2,13 +2,13 @@ import * as T from "three";
 import { COURT } from "../game/tuning";
 import type { Vec } from "../game/solver";
 import { RIVALS, type RivalId } from "../game/ai";
-import { ImpactEffects } from "./effects";
+import { ImpactEffects, MotionTrail } from "./effects";
 import {
   detectQuality,
   type Quality,
   type QualityPreference,
 } from "../game/preferences";
-import { surface, disposeSurfaceTextures } from "./art-surface";
+import { disposeSurfaceTextures } from "./art-surface";
 import { ParkEnvironment, bevel } from "./environment";
 import { CourtPostProcessing } from "./post-processing";
 import { matchPointSide } from "./match-presentation";
@@ -16,157 +16,8 @@ import { SwingFeedback } from "./swing-feedback";
 import type { ReadinessSnapshot } from "../game/readiness/evaluate";
 import type { FaultEvent } from "../game/rules";
 import type { ClarityPreferences } from "../game/readiness/preferences";
-const mat = (color: number, roughness = 0.9) =>
-  [0xdbbda0, 0x367e69, 0x86b49c, 0xbd8860, 0x4b9274, 0xf0f3db].includes(color)
-    ? surface(
-        color,
-        color === 0xdbbda0
-          ? "clay"
-          : color === 0xbd8860
-            ? "wood"
-            : color === 0xf0f3db
-              ? "paint"
-              : "court",
-      )
-    : new T.MeshStandardMaterial({ color, roughness });
-function box(
-  w: number,
-  h: number,
-  d: number,
-  color: number,
-  x = 0,
-  y = 0,
-  z = 0,
-) {
-  const m = bevel(w, h, d, color, 0, 0, 0, h < 0.04 ? 0.003 : 0.045);
-  m.material.dispose();
-  m.material = mat(color);
-  m.position.set(x, y, z);
-  m.castShadow = true;
-  m.receiveShadow = true;
-  return m;
-}
-function sphere(r: number, color: number, x = 0, y = 0, z = 0) {
-  const m = new T.Mesh(new T.SphereGeometry(r, 16, 12), mat(color));
-  m.position.set(x, y, z);
-  m.castShadow = true;
-  return m;
-}
-function capsule(r: number, l: number, color: number, x = 0, y = 0, z = 0) {
-  const m = new T.Mesh(new T.CapsuleGeometry(r, l, 4, 12), mat(color));
-  m.position.set(x, y, z);
-  m.castShadow = true;
-  return m;
-}
-function cylinder(
-  r: number,
-  h: number,
-  color: number,
-  x: number,
-  y: number,
-  z: number,
-) {
-  const m = new T.Mesh(new T.CylinderGeometry(r, r, h, 12), mat(color));
-  m.position.set(x, y, z);
-  m.castShadow = true;
-  return m;
-}
-export interface Character {
-  group: T.Group;
-  paddle: T.Group;
-  leftLeg: T.Mesh;
-  rightLeg: T.Mesh;
-  arm: T.Group;
-  swing: number;
-  reaction: number;
-}
-function character(color: number, opponent = false, hat = "cap"): Character {
-  const g = new T.Group();
-  const skin =
-    hat === "visor" ? 0xb78562 : hat === "headband" ? 0xc08f6c : 0xd6ac87;
-  const jersey = capsule(0.29, 0.38, color, 0, 0.85, 0);
-  const jerseyEdge = new T.Mesh(
-    jersey.geometry.clone(),
-    new T.MeshBasicMaterial({ color: 0xf2efd8, side: T.BackSide }),
-  );
-  jerseyEdge.scale.setScalar(1.035);
-  jersey.add(jerseyEdge);
-  g.add(jersey);
-  const shorts = capsule(0.255, 0.1, 0xf5f1df, 0, 0.47, 0);
-  shorts.scale.z = 0.8;
-  g.add(shorts);
-  const leftLeg = capsule(0.095, 0.27, skin, -0.15, 0.29, 0);
-  const rightLeg = capsule(0.095, 0.27, skin, 0.15, 0.29, 0);
-  g.add(
-    leftLeg,
-    rightLeg,
-    box(0.22, 0.12, 0.38, 0xf9f8ed, -0.15, 0.08, -0.06),
-    box(0.22, 0.12, 0.38, 0xf9f8ed, 0.15, 0.08, -0.06),
-  );
-  if (hat === "sunhat") {
-    const brim = cylinder(0.43, 0.045, 0xf5e1b5, 0, 1.56, 0);
-    g.add(brim);
-  }
-  if (hat === "visor") {
-    g.add(box(0.52, 0.04, 0.38, 0xf5f1df, 0, 1.55, -0.2));
-  }
-  if (hat === "headband") {
-    g.add(cylinder(0.263, 0.055, 0xf5f1df, 0, 1.49, 0));
-  }
-  g.add(sphere(0.25, skin, 0, 1.37, 0));
-  g.add(
-    capsule(
-      0.255,
-      0.02,
-      hat === "sunhat" ? 0xb9b9ab : 0x3d302c,
-      0,
-      1.48,
-      0.025,
-    ),
-  );
-  if (hat === "cap" || hat === "sunhat")
-    g.add(cylinder(0.27, 0.1, opponent ? 0xf5f1df : color, 0, 1.58, 0));
-  if (hat === "cap")
-    g.add(box(0.46, 0.04, 0.28, opponent ? 0xf5f1df : color, 0, 1.56, -0.18));
-  if (hat === "visor" || hat === "sunhat")
-    g.add(sphere(0.14, hat === "sunhat" ? 0xb9b9ab : 0x3d302c, 0, 1.4, 0.22));
-  g.add(
-    sphere(0.045, skin, -0.25, 1.37, 0),
-    sphere(0.045, skin, 0.25, 1.37, 0),
-    sphere(0.034, skin, 0, 1.33, -0.245),
-    box(0.085, 0.013, 0.016, 0x71523e, 0, 1.27, -0.235),
-  );
-  g.add(
-    sphere(0.025, 0x263b36, -0.08, 1.38, -0.232),
-    sphere(0.025, 0x263b36, 0.08, 1.38, -0.232),
-  );
-  const arm = new T.Group();
-  arm.position.set(0.28, 1.01, 0);
-  const upper = capsule(0.085, 0.25, color, 0.04, -0.12, 0);
-  upper.rotation.z = 0.25;
-  arm.add(upper, capsule(0.075, 0.22, skin, 0.12, -0.4, -0.03));
-  const paddle = new T.Group();
-  paddle.position.set(0.13, -0.55, -0.05);
-  paddle.add(cylinder(0.035, 0.27, 0x263e36, 0, -0.03, 0));
-  const face = capsule(0.19, 0.17, 0xfff8db, 0, -0.35, 0);
-  face.scale.z = 0.18;
-  paddle.add(face);
-  const inset = capsule(
-    0.155,
-    0.15,
-    opponent ? 0xf2a278 : 0xfff1b0,
-    0,
-    -0.35,
-    -0.037,
-  );
-  inset.scale.z = 0.1;
-  paddle.add(inset);
-  arm.add(paddle);
-  g.add(arm);
-  g.add(capsule(0.08, 0.28, skin, -0.35, 0.76, 0));
-  if (opponent) g.rotation.y = Math.PI;
-  return { group: g, paddle, leftLeg, rightLeg, arm, swing: 0, reaction: 0 };
-}
+import { mat, box, sphere, cylinder } from "./geometry";
+import { character, type ShotPresentation } from "./character";
 export class CourtScene {
   private swingFeedback = new SwingFeedback();
   readonly scene = new T.Scene();
@@ -179,13 +30,15 @@ export class CourtScene {
   private shadow: T.Mesh;
   private marker: T.Mesh;
   private trail: T.Mesh[] = [];
-  private trailPoints: Vec[] = [];
+  private motionTrail = new MotionTrail();
+  private cameraBase = new T.Vector3();
   private markerFade = 0;
   private markerLanded = false;
   private contactPulse = 0;
   private lastBall = new T.Vector3();
   private ballSpeed = 0;
   private disposed = false;
+  private rival: RivalId = "pip";
   private alternate = false;
   private active = false;
   private effects = new ImpactEffects();
@@ -213,8 +66,12 @@ export class CourtScene {
     );
   };
   private pointerLeave = () => this.pointer.set(0, 0);
+  private requestedReduced = false;
+  private motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
+  private motionChanged = () => this.setReducedMotion(this.requestedReduced);
   private reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   constructor(private container: HTMLElement) {
+    this.motionPreference.addEventListener("change", this.motionChanged);
     this.scene.add(this.swingFeedback.group);
     this.scene.add(this.effects.group);
     this.renderer = new T.WebGLRenderer({
@@ -264,13 +121,13 @@ export class CourtScene {
     this.rivalContact = this.environment.contact(-1.1, -5.05, 1.5, 1.1);
     container.addEventListener("pointermove", this.pointerMove);
     container.addEventListener("pointerleave", this.pointerLeave);
-    this.ball = sphere(0.144, 0xe5f55b, 1.7, 1.1, 4.7);
+    this.ball = sphere(0.144, 0xe5d48a, 1.7, 1.1, 4.7);
     (this.ball.material as T.Material).dispose();
     this.ball.material = new T.MeshStandardMaterial({
-      color: 0xecff38,
-      emissive: 0xd5f52f,
+      color: 0xe5d48a,
+      emissive: 0xe5d48a,
       emissiveIntensity: 0.28,
-      roughness: 0.55,
+      roughness: 0.85,
     });
     this.ball.add(
       new T.Mesh(
@@ -286,7 +143,7 @@ export class CourtScene {
     this.marker = new T.Mesh(
       new T.RingGeometry(0.24, 0.285, 32),
       new T.MeshBasicMaterial({
-        color: 0xf2ff85,
+        color: 0xe5d48a,
         side: T.DoubleSide,
         transparent: true,
         opacity: 0.85,
@@ -322,6 +179,7 @@ export class CourtScene {
       this.scene.add(m);
     }
     this.camera.position.set(14, 16, 21);
+    this.cameraBase.copy(this.camera.position);
     this.camera.lookAt(0, 0, 0);
     this.observer = new ResizeObserver(() => this.resize());
     this.observer.observe(container);
@@ -518,6 +376,7 @@ export class CourtScene {
     this.scene.fog = new T.Fog(sunset ? 0x9e9991 : 0x879a95, 32, 105);
   }
   setRival(id: RivalId) {
+    this.rival = id;
     const old = this.ai;
     const position = old.group.position.clone();
     this.scene.remove(old.group);
@@ -532,6 +391,8 @@ export class CourtScene {
     const r = RIVALS[id];
     this.ai = character(parseInt(r.color.slice(1), 16), true, r.hat);
     this.ai.group.position.copy(position);
+    this.ai.reset();
+    this.ai.setReducedMotion(this.reduced);
     this.scene.add(this.ai.group);
   }
   setQuality(value: QualityPreference) {
@@ -553,6 +414,8 @@ export class CourtScene {
       ),
     );
     this.renderer.shadowMap.enabled = value !== "low";
+    this.effects.enabled = !this.reduced && value !== "low";
+    this.effects.clear(this.ball);
     this.effects.budget = value === "low" ? 0 : value === "medium" ? 16 : 32;
     const sun = this.scene.children.find(
       (o) => o instanceof T.DirectionalLight && o.castShadow,
@@ -572,8 +435,32 @@ export class CourtScene {
     this.resize();
   }
   setReducedMotion(value: boolean) {
+    this.requestedReduced = value;
     this.reduced =
       value || matchMedia("(prefers-reduced-motion:reduce)").matches;
+    this.player.setReducedMotion(this.reduced);
+    this.ai.setReducedMotion(this.reduced);
+    this.effects.enabled = !this.reduced && this.quality !== "low";
+    if (this.reduced) {
+      document
+        .querySelectorAll(".score-digit")
+        .forEach((node) =>
+          node.getAnimations().forEach((animation) => animation.cancel()),
+        );
+      this.shake = this.hitPush = 0;
+      this.effects.clear(this.ball);
+      this.motionTrail.clear();
+      this.trail.forEach((m) => {
+        m.visible = false;
+      });
+      this.camera.position.copy(this.cameraBase);
+      if (this.active) {
+        this.camera.fov =
+          (this.camera.aspect >= 1.4 ? 34 : 40) - (this.matchPoint ? 1 : 0);
+        this.camera.updateProjectionMatrix();
+      }
+      this.marker.scale.setScalar(1);
+    }
     document.documentElement.dataset.reducedMotion = String(this.reduced);
   }
   setSwingFeedback(
@@ -594,16 +481,28 @@ export class CourtScene {
     this.matchPoint = !!matchPointSide(score);
   }
   react(winner: "player" | "ai") {
-    this.player.reaction = winner === "player" ? 1 : -1;
-    this.ai.reaction = winner === "ai" ? 1 : -1;
+    this.player.react(winner === "player", "pip");
+    this.ai.react(winner === "ai", this.rival);
   }
-  impact(p: Vec, perfect: boolean, power: number, bounce = false) {
+  impact(
+    p: Vec,
+    perfect: boolean,
+    power: number,
+    bounce = false,
+    velocity?: Vec,
+    shot?: ShotPresentation["shot"],
+  ) {
     this.markerLanded = bounce;
-    if (!this.reduced) this.contactPulse = 1;
+    this.contactPulse = 1;
     this.effects.enabled = !this.reduced && this.quality !== "low";
-    this.effects.impact(p, perfect, bounce);
-    if (!bounce && !this.reduced) {
-      this.shake = 0.018 + power * 0.05;
+    this.effects.impact(p, perfect, bounce, velocity);
+    if (
+      !bounce &&
+      !this.reduced &&
+      shot !== "dink" &&
+      (perfect || power > 0.6)
+    ) {
+      this.shake = Math.min(0.035, power * 0.035);
       this.hitPush = power;
     }
   }
@@ -621,16 +520,31 @@ export class CourtScene {
       if (!this.markerLanded) this.markerFade = 0.45;
       this.marker.position.set(target.x, 0.066, target.z);
     }
-    this.trailPoints.unshift({ ...p });
-    if (this.trailPoints.length > 21) this.trailPoints.pop();
   }
-  hit(side: "player" | "ai", backhand = false, smash = false) {
-    this.markerLanded = false;
-    if (!this.reduced) this.contactPulse = 1;
-    (side === "player" ? this.player : this.ai).swing = backhand ? -1 : 1;
-    if (smash && !this.reduced) this.shake = 0.08;
+  resetPresentation(blend = false) {
+    this.player.reset(blend);
+    this.ai.reset(blend);
+    this.motionTrail.clear();
+    this.markerFade = this.contactPulse = this.shake = this.hitPush = 0;
+    this.effects.clear(this.ball);
+    this.trail.forEach((m) => {
+      m.visible = false;
+    });
   }
-  render(dt: number, time: number, playing: boolean, roll = 0) {
+  prepareShot(side: "player" | "ai", backhand = false) {
+    (side === "player" ? this.player : this.ai).prepare(backhand);
+  }
+  hit(
+    side: "player" | "ai",
+    backhand = false,
+    smash = false,
+    event?: ShotPresentation,
+  ) {
+    const shot = event ?? { shot: smash ? "smash" : "drive", backhand };
+    (side === "player" ? this.player : this.ai).hit(shot);
+    if (!shot.whiff) this.markerLanded = false;
+  }
+  render(dt: number, time: number, playing: boolean, roll = 0, hitStop = 0) {
     if (this.disposed) return;
     this.swingFeedback.update(
       this.player.group.position,
@@ -651,7 +565,8 @@ export class CourtScene {
         10.8 + (menuMotion ? this.pointer.y * 0.45 + this.intro * 2.5 : 0),
         19.8 + (menuMotion ? this.intro * 3 : 0),
       );
-    this.camera.position.lerp(dest, Math.min(1, dt * 2));
+    this.cameraBase.lerp(dest, 1 - Math.exp(-2 * dt));
+    this.camera.position.copy(this.cameraBase);
     if (this.active) {
       const target = new T.Vector3(this.ball.position.x * 0.08, 0.1, -0.4);
       this.camera.lookAt(target);
@@ -659,7 +574,7 @@ export class CourtScene {
       // Narrow framing on desktop; retain the full court on portrait screens.
       const fov =
         (this.camera.aspect >= 1.4 ? 34 : 40) +
-        this.hitPush * 2 -
+        (this.reduced ? 0 : this.hitPush * 2) -
         (this.matchPoint ? 1 : 0);
       this.camera.fov += (fov - this.camera.fov) * Math.min(1, dt * 4);
       this.camera.updateProjectionMatrix();
@@ -685,54 +600,32 @@ export class CourtScene {
         0.063,
         this.ai.group.position.z,
       );
-    this.shake = Math.max(0, this.shake - dt * 0.4);
+    this.shake = Math.max(0, this.shake - dt * 0.35);
     this.camera.position.x += Math.sin(time * 95) * this.shake;
-    for (const [i, c] of [this.player, this.ai].entries()) {
-      c.swing = Math.sign(c.swing) * Math.max(0, Math.abs(c.swing) - dt * 3.5);
-      c.arm.rotation.x = -Math.sin(c.swing * Math.PI) * 1.8;
-      c.paddle.rotation.x = Math.sin(Math.abs(c.swing) * Math.PI) * 0.45;
-      c.reaction *= Math.max(0, 1 - dt * 1.6);
-      c.group.position.y = this.reduced
-        ? 0
-        : c.reaction > 0
-          ? Math.abs(Math.sin(time * 9)) * c.reaction * 0.22
-          : 0;
-      c.group.rotation.z = this.reduced
-        ? 0
-        : c.reaction < 0
-          ? Math.sin(time * 6) * Math.abs(c.reaction) * 0.07
-          : 0;
-      c.arm.rotation.z = i === 0 ? roll * 0.007 : 0;
-      if (
-        playing &&
-        c.swing === 0 &&
-        Math.abs(this.ball.position.z - c.group.position.z) < 3
-      )
-        c.arm.rotation.x -= 0.24;
-      if (c.reaction < 0) c.arm.rotation.z += Math.abs(c.reaction) * 0.4;
-      const menuScale = this.active ? 1 : 1.12;
-      c.group.scale.setScalar(menuScale);
-      if (!this.reduced) {
-        const walk = playing
-          ? Math.sin(time * 12 + c.group.position.x) * 0.16
-          : Math.sin(time * 2 + i) * 0.025;
-        c.group.scale.y = menuScale * (1 + Math.sin(time * 2 + i) * 0.012);
-        c.leftLeg.rotation.x = walk;
-        c.rightLeg.rotation.x = -walk;
-      }
+    this.player.update(dt, playing, roll, hitStop);
+    this.ai.update(dt, playing, 0, hitStop);
+    if (dt === 0) {
+      this.shake = this.hitPush = 0;
+      this.effects.clear(this.ball);
+      this.camera.position.copy(this.cameraBase);
     }
+    this.motionTrail.update(
+      this.ball.position,
+      dt,
+      playing && !this.reduced && dt > 0,
+    );
     this.ballSpeed =
       this.lastBall.distanceTo(this.ball.position) / Math.max(dt, 0.001);
     this.lastBall.copy(this.ball.position);
     this.trail.forEach((m, i) => {
-      const p = this.trailPoints[(i + 1) * 2];
+      const p = this.motionTrail.points[(i + 1) * 2];
       m.visible = playing && !this.reduced && !!p && this.ballSpeed > 1.5;
       if (p) m.position.set(p.x, p.y, p.z);
       const speed = T.MathUtils.clamp(this.ballSpeed / 10, 0, 1);
       m.scale.setScalar((1 - i / 9) * (0.5 + speed));
       (m.material as T.MeshBasicMaterial).opacity = (1 - i / 7) * speed * 0.55;
     });
-    if (!playing) this.trailPoints.length = 0;
+    if (!playing) this.motionTrail.clear();
     this.markerFade = Math.max(0, this.markerFade - dt);
     this.marker.visible = this.markerFade > 0 && this.active;
     if (this.marker.visible) {
@@ -769,6 +662,7 @@ export class CourtScene {
   dispose() {
     this.disposed = true;
     this.observer.disconnect();
+    this.motionPreference.removeEventListener("change", this.motionChanged);
     this.container.removeEventListener("pointermove", this.pointerMove);
     this.container.removeEventListener("pointerleave", this.pointerLeave);
     this.post?.dispose();

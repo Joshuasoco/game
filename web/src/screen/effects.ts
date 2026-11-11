@@ -11,6 +11,8 @@ export class ImpactEffects {
   private ring: T.Mesh;
   private flash = 0;
   private squash = 0;
+  private direction = new T.Vector3(0, 1, 0);
+  private up = new T.Vector3(0, 1, 0);
   enabled = true;
   budget = 32;
   constructor() {
@@ -43,9 +45,22 @@ export class ImpactEffects {
       });
     }
   }
-  impact(p: Vec, perfect: boolean, bounce = false) {
-    this.squash = 1;
+  clear(ball: T.Mesh) {
+    this.flash = this.squash = 0;
+    ball.scale.setScalar(1);
+    ball.quaternion.identity();
+    this.ring.visible = false;
+    for (const p of this.particles) {
+      p.life = 0;
+      p.mesh.visible = false;
+    }
+  }
+  impact(p: Vec, perfect: boolean, bounce = false, velocity?: Vec) {
     if (!this.enabled) return;
+    this.squash = 1;
+    this.direction.set(velocity?.x ?? 0, velocity?.y ?? 1, velocity?.z ?? 0);
+    if (this.direction.lengthSq() < 0.001) this.direction.copy(this.up);
+    this.direction.normalize();
     this.ring.position.set(p.x, p.y, p.z);
     this.flash = perfect ? 0.42 : 0.19;
     (this.ring.material as T.MeshBasicMaterial).color.setHex(
@@ -78,15 +93,17 @@ export class ImpactEffects {
       1,
       this.flash * 3,
     );
-    this.squash = Math.max(0, this.squash - dt * 7);
+    this.squash = Math.max(0, this.squash - dt * 10);
     if (!this.enabled) {
       ball.scale.setScalar(1);
-    } else
+    } else {
+      ball.quaternion.setFromUnitVectors(this.up, this.direction);
       ball.scale.set(
-        1 + this.squash * 0.4,
-        1 - this.squash * 0.35,
+        1 - this.squash * 0.07,
         1 + this.squash * 0.15,
+        1 - this.squash * 0.07,
       );
+    }
     for (const p of this.particles) {
       p.life = Math.max(0, p.life - dt);
       p.mesh.visible = this.enabled && p.life > 0;
@@ -96,5 +113,40 @@ export class ImpactEffects {
       (p.mesh.material as T.MeshBasicMaterial).opacity = p.life / p.duration;
       p.mesh.scale.setScalar(0.5 + p.life / p.duration);
     }
+  }
+}
+
+/** Recycles the existing bounded history, sampled at 60 Hz rather than render Hz. */
+export class MotionTrail {
+  readonly points: T.Vector3[] = [];
+  private pool = Array.from({ length: 21 }, () => new T.Vector3());
+  private previous = new T.Vector3();
+  private elapsed = 0;
+  private initialized = false;
+  clear() {
+    this.pool.push(...this.points);
+    this.points.length = 0;
+    this.elapsed = 0;
+    this.initialized = false;
+  }
+  update(p: Vec, dt: number, playing: boolean) {
+    if (!playing) {
+      this.clear();
+      return;
+    }
+    if (!this.initialized || this.previous.distanceToSquared(p) > 16) {
+      this.clear();
+      this.previous.set(p.x, p.y, p.z);
+      this.initialized = true;
+    }
+    const period = 1 / 60;
+    const total = this.elapsed + dt;
+    for (let at = period - this.elapsed; at <= dt + 1e-9; at += period) {
+      const point = this.pool.pop() ?? this.points.pop()!;
+      point.copy(this.previous).lerp(p, dt > 0 ? at / dt : 1);
+      this.points.unshift(point);
+    }
+    this.elapsed = total - Math.floor((total + 1e-9) / period) * period;
+    this.previous.set(p.x, p.y, p.z);
   }
 }
