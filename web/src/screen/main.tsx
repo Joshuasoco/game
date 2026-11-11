@@ -6,6 +6,7 @@ import type { ClientEvents, ServerEvents, Difficulty } from "@dink/shared";
 import { CourtScene } from "./scene";
 import { Game, type Snapshot } from "../game/engine";
 import { Icon } from "./icons";
+import { RIVALS, type RivalId } from "../game/ai";
 import "../style.css";
 import "./game-ui.css";
 const initial: Snapshot = {
@@ -19,6 +20,8 @@ const initial: Snapshot = {
   fps: 60,
   shot: "Ready",
   challenge: false,
+  rival: "pip",
+  timing: undefined,
   stats: {
     longestRally: 0,
     winners: 0,
@@ -46,8 +49,9 @@ function App() {
     [copied, setCopied] = useState(false),
     [theme, setTheme] = useState("park"),
     [unlocked, setUnlocked] = useState(false);
-  const config = useRef({ difficulty, mode });
-  config.current = { difficulty, mode };
+  const [rival, setRival] = useState<RivalId>("pip");
+  const config = useRef({ difficulty, mode, rival });
+  config.current = { difficulty, mode, rival };
   const dialog = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let cancelled = false;
@@ -105,11 +109,16 @@ function App() {
       setModal(null);
       const g = game.current;
       if (g?.phase === "paused") g.pause();
-      else if (g && !["serve", "rally", "point", "matchover"].includes(g.phase))
+      else if (
+        g &&
+        !["serve", "rally", "point", "matchover"].includes(g.phase)
+      ) {
+        g.setRival(config.current.rival);
         g.start(config.current.difficulty, config.current.mode === "challenge");
+      }
     });
     s.on("input:swing", (d) => game.current?.input(d));
-    s.on("input:pose", (d) => game.current?.pose(d.roll));
+    s.on("input:pose", (d) => game.current?.pose(d.roll, d.intent));
     s.on("input:pause", () => game.current?.pause());
     s.on("net:ping", (d, ack) => ack({ ...d, tHost: Date.now() }));
     s.on("net:latency", (d) => game.current?.setLatency(d.rtt, d.offset));
@@ -153,6 +162,10 @@ function App() {
       )
         return;
       held.add(e.code);
+      if (e.code === "ArrowUp" || e.code === "ArrowDown") {
+        e.preventDefault();
+        game.current?.positionIntent(held.has("ArrowUp") ? 1 : -1);
+      }
       if (e.code === "Space" && !e.repeat && !modal) {
         e.preventDefault();
         game.current?.input({
@@ -161,13 +174,21 @@ function App() {
           side: "forehand",
           tilt: held.has("ArrowLeft") ? -0.8 : held.has("ArrowRight") ? 0.8 : 0,
           lob: held.has("ShiftLeft") || held.has("ShiftRight"),
+          drop: held.has("KeyD"),
+          spin: held.has("KeyX") ? -0.6 : 0.5,
           tPhone: Date.now(),
         });
       }
       if (e.code === "KeyP" && !modal) game.current?.pause();
       if (e.code === "Enter" && !modal) game.current?.skipTransition();
     };
-    const up = (e: KeyboardEvent) => held.delete(e.code);
+    const up = (e: KeyboardEvent) => {
+      held.delete(e.code);
+      if (e.code === "ArrowUp" || e.code === "ArrowDown")
+        game.current?.positionIntent(
+          held.has("ArrowUp") ? 1 : held.has("ArrowDown") ? -1 : 0,
+        );
+    };
     const blur = () => held.clear();
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
@@ -214,6 +235,7 @@ function App() {
   }, [modal]);
   const start = () => {
     setModal(null);
+    game.current?.setRival(rival);
     game.current?.start(difficulty, mode === "challenge");
   };
   const pair = () => {
@@ -268,6 +290,22 @@ function App() {
               Singles against a rival who always has time.
             </p>
             <div className="title-settings">
+              <label>
+                Rival
+                <select
+                  aria-label="Rival"
+                  value={rival}
+                  onChange={(e) => {
+                    setRival(e.target.value as RivalId);
+                  }}
+                >
+                  {(Object.keys(RIVALS) as RivalId[]).map((id) => (
+                    <option key={id} value={id}>
+                      {RIVALS[id].name} · {RIVALS[id].style}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label>
                 Mode
                 <select
@@ -347,7 +385,9 @@ function App() {
             </div>
             <span className="score-divider">:</span>
             <div>
-              <b>{state.score[1]}</b>PIP <span className="player-dot lilac" />
+              <b>{state.score[1]}</b>
+              {RIVALS[state.rival].name.toUpperCase()}{" "}
+              <span className="player-dot lilac" />
             </div>
           </div>
           <span className="rally-counter">
@@ -373,7 +413,9 @@ function App() {
             {state.phase === "serve" ? (
               <>
                 <h2>
-                  {state.serving === "player" ? "Your serve." : "Pip’s serve."}
+                  {state.serving === "player"
+                    ? "Your serve."
+                    : `${RIVALS[state.rival].name}’s serve.`}
                 </h2>
                 <p>
                   {state.serving === "player"
@@ -434,7 +476,9 @@ function App() {
               >
                 <span className="eyebrow">MATCH RESULT</span>
                 <h2 id="result-title">
-                  {state.winner === "player" ? "Your match." : "Pip takes it."}
+                  {state.winner === "player"
+                    ? "Your match."
+                    : `${RIVALS[state.rival].name} takes it.`}
                 </h2>
                 <div className="final-score">
                   {state.score[0]} <span>—</span> {state.score[1]}
@@ -464,9 +508,9 @@ function App() {
                 <p className="rival-quip">
                   “
                   {state.winner === "player"
-                    ? "I had that. Until I didn’t."
-                    : "Same court tomorrow?"}
-                  ” — Pip
+                    ? RIVALS[state.rival].winQuip
+                    : RIVALS[state.rival].lossQuip}
+                  ” — {RIVALS[state.rival].name}
                 </p>
                 <button className="primary-button" onClick={start}>
                   Rematch <Icon name="arrow" />

@@ -1,0 +1,54 @@
+{
+  "pip": {
+    "name": "Pip",
+    "style": "Balanced",
+    "color": "#83966d",
+    "hat": "cap",
+    "reaction": 1,
+    "error": 1,
+    "pressure": 0.06,
+    "net": 3.5,
+    "weights": { "dink": 2, "drive": 4, "drop": 2, "lob": 1, "smash": 2 },
+    "winQuip": "I had that. Until I didn’t.",
+    "lossQuip": "Same court tomorrow?"
+  },
+  "rocket": {
+    "name": "Rocket",
+    "style": "Power player",
+    "color": "#bd623f",
+    "hat": "visor",
+    "reaction": 0.82,
+    "error": 1.35,
+    "pressure": 0.38,
+    "net": 3.8,
+    "weights": { "dink": 1, "drive": 9, "drop": 1, "lob": 1, "smash": 5 },
+    "winQuip": "The fence was closer in practice.",
+    "lossQuip": "That one stayed in. For once."
+  },
+  "mabel": {
+    "name": "Mabel",
+    "style": "Patient dinker",
+    "color": "#71628d",
+    "hat": "sunhat",
+    "reaction": 1.12,
+    "error": 0.7,
+    "pressure": 0.03,
+    "net": 2.6,
+    "weights": { "dink": 9, "drive": 1, "drop": 5, "lob": 1, "smash": 1 },
+    "winQuip": "I suppose I could stand farther back.",
+    "lossQuip": "No rush. There’s tea after this."
+  },
+  "june": {
+    "name": "June",
+    "style": "Club champion",
+    "color": "#193f35",
+    "hat": "headband",
+    "reaction": 0.7,
+    "error": 0.55,
+    "pressure": 0.02,
+    "net": 3.1,
+    "weights": { "dink": 3, "drive": 5, "drop": 4, "lob": 3, "smash": 7 },
+    "winQuip": "Well. That was inconvenient.",
+    "lossQuip": "One more? I’ve just warmed up."
+  }
+}

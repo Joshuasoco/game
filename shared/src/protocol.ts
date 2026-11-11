@@ -17,11 +17,15 @@ export const swingSchema = z.object({
   tilt: z.number().min(-1).max(1),
   lob: z.boolean(),
   tPhone: z.number().finite(),
+  drop: z.boolean().optional(),
+  spin: z.number().min(-1).max(1).optional(),
+  intent: z.number().min(-1).max(1).optional(),
 });
 export const poseSchema = z.object({
   seq: z.number().int().nonnegative(),
   pitch: z.number().min(-180).max(180),
   roll: z.number().min(-180).max(180),
+  intent: z.number().min(-1).max(1).optional(),
 });
 export const phases = [
   "menu",

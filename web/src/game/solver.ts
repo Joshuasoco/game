@@ -4,7 +4,7 @@ export interface Vec {
   y: number;
   z: number;
 }
-export type Shot = "dink" | "drive" | "lob" | "smash" | "serve";
+export type Shot = "dink" | "drive" | "drop" | "lob" | "smash" | "serve";
 export const clamp = (v: number, a: number, b: number) =>
   Math.max(a, Math.min(b, v));
 export function seeded(seed = 42) {
@@ -68,15 +68,17 @@ export function solveShot(
 ): Vec {
   const distance = Math.hypot(target.x - start.x, target.z - start.z);
   let time =
-    shot === "lob"
-      ? 2.25
-      : shot === "dink"
-        ? 1.25
-        : shot === "serve"
-          ? 1.5
-          : shot === "smash"
-            ? Math.max(0.55, distance / (11 + power * 4))
-            : Math.max(0.75, distance / (7 + power * 5));
+    shot === "drop"
+      ? 1.75
+      : shot === "lob"
+        ? 2.25
+        : shot === "dink"
+          ? 1.25
+          : shot === "serve"
+            ? 1.5
+            : shot === "smash"
+              ? Math.max(0.55, distance / (11 + power * 4))
+              : Math.max(0.75, distance / (7 + power * 5));
   let result: Vec = { x: 0, y: 0, z: 0 };
   for (let clearance = 0; clearance < 8; clearance++) {
     let vx = (target.x - start.x) / time;
@@ -121,7 +123,13 @@ export function targetFor(
     z:
       sign *
       clamp(
-        (shot === "dink" ? 1.45 : shot === "lob" ? 5.8 : 4.5) +
+        (shot === "dink"
+          ? 1.1
+          : shot === "drop"
+            ? 1.8
+            : shot === "lob"
+              ? 5.8
+              : 4.5) +
           (random() - 0.5) * error,
         0.6,
         6.4,

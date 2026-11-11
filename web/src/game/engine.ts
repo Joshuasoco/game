@@ -15,7 +15,17 @@ import {
 } from "./solver";
 import { COURT, PHYSICS, SKILL } from "./tuning";
 import { Audio } from "./audio";
+import {
+  RIVALS,
+  chooseShot,
+  adaptiveFactor,
+  spinBounce,
+  type RivalId,
+} from "./ai";
+import { judgeTiming, timingDelta, type Timing } from "./timing";
 export interface Snapshot extends GamePhase {
+  rival: RivalId;
+  timing: Timing | undefined;
   stats: MatchStats;
   best: number;
   hits: number;
@@ -32,6 +42,12 @@ export interface MatchStats {
   timedSwings: number;
 }
 export class Game {
+  rival: RivalId = "pip";
+  private timing: Timing | undefined;
+  private intent = 0;
+  private spin = 0;
+  private results: boolean[] = [];
+  private adaptation = 1;
   private stats: MatchStats = {
     longestRally: 0,
     winners: 0,
@@ -180,6 +196,8 @@ export class Game {
       winner: this.rules.winner,
       challenge: this.challenge,
       stats: { ...this.stats },
+      rival: this.rival,
+      timing: this.timing,
     };
   }
   private emit(network = true) {
@@ -200,6 +218,10 @@ export class Game {
     this.setPhase("calibrate", "Three easy practice swings on your phone.");
   }
   start(difficulty: Difficulty, challenge = false) {
+    this.adaptation = adaptiveFactor(this.results);
+    this.timing = undefined;
+    this.spin = 0;
+    this.intent = 0;
     this.stats = {
       longestRally: 0,
       winners: 0,
@@ -234,8 +256,15 @@ export class Game {
   skipTransition() {
     if (this.phase === "point") this.prepareServe();
   }
-  pose(roll: number) {
+  setRival(id: RivalId) {
+    this.rival = id;
+  }
+  positionIntent(value: number) {
+    this.intent = clamp(value, -1, 1);
+  }
+  pose(roll: number, intent?: number) {
     this.roll = roll;
+    if (intent !== undefined) this.positionIntent(intent);
   }
   pause() {
     if (this.phase === "paused") {
@@ -282,6 +311,7 @@ export class Game {
   private prepareServe() {
     this.history = [];
     if (this.rules.winner && !this.challenge) {
+      this.results.push(this.rules.winner === "player");
       this.setPhase(
         "matchover",
         this.rules.winner === "player"
@@ -321,8 +351,8 @@ export class Game {
     this.setPhase(
       "serve",
       this.rules.serving === "player"
-        ? "Your serve. A gentle swing to get things going."
-        : "Pip is serving. Get your paddle ready.",
+        ? "Your serve."
+        : `${RIVALS[this.rival].name} is serving.`,
     );
   }
   private serve(side: Side, input?: Swing) {
@@ -339,7 +369,7 @@ export class Game {
     this.audio.play("hit");
     this.aiWait = 0;
     this.aiMiss = this.random() < SKILL[this.difficulty].miss;
-    this.setPhase("rally", "Let it bounce. Then make it yours.");
+    this.setPhase("rally", "Let it bounce.");
     if (input) this.onHaptic?.();
   }
   private launch(p: Vec, target: Vec, shot: Shot, power = 0.65) {
@@ -373,22 +403,54 @@ export class Game {
       return;
     }
     const skill = SKILL[this.difficulty];
-    const power = input?.power ?? 0.35 + this.random() * 0.5;
-    const shot = shotType(
+    let power = input?.power ?? 0.35 + this.random() * 0.5;
+    let shot = shotType(
       power,
       p.y,
       input?.lob ?? (p.y > 2.2 && this.random() < 0.3),
     );
     const tilt = input?.tilt ?? this.random() * 2 - 1;
+    if (side === "ai")
+      shot = chooseShot(this.rival, this.random, {
+        height: p.y,
+        distance: Math.abs(p.z),
+        opponentZ: this.scene.player.group.position.z,
+      });
+    else if (input?.drop) shot = "drop";
+    let accuracy = 0.16;
+    if (side === "player" && input) {
+      const age = clamp(Date.now() - (input.tPhone + this.clockOffset), 0, 200);
+      const delta = timingDelta(p.y, this.body.linvel().y, age);
+      const timing = judgeTiming(delta);
+      this.timing = timing.grade;
+      accuracy = timing.accuracy;
+      power *= timing.pace;
+      this.stats.timingTotalMs += Math.abs(delta);
+      this.stats.timedSwings++;
+      if (input.intent !== undefined) this.positionIntent(input.intent);
+    }
     const target = targetFor(
       side,
       tilt,
       shot,
       this.random,
-      side === "ai" ? skill.error : 0.05,
+      side === "ai"
+        ? skill.error * RIVALS[this.rival].error * this.adaptation
+        : accuracy,
     );
     this.history = [];
     this.launch(p, target, shot, power);
+    if (side === "player" && (this.timing === "late" || power > 0.82)) {
+      target.x += (this.random() - 0.5) * (this.timing === "late" ? 1.4 : 0.7);
+      this.launch(p, target, shot, power);
+    }
+    this.spin =
+      side === "player"
+        ? (input?.spin ?? (input?.side === "backhand" ? -0.45 : 0.45))
+        : shot === "dink"
+          ? -0.5
+          : 0.5;
+    this.body.setAngvel({ x: this.spin * 45, y: 0, z: 0 }, true);
     this.scene.hit(side, input?.side === "backhand", shot === "smash");
     this.audio.play("hit");
     this.rally++;
@@ -396,7 +458,10 @@ export class Game {
     this.hitCount++;
     this.swing = undefined;
     this.aiWait = 0;
-    this.aiMiss = this.random() < skill.miss;
+    this.aiMiss =
+      this.random() <
+      skill.miss * RIVALS[this.rival].error +
+        (this.rally > 5 ? RIVALS[this.rival].pressure * 0.16 : 0);
     if (this.rally > this.best) {
       this.best = this.rally;
       try {
@@ -406,14 +471,7 @@ export class Game {
       }
     }
     if (side === "player") this.onHaptic?.();
-    this.message =
-      shot === "lob"
-        ? "Up, up, and over."
-        : shot === "dink"
-          ? "A soft touch. Nicely done."
-          : shot === "smash"
-            ? "That one had some energy!"
-            : "Keep the rally alive.";
+    this.message = "";
     this.emit();
   }
   private step() {
@@ -432,6 +490,8 @@ export class Game {
         const p = this.body.translation();
         point = this.rules.apply({ type: "bounce", x: p.x, z: p.z });
         this.audio.play("bounce");
+        if (!point)
+          this.body.setLinvel(spinBounce(this.body.linvel(), this.spin), true);
         if (!point) {
           this.message =
             this.rules.bounces === 1
@@ -454,15 +514,30 @@ export class Game {
       const sign = side === "player" ? 1 : -1;
       const receiving = this.rules.lastHitter !== side;
       let desiredX = 0,
-        desiredZ = sign * 4.5;
+        desiredZ =
+          sign *
+          (side === "player"
+            ? 4.6 - this.intent * 1.9
+            : RIVALS[this.rival].net);
       if (receiving && p.z * sign > -0.7) {
         const prediction = trace(p, v).landing;
         desiredX = clamp(p.y < 1.6 ? p.x : prediction.x, -2.85, 2.85);
         desiredZ =
           sign *
-          clamp(Math.abs(p.z) + (this.rules.bounces === 0 ? 1.0 : 0), 2.4, 7.3);
+          clamp(
+            Math.abs(p.z) +
+              (this.rules.bounces === 0 ? 1.0 : 0) -
+              (side === "player" ? this.intent * 0.35 : 0),
+            2.4,
+            7.3,
+          );
       }
-      const speed = side === "player" ? 6.8 : SKILL[this.difficulty].speed;
+      const speed =
+        side === "player"
+          ? 6.8
+          : SKILL[this.difficulty].speed *
+            this.adaptation *
+            (this.rival === "mabel" && this.shot === "lob" ? 0.76 : 1);
       const pos = c.group.position;
       const dx = desiredX - pos.x,
         dz = desiredZ - pos.z;
@@ -478,7 +553,9 @@ export class Game {
       this.aiWait += dt;
       if (
         !this.aiMiss &&
-        this.aiWait > SKILL[this.difficulty].reaction &&
+        this.aiWait >
+          (SKILL[this.difficulty].reaction * RIVALS[this.rival].reaction) /
+            this.adaptation &&
         this.canHit("ai", p) &&
         (this.rules.shots > 2 || this.rules.bounces > 0)
       )
@@ -501,7 +578,7 @@ export class Game {
     this.swing = undefined;
     this.setPhase(
       "point",
-      `${winner === "player" ? "Your point" : "Point to Pip"} · ${fault}.`,
+      `${winner === "player" ? "Your point" : `Point to ${RIVALS[this.rival].name}`} · ${fault}.`,
     );
   }
   dispose() {
