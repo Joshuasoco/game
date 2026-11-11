@@ -8,6 +8,7 @@ import type {
   JoinResult,
 } from "@dink/shared";
 import { SwingDetector, type DetectedSwing } from "./swing";
+import { clamp } from "../game/solver";
 import "../style.css";
 import "./phone.css";
 type PermissionEvent = {
@@ -41,6 +42,15 @@ function Phone() {
     message: "",
   });
   const [sensorStatus, setSensorStatus] = useState("");
+  const [liveRoll, setLiveRoll] = useState(0),
+    [strength, setStrength] = useState(0),
+    [settingsOpen, setSettingsOpen] = useState(false),
+    [intent, setIntent] = useState(0),
+    [drop, setDrop] = useState(false);
+  const dropRef = useRef(false),
+    intentRef = useRef(0),
+    press = useRef<{ at: number; x: number } | null>(null),
+    neutralPitch = useRef(0);
   const socket = useRef<Socket<ServerEvents, ClientEvents> | null>(null);
   const detector = useRef(new SwingDetector());
   const samples = useRef<DetectedSwing[]>([]);
@@ -56,6 +66,22 @@ function Phone() {
   const wake = useRef<WakeLockSentinel | null>(null);
   const hasStarted = useRef(false);
   const lastMotion = useRef(0);
+  const localSwingFeedback = () => {
+    navigator.vibrate?.(8);
+    setFlash(true);
+    setTimeout(() => setFlash(false), 70);
+  };
+  const sendIntent = (value: number) => {
+    intentRef.current = value;
+    setIntent(value);
+    if (socket.current?.connected)
+      socket.current.volatile.emit("input:pose", {
+        seq: ++seq.current,
+        pitch: 0,
+        roll: liveRoll,
+        intent: value,
+      });
+  };
   useEffect(() => {
     const value = /Android/i.test(navigator.userAgent) ? 0.8 : 1;
     detector.current.sensitivity = value;
@@ -268,21 +294,36 @@ function Phone() {
         pitch = e.beta ?? 0;
         if (!gotNeutral) {
           neutral.current = roll;
+          neutralPitch.current = pitch;
           gotNeutral = true;
         }
         const now = performance.now();
         if (now - lastPose > 33 && socket.current?.connected) {
+          setLiveRoll(roll - neutral.current);
+          const position = clamp((neutralPitch.current - pitch) / 30, -1, 1);
           lastPose = now;
           socket.current.volatile.emit("input:pose", {
             seq: ++seq.current,
             pitch,
             roll: roll - neutral.current,
+            intent: intentRef.current || position,
           });
         }
       };
       const motion = (e: DeviceMotionEvent) => {
         lastMotion.current = Date.now();
         const r = e.rotationRate;
+        setStrength(
+          clamp(
+            Math.max(
+              Math.abs(r?.alpha ?? 0),
+              Math.abs(r?.beta ?? 0),
+              Math.abs(r?.gamma ?? 0),
+            ) / detector.current.scale,
+            0,
+            1,
+          ),
+        );
         const detected = detector.current.sample({
           t: Date.now(),
           alpha: r?.alpha ?? 0,
@@ -292,12 +333,16 @@ function Phone() {
         });
         if (!detected) return;
         if (stageRef.current === "practice") addPractice(detected);
-        else if (stageRef.current === "ready" && socket.current?.connected)
+        else if (stageRef.current === "ready" && socket.current?.connected) {
+          localSwingFeedback();
           socket.current.emit("input:swing", {
             seq: ++seq.current,
             ...detector.current.map(detected),
             lob: lobRef.current,
+            drop: dropRef.current,
+            spin: detected.sign === detector.current.swingSign ? 0.5 : -0.5,
           });
+        }
       };
       window.addEventListener("deviceorientation", pose);
       window.addEventListener("devicemotion", motion);
@@ -328,7 +373,8 @@ function Phone() {
       });
       return;
     }
-    if (stage === "ready")
+    if (stage === "ready") {
+      localSwingFeedback();
       socket.current?.emit("input:swing", {
         seq: ++seq.current,
         power,
@@ -336,7 +382,11 @@ function Phone() {
         tilt: aim,
         lob: lobRef.current,
         tPhone: Date.now(),
+        drop: dropRef.current,
+        intent: intentRef.current,
+        spin: 0.5,
       });
+    }
   };
   const recalibrate = () => {
     if (["serve", "rally", "point"].includes(phase.phase))
@@ -359,7 +409,9 @@ function Phone() {
               : "Pip’s serve."
             : "Make it yours.";
   return (
-    <div className={`phone-app ${flash ? "hit-flash" : ""}`}>
+    <div
+      className={`phone-app ${flash ? "hit-flash" : ""} ${hand === "left" ? "left-handed" : ""} ${stage === "ready" ? "is-controller" : ""}`}
+    >
       <header className="phone-header">
         <a href="/" className="phone-brand">
           dink<span>duel.</span>
@@ -419,17 +471,8 @@ function Phone() {
         ) : stage === "welcome" ? (
           <section className="phone-welcome">
             <div className="phone-eyebrow">MEET YOUR NEW PADDLE</div>
-            <h1>
-              Good things
-              <br />
-              start with
-              <br />
-              <em>a little swing.</em>
-            </h1>
-            <p>
-              Your character handles the footwork. You bring the touch, timing,
-              and a little competitive spirit.
-            </p>
+            <h1>Your paddle.</h1>
+            <p>Tilt to aim. Swing to hit. Hold LOB for height.</p>
             <div className="grip-notice">
               <span>↗</span>
               <p>
@@ -462,7 +505,7 @@ function Phone() {
               I’d rather use touch controls →
             </button>
             <p className="phone-footnote">
-              One permission. Three practice swings. You’re in.
+              Next: three gentle forehand swings.
             </p>
           </section>
         ) : (
@@ -512,12 +555,58 @@ function Phone() {
             <button
               className={`paddle-button ${touch ? "touch-paddle" : ""}`}
               onClick={touch ? tap : undefined}
+              onPointerDown={(e) => {
+                if (!touch) return;
+                e.currentTarget.setPointerCapture(e.pointerId);
+                press.current = { at: Date.now(), x: e.clientX };
+              }}
+              onPointerMove={(e) => {
+                if (!touch || !press.current) return;
+                const bounds = e.currentTarget.getBoundingClientRect();
+                const value = clamp(
+                  ((e.clientX - bounds.left) / bounds.width) * 2 - 1,
+                  -1,
+                  1,
+                );
+                setAim(value);
+                setLiveRoll(value * 30);
+                setPower(
+                  clamp(0.3 + (Date.now() - press.current.at) / 800, 0.2, 1),
+                );
+              }}
+              onPointerUp={() => {
+                press.current = null;
+              }}
+              onPointerCancel={() => {
+                press.current = null;
+              }}
               disabled={
                 !connected || (stage === "ready" && phase.phase === "paused")
               }
               aria-label={touch ? "Tap to swing" : "Motion paddle active"}
             >
-              <span className="paddle-art">
+              <svg
+                className="strength-arc"
+                viewBox="0 0 220 220"
+                aria-label={`Swing strength ${Math.round((touch ? power : strength) * 100)} percent`}
+              >
+                <circle cx="110" cy="110" r="96" />
+                <circle
+                  className="strength-fill"
+                  cx="110"
+                  cy="110"
+                  r="96"
+                  strokeDasharray="603"
+                  strokeDashoffset={603 * (1 - (touch ? power : strength))}
+                />
+              </svg>
+              <span
+                className="paddle-art"
+                style={{
+                  transform: `rotate(${clamp(liveRoll, -35, 35) - 8}deg)`,
+                  filter: flash ? "brightness(1.2)" : "none",
+                }}
+              >
                 <span className="paddle-perforations">
                   ···
                   <br />
@@ -535,54 +624,83 @@ function Phone() {
                     : "SWING TO HIT"}
               </span>
             </button>
-            {touch && (
-              <div className="touch-controls">
-                <label htmlFor="aim">
-                  AIM{" "}
-                  <span>
-                    {aim < -0.2 ? "Left" : aim > 0.2 ? "Right" : "Center"}
-                  </span>
-                </label>
-                <input
-                  id="aim"
-                  type="range"
-                  min="-1"
-                  max="1"
-                  step="0.05"
-                  value={aim}
-                  onChange={(e) => setAim(Number(e.target.value))}
-                />
-                <label htmlFor="power">
-                  POWER <span>{Math.round(power * 100)}%</span>
-                </label>
-                <input
-                  id="power"
-                  type="range"
-                  min="0.15"
-                  max="1"
-                  step="0.05"
-                  value={power}
-                  onChange={(e) => setPower(Number(e.target.value))}
+            <div
+              className="tilt-indicator"
+              aria-label={`Aim ${aim < -0.2 ? "left" : aim > 0.2 ? "right" : "center"}`}
+            >
+              <span>LEFT</span>
+              <div>
+                <i
+                  style={{ left: `${50 + clamp(liveRoll / 35, -1, 1) * 45}%` }}
                 />
               </div>
+              <span>RIGHT</span>
+            </div>
+            {touch && (
+              <p className="touch-instruction">
+                Slide to aim. Hold and move for power. Tap to hit.
+              </p>
             )}
-            {!touch && stage === "ready" && (
-              <div className="sensitivity-control">
-                <label htmlFor="sensitivity">
-                  SWING SENSITIVITY <span>{sensitivity.toFixed(1)}×</span>
-                </label>
-                <input
-                  id="sensitivity"
-                  type="range"
-                  min="0.5"
-                  max="2"
-                  step="0.1"
-                  value={sensitivity}
-                  onChange={(e) => {
-                    setSensitivity(Number(e.target.value));
-                    detector.current.sensitivity = Number(e.target.value);
-                  }}
-                />
+            {settingsOpen && (
+              <div
+                className="phone-settings"
+                role="region"
+                aria-label="Controller settings"
+              >
+                <div className="phone-settings-heading">
+                  <h2>Settings</h2>
+                  <button onClick={() => setSettingsOpen(false)}>Done</button>
+                </div>
+                {touch && (
+                  <div className="touch-controls">
+                    <label htmlFor="aim">
+                      AIM{" "}
+                      <span>
+                        {aim < -0.2 ? "Left" : aim > 0.2 ? "Right" : "Center"}
+                      </span>
+                    </label>
+                    <input
+                      id="aim"
+                      type="range"
+                      min="-1"
+                      max="1"
+                      step="0.05"
+                      value={aim}
+                      onChange={(e) => setAim(Number(e.target.value))}
+                    />
+                    <label htmlFor="power">
+                      POWER <span>{Math.round(power * 100)}%</span>
+                    </label>
+                    <input
+                      id="power"
+                      type="range"
+                      min="0.15"
+                      max="1"
+                      step="0.05"
+                      value={power}
+                      onChange={(e) => setPower(Number(e.target.value))}
+                    />
+                  </div>
+                )}
+                {!touch && stage === "ready" && (
+                  <div className="sensitivity-control">
+                    <label htmlFor="sensitivity">
+                      SWING SENSITIVITY <span>{sensitivity.toFixed(1)}×</span>
+                    </label>
+                    <input
+                      id="sensitivity"
+                      type="range"
+                      min="0.5"
+                      max="2"
+                      step="0.1"
+                      value={sensitivity}
+                      onChange={(e) => {
+                        setSensitivity(Number(e.target.value));
+                        detector.current.sensitivity = Number(e.target.value);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )}
             {stage === "ready" && (
@@ -617,6 +735,16 @@ function Phone() {
                   <span>HOLD FOR HEIGHT</span>
                 </button>
                 <button
+                  className={`drop-button ${drop ? "held" : ""}`}
+                  aria-pressed={drop}
+                  onClick={() => {
+                    dropRef.current = !drop;
+                    setDrop(!drop);
+                  }}
+                >
+                  DROP<span>{drop ? "ON" : "OFF"}</span>
+                </button>
+                <button
                   className="phone-pause"
                   aria-label={
                     phase.phase === "paused" ? "Resume match" : "Pause match"
@@ -625,6 +753,40 @@ function Phone() {
                 >
                   {phase.phase === "paused" ? "▶" : "Ⅱ"}
                   <span>{phase.phase === "paused" ? "RESUME" : "PAUSE"}</span>
+                </button>
+              </div>
+            )}
+            {stage === "ready" && (
+              <div className="position-controls" aria-label="Court position">
+                <button
+                  aria-pressed={intent > 0}
+                  onPointerDown={(e) => {
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                    sendIntent(1);
+                  }}
+                  onPointerUp={() => sendIntent(0)}
+                  onPointerCancel={() => sendIntent(0)}
+                  onKeyDown={(e) => {
+                    if (e.key === " " || e.key === "Enter") sendIntent(1);
+                  }}
+                  onKeyUp={() => sendIntent(0)}
+                >
+                  ↑ ADVANCE <small>HOLD</small>
+                </button>
+                <button
+                  aria-pressed={intent < 0}
+                  onPointerDown={(e) => {
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                    sendIntent(-1);
+                  }}
+                  onPointerUp={() => sendIntent(0)}
+                  onPointerCancel={() => sendIntent(0)}
+                  onKeyDown={(e) => {
+                    if (e.key === " " || e.key === "Enter") sendIntent(-1);
+                  }}
+                  onKeyUp={() => sendIntent(0)}
+                >
+                  ↓ RETREAT <small>HOLD</small>
                 </button>
               </div>
             )}
@@ -639,6 +801,9 @@ function Phone() {
               </div>
             )}
             <div className="phone-tools">
+              <button onClick={() => setSettingsOpen(!settingsOpen)}>
+                Settings
+              </button>
               {!touch && <button onClick={useTouch}>Use touch controls</button>}
               {stage === "ready" && (
                 <button onClick={recalibrate}>Recalibrate</button>
@@ -647,9 +812,6 @@ function Phone() {
           </>
         )}
       </main>
-      <footer className="phone-footer">
-        YOUR PHONE. YOUR PADDLE. YOUR GAME.
-      </footer>
     </div>
   );
 }
