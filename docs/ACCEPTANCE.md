@@ -1,5 +1,7 @@
 # Acceptance record
 
+The current seven-phase polish review is [implementation-review.md](implementation-review.md). It records 33 automated tests, 4 browser tests, exact-size before/after screenshots, generated-art provenance and the physical-device gates that remain open. The table below retains the milestones from the original implementation plan.
+
 The source implementation follows the supplied plan. The README documents supported behavior, architecture, local HTTPS setup, and the remaining physical-device/deployment gates.
 
 ## Automated coverage

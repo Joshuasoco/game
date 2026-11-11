@@ -472,7 +472,7 @@ export class Game {
       shot,
       this.random,
       side === "ai"
-        ? skill.error * RIVALS[this.rival].error * this.adaptation
+        ? (skill.error * RIVALS[this.rival].error) / this.adaptation
         : accuracy,
     );
     this.history = [];
@@ -491,7 +491,7 @@ export class Game {
     this.scene.hit(side, input?.side === "backhand", shot === "smash");
     if (side === "player") {
       this.metrics.record("hit");
-      if (this.timing === "perfect") this.metrics.record("perfect");
+      if (this.timing) this.metrics.record(this.timing);
       if (this.tutorial === "dink" && shot === "dink") this.tutorial = "lob";
       else if (this.tutorial === "lob" && shot === "lob") this.skipTutorial();
     }
@@ -500,7 +500,12 @@ export class Game {
       side === "player" && this.timing === "perfect",
       power,
     );
-    this.hitStop = this.timing === "perfect" ? 0.075 : power > 0.6 ? 0.06 : 0;
+    this.hitStop =
+      side === "player" && this.timing === "perfect"
+        ? 0.075
+        : power > 0.6
+          ? 0.06
+          : 0;
     this.audio.play("hit", power);
     if (side === "player" && this.timing === "perfect")
       this.audio.play("perfect");
@@ -511,7 +516,7 @@ export class Game {
     this.aiWait = 0;
     this.aiMiss =
       this.random() <
-      skill.miss * RIVALS[this.rival].error +
+      (skill.miss * RIVALS[this.rival].error) / this.adaptation +
         (this.rally > 5 ? RIVALS[this.rival].pressure * 0.16 : 0);
     if (this.rally > this.best) {
       this.best = this.rally;

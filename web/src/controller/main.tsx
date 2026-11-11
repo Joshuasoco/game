@@ -10,6 +10,7 @@ import type {
 import { SwingDetector, type DetectedSwing } from "./swing";
 import { clamp } from "../game/solver";
 import { ART } from "../art-assets";
+import { RIVALS } from "../game/ai";
 const art = ART as Record<string, { file: string }>;
 import "../style.css";
 import "./phone.css";
@@ -67,6 +68,8 @@ function Phone() {
   const neutral = useRef(0);
   const lobRef = useRef(false);
   const stageRef = useRef(stage);
+  const touchRef = useRef(touch);
+  touchRef.current = touch;
   stageRef.current = stage;
   const handRef = useRef(hand);
   handRef.current = hand;
@@ -194,7 +197,8 @@ function Phone() {
       if (
         hasStarted.current &&
         Date.now() - lastMotion.current > 3500 &&
-        stageRef.current !== "welcome"
+        stageRef.current !== "welcome" &&
+        !touchRef.current
       )
         setSensorStatus(
           "No motion readings yet. Use touch mode if this browser does not provide sensors.",
@@ -419,7 +423,7 @@ function Phone() {
           : phase.phase === "serve"
             ? phase.serving === "player"
               ? "Your serve."
-              : "Pip’s serve."
+              : `${RIVALS[phase.rival ?? "pip"].name}’s serve.`
             : "Make it yours.";
   return (
     <div
@@ -438,7 +442,7 @@ function Phone() {
       <main className="phone-main">
         {!activeRoom || !joined ? (
           <section className="phone-welcome">
-            <div className="phone-eyebrow">YOUR COURTSIDE INVITATION</div>
+            <div className="phone-eyebrow">JOIN A COURT</div>
             <h1>
               Got a court
               <br />
@@ -529,7 +533,8 @@ function Phone() {
               </span>
               <i>:</i>
               <span>
-                <b>{phase.score[1]}</b> PIP
+                <b>{phase.score[1]}</b>{" "}
+                {RIVALS[phase.rival ?? "pip"].name.toUpperCase()}
               </span>
             </div>
             <div className="phone-game-heading">
@@ -538,7 +543,7 @@ function Phone() {
                   ? "LET’S FIND YOUR FEEL"
                   : phase.phase === "rally"
                     ? `${phase.rally} SHOT RALLY`
-                    : "A LITTLE FRIENDLY COMPETITION"}
+                    : "SINGLES"}
               </div>
               <h1>
                 {stage === "practice"
@@ -550,7 +555,9 @@ function Phone() {
                   ? touch
                     ? "Tap the paddle to practice."
                     : "Hold naturally and make a gentle forehand swing."
-                  : phase.message}
+                  : phase.message === headline
+                    ? "Tilt to aim. Swing to hit."
+                    : phase.message}
               </p>
             </div>
             {stage === "practice" && (

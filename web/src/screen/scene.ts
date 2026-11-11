@@ -174,7 +174,7 @@ export class CourtScene {
     this.renderer.shadowMap.type = T.PCFSoftShadowMap;
     this.renderer.outputColorSpace = T.SRGBColorSpace;
     this.renderer.toneMapping = T.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.28;
+    this.renderer.toneMappingExposure = 1.08;
     container.appendChild(this.renderer.domElement);
     this.renderer.domElement.setAttribute(
       "aria-label",
@@ -183,9 +183,9 @@ export class CourtScene {
     this.renderer.domElement.setAttribute("role", "img");
     this.scene.background = new T.Color(0xe8eedf);
     this.scene.fog = new T.Fog(0xe8eedf, 40, 85);
-    this.scene.add(new T.HemisphereLight(0xfff9e9, 0x8ba58e, 2.8));
-    const sun = new T.DirectionalLight(0xffefcf, 3.8);
-    sun.position.set(-8, 18, 8);
+    this.scene.add(new T.HemisphereLight(0xffeed3, 0x718564, 2));
+    const sun = new T.DirectionalLight(0xffdcad, 3.2);
+    sun.position.set(-10, 13, 8);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
     sun.shadow.camera.left = -15;
@@ -248,6 +248,7 @@ export class CourtScene {
     this.observer = new ResizeObserver(() => this.resize());
     this.observer.observe(container);
     this.resize();
+    this.setTheme("park");
   }
   private court() {
     this.scene.add(box(13, 0.35, 19.5, 0xc8d0b3, 0, -0.3, 0));

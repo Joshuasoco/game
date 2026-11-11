@@ -13,9 +13,18 @@ type IconName =
   | "trophy"
   | "keyboard"
   | "sun"
-  | "link";
+  | "link"
+  | "settings";
 export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, React.ReactNode> = {
+    settings: (
+      <>
+        <path d="M3 6h3m4 0h11M3 12h10m4 0h4M3 18h5m4 0h9" />
+        <circle cx="8" cy="6" r="2" />
+        <circle cx="15" cy="12" r="2" />
+        <circle cx="10" cy="18" r="2" />
+      </>
+    ),
     paddle: (
       <>
         <path d="M15.5 3.5c3.5 3.5 2 7.5-1 10.5s-6 3-9 0-3-6 0-9 6.5-5 10-1.5Z" />

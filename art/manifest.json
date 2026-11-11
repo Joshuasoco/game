@@ -1163,6 +1163,6 @@
   "notes": [
     "Selection is assistant art-direction review, not a human approval.",
     "Built-in tool does not expose its underlying model; that provenance is never invented.",
-    "API generation requires OPENAI_API_KEY. No API generation was run without it."
+    "This manifest contains built-in tool outputs; API generation was not used."
   ]
 }

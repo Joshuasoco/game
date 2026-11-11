@@ -1,124 +1,100 @@
 # Dink Duel
 
-**Your phone is the paddle. Your living room is courtside.**
+Motion-controlled pickleball: the laptop runs a 3D match; the phone is the paddle. Singles against four distinct rivals, with keyboard and touch fallback.
 
-A solo, 3D pickleball game with a motion-controlled phone paddle, a friendly AI rival, and a keyboard fallback. Built from [the implementation plan](docs/Phone-as-Controller%20Game%20Implementation%20Plan.md).
+![Full-screen match](docs/reviews/phase-7/play-1440x900.png)
 
-![Dink Duel clubhouse and 3D Evergreen Park court](docs/desktop-preview.png)
+## Run
 
-## Run locally
-
-Requires Node.js 22.12+ (Node 24 LTS recommended) and npm.
+Node 22.12+ (24 LTS recommended), npm, and a WebGL-capable browser.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open **http://localhost:5173** on your laptop. The relay runs on port 3001; Vite proxies the WebSocket connection so both devices use the same origin.
+Open **http://localhost:5173**. Choose **Play with your phone** or **Try with your keyboard**. The relay uses port 3001; Vite proxies WebSockets so both devices share one origin. Use `/c` or the QR link to join. The invite uses the first detected LAN address when opened on localhost; on machines with several adapters, open the correct Vite Network URL on the laptop before pairing.
 
-- **Try with your keyboard** starts a match immediately.
-- **Play with your phone** shows the QR code and four-letter room code.
-- For local touch play, connect your phone to the same Wi-Fi. The QR code uses the first detected LAN address when the laptop is opened on localhost. If your machine has several network adapters, open Vite's correct Network URL on the laptop before pairing.
-- A second browser tab at `/controller.html?room=ABCD` works as a test controller. `/c` is the short join page.
-- Allow the local dev server through your firewall if another device cannot connect.
+**Phone motion needs HTTPS.** A plain LAN HTTP URL supports touch only. Forward port 5173 through an HTTPS tunnel with WebSocket support, or use a trusted local certificate. Open the HTTPS address on the laptop first, then scan its QR. If the proxy rewrites the WebSocket Host header, add the public HTTPS origin to `ALLOWED_ORIGINS`. No application code calls image generation at runtime.
 
-### Motion controls require HTTPS
+## Play
 
-An ordinary `http://192.168…` address supports **touch controls only**. Mobile browsers require a secure context for motion sensors.
+| Action      | Phone                                            | Keyboard                                |
+| ----------- | ------------------------------------------------ | --------------------------------------- |
+| Hit / serve | Swing, or tap the paddle                         | Space                                   |
+| Aim         | Tilt; slide the touch paddle                     | Hold ← / → while hitting                |
+| Power       | Swing speed; move while holding the touch paddle | Medium drive; C + Space for a soft dink |
+| Drop        | Toggle DROP, then hit                            | D + Space                               |
+| Lob         | Hold LOB while hitting                           | Shift + Space                           |
+| Position    | Forward/back tilt or ADVANCE / RETREAT hold      | Hold ↑ / ↓                              |
+| Underspin   | Backhand swing                                   | X + Space                               |
+| Pause       | Small pause control                              | P                                       |
+| Next point  | Desktop toast button                             | Enter                                   |
 
-Forward Vite's port **5173** through an HTTPS tunnel with WebSocket support, or use a trusted local HTTPS certificate. Open the resulting **public HTTPS address on the laptop first**, then scan its QR code with the phone. This ensures that the page, relay, and invite all use the same address. The game requests motion permission from a button tap, including the iOS permission prompts. If your proxy changes the WebSocket Host header, set `ALLOWED_ORIGINS` to the public HTTPS origin before starting the relay.
+Auto footwork handles movement to the ball; timing, aim, power, spin and forward/retreat intent remain player decisions. Perfect contacts are within ±45 ms of the ideal contact plane; Good within ±120 ms; late/very early shots lose pace and accuracy. Assisted launch solutions clear the net but do not trigger swings or guarantee that hard/late shots stay in bounds.
 
-Motion calibration is three gentle forehand swings. It learns the dominant rotation axis, forehand sign, neutral tilt, and typical peak speed. Android starts with a lower sensitivity; a slider allows tuning. Use a firm grip or wrist strap and clear the surrounding space. Touch controls remain available when permission is denied or readings are unavailable.
+Rally scoring goes to 11, win by two. Diagonal serves, the two-bounce rule, line calls, kitchen volley faults, net/out/double-bounce faults remain. Rally challenge, saved personal best and the sunset court unlock are preserved. A short first-time practice prompt teaches serve, dink and lob; it is skippable and capped at 30 seconds.
 
-## Controls
+Pip is balanced; Rocket favors drives and makes pressure errors; Mabel prefers patient short shots and struggles to retreat against lobs; June is the club champion. All three difficulty settings remain independent of rival choice. Three consecutive wins/losses adjust AI reactions and errors slightly, without changing sensor detection.
 
-| Action         | Phone                                        | Keyboard                  |
-| -------------- | -------------------------------------------- | ------------------------- |
-| Serve / hit    | Swing, or tap the paddle in touch mode       | Space                     |
-| Aim            | Tilt left/right, or use the touch aim slider | Hold ← / → while swinging |
-| Power          | Swing speed, or touch power slider           | Medium-power drive        |
-| Lob            | Hold LOB while swinging/tapping              | Shift + Space             |
-| Pause / resume | Pause button                                 | P                         |
+## Settings and feedback
 
-Players move automatically. Shots include dinks, drives, lobs, and high-ball smashes. A 200 ms input buffer accepts slightly early swings; a bounded position history compensates for late arrivals using the measured phone-to-host clock offset. The displayed paddle follows the phone roll.
-
-## What is implemented
-
-- A Three.js park scene with regulation-size court markings, an open mesh net, two animated procedural characters, paddles, ball trail, ground shadow, and predicted landing marker.
-- A Rapier dynamic ball with continuous collision detection, quadratic drag, fixed 120 Hz physics, and interpolated rendering. Pixel ratio is capped at 1.75.
-- An iterative shot solver using the same velocity update as the live ball. Net clearance is checked while solving; stronger drives use shorter flight times.
-- A pure rules state machine: diagonal serves beyond the kitchen, two-bounce rule, kitchen volley faults, line calls, net/out/double-bounce faults, rally scoring to 11, win by two.
-- Easy, medium, and hard AI with seeded decisions, limited movement speed, reaction delay, aim error, and occasional missed returns.
-- Quick matches, an ongoing rally challenge, locally stored best rally, and a sunset atmosphere unlocked by winning.
-- Original synthesized paddle/bounce/net/point audio played through Howler after a user interaction. Mute control and reduced-motion UI support.
-- QR pairing, a manual join page, one phone per room, and unguessable controller resume tokens.
-- Reliable, sequenced swing events; volatile 30 Hz paddle pose; two-second round-trip/clock measurements; synchronized game phases; hit flashes and best-effort vibration.
-- Motion permission, calibration, handedness, sensitivity, touch fallback, screen wake lock, and a 60-second controller reconnect reservation. A match pauses on disconnect and resumes after the paddle confirms readiness. Recalibration preserves the score.
-- Shared Zod schemas and TypeScript event contracts; role checks; sequence rejection; 65-packet/second socket limit; 12 join attempts/minute per socket IP; 8 KB message limit; same-origin/allowlist WebSocket handshake; 10-minute room inactivity expiry; `/health` endpoint.
-
-The court, players, animation, and paddle are **code-generated 3D assets**, rather than downloaded glTF files. This keeps the art consistent and avoids external model downloads or license uncertainty. Image generation is not required for the current art direction; generated character portraits or textures can be added separately without changing the game logic.
-
-The net collider currently uses the regulation post height across the width, while the visual net sags at the center. This conservative approximation is a tuning item for real-device playtests. Serves are assisted to a legal diagonal landing rather than judging the biomechanics of an underhand gesture.
+- Full-viewport court during play; compact score/rally HUD and edge toasts.
+- Match-local longest rally, winners, faults and average accepted-contact timing, with rival quips and rematch.
+- 60–75 ms contact hit-stop, recoil, squash, timing ring, pooled particles, speed-scaled trail and landing marker.
+- Low/Medium/High quality controls shadow maps, particles and pixel ratio. Reduced motion disables particles, squash and shake and honors the OS preference.
+- Master, effects, music and ambience levels; mute. Original synthesized effects and three music stems adapt to rally length. Audio is unlocked only after a user gesture.
+- Phone strength arc, tilt indicator, handedness mirroring, six paddle skins and a Settings drawer. Sensor detection is sampled independently of the roughly 30 Hz visual update.
+- Wake lock, local swing flash/vibration, separate confirmed-contact haptics, RTT and clock-offset estimation.
+- Controller loss pauses play and reserves identity for 60 seconds. Recalibration/reload resumes with the score intact; laptop loss closes the room.
+- Anonymous local tuning counters are **off by default**, never leave the browser, contain no identifiers, and can be cleared in Settings.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  P[Phone: sensors / touch] -->|reliable swing + calibration| R[Node / Socket.IO room relay]
-  P -.->|volatile pose · 30 Hz| R
-  R --> G[Laptop: React HUD + Three.js + Rapier]
-  G --> Q[Pure rules + shot solver + seeded AI]
-  G -->|phase + haptic + ping ack| R
-  R --> P
+  Phone[Phone sensors / touch] -->|reliable sequenced swings| Relay[Node + Socket.IO room relay]
+  Phone -.->|volatile pose and intent / 30 Hz| Relay
+  Relay --> Game[Desktop: React HUD / Three.js / Rapier]
+  Game --> Logic[Pure rules / shot solver / rival JSON]
+  Game -->|phase / haptic / ping ack| Relay
+  Relay --> Phone
 ```
 
-```text
-shared/src/protocol.ts        Shared message types and runtime schemas
-server/src/index.ts           HTTP service, validated and authorized relay
-server/src/rooms.ts           Pairing, identity, reservation and room expiry
-web/src/game/engine.ts        Fixed-step match orchestration and input buffering
-web/src/game/rules.ts         Pure rules and scoring state machine
-web/src/game/solver.ts        Shared trajectory integrator and shot solver
-web/src/game/tuning.ts        Court dimensions, physics and AI constants
-web/src/game/audio.ts         Original PCM sound synthesis and Howler playback
-web/src/screen/scene.ts       Procedural court, characters, effects, camera
-web/src/screen/main.tsx       Laptop menus, pairing, scoreboard and HUD
-web/src/controller/           Motion detector and mobile controller
-tests/                       Logic, physics, full matches and relay integration
-tests/e2e/                   Two-browser pairing, controls and reconnect tests
-```
+`shared/src/protocol.ts` contains message types and Zod schemas. `server/src` manages rooms and authorized validated relay only. `web/src/game` owns fixed 120 Hz physics, scoring, timing, spin, AI and sound. `web/src/screen` owns rendering and the desktop interface. `web/src/controller` owns calibration, motion and touch. React does not run the render loop. `web/src/tokens.css` is the typography/color/spacing token source.
 
-React does not run the render/physics loop. The relay never runs the match. This is deliberately a single-instance casual game: scores supplied by a browser should not be trusted for a competitive leaderboard.
+The relay uses websocket-only transport, one phone per room, UUID resume tokens, role checks, sequence rejection, an 8 KB packet limit, a 65-packet/second socket limit, 12 join attempts/minute per socket IP, same-origin/allowlist handshakes, and 10-minute inactivity expiry. Behind a reverse proxy the socket IP may group users; use a trusted edge rate limiter for a public multi-user deployment. Rooms and casual scores are not a competitive leaderboard authority.
 
-### Three implementation decisions
+## Art workflow
 
-1. **Reliable gestures, disposable poses.** A dropped swing loses a point, so swings use reliable Socket.IO delivery and increasing sequence numbers. Poses can use volatile transport because the next frame replaces a lost one. Inputs are sent only while connected to avoid replaying stale swings.
-2. **Aim at a landing point.** Tilt selects a court target, then the solver corrects launch velocity under drag and checks net clearance. Tests cover both the prediction integrator and an actual Rapier trajectory, preventing tests that validate only an unrelated approximation.
-3. **Reserve identity on disconnect.** A cryptographically random UUID identifies the controller independently of its socket ID. The reservation lasts 60 seconds, blocks a second phone, pauses the match, and restores control without resetting the score. A lost laptop connection closes its room.
-
-## Checks
+Read [the art bible](docs/art-bible.md) and [curation manifest](art/manifest.json). There are four initial candidates for each of 14 jobs, plus one targeted portrait correction: **57 generated candidates**. Four character turnarounds, six skin designs, material tiles, day/sunset plates, UI atlas, logo explorations, app icon, share art and rival portraits are included. The selected images produce 31 downsized runtime asset entries. Models remain procedural 3D, informed by the generated references.
 
 ```sh
-npm run typecheck
-npm run lint
-npm test
-npm run build
+npm run art:generate -- --dry-run
+npm run art:generate -- --asset=style-frame
+npm run art:generate -- --asset=concept-pip
+npm run art:review
+npm run art:process
+```
+
+Actual API requests require `OPENAI_API_KEY` in the environment; never put it in source. `OPENAI_IMAGE_MODEL` can override the supported default (`gpt-image-2.5-sunburst`). The runner checks model access, uses generation for the style frame and reference edits for later assets, requests four 1024px PNG candidates and does not automatically select one. `gpt-image-1` is retired; the official source is linked in the art bible.
+
+The included art was generated with the **built-in image tool**, not an account API key. Its underlying model is not exposed; the manifest says so. Exact prompts, requested parameters, dates, hashes, selection reasons and assistant reviewer are stored. Human approval remains explicitly pending.
+
+Edit `art/selections.json` after visual review. Raw discarded candidates remain locally in ignored `art/raw`; four-way review sheets are tracked. Full selected sources are committed under `art/selected/sources`, so `npx tsx scripts/process-art.ts --curated-only` works from a fresh checkout without API access. The processor preserves alpha, trims, constrains palette, downsizes, encodes WebP/AVIF, packs icons, checks tile edges, and emits CSS/TypeScript maps. No raw 1024px art is served in game UI.
+
+## Verification
+
+```sh
+npm run check
 npm run test:e2e
 ```
 
-`npm run check` runs typecheck, lint, Vitest, and the production build. Local browser tests use installed Google Chrome. In CI they use Playwright Chromium; the workflow installs it first. To use another local Playwright channel, adjust `playwright.config.ts`.
+`check` runs TypeScript, lint, Vitest, production build and a bundled-size gate. All **22 baseline tests remain**, with new timing, spin, rival distribution, preferences, contrast, opt-in and art-integrity tests: **33 tests** total. Four browser tests cover pairing/calibration/serve/pause/resume, score preservation after reload, keyboard and full-viewport play, graphics/reduced motion, opt-in default, landscape controller layout, rival naming and skin switching.
 
-The automated suite covers:
+Local Playwright uses installed Chrome. CI installs its Chromium runtime. Append `?debug=1` for FPS, phase, room and hit count. The budget script counts all JS/CSS chunks including physics and all optional bundled images; external Google Fonts are excluded. Build size is not an FPS or latency measurement.
 
-- 1,000 seeded targets landing within 5 cm and clearing the net, plus an actual Rapier flight comparison.
-- Scripted serve, two-bounce, kitchen, out, net, double-bounce and win-by-two rules.
-- Synthetic sensor peak detection, return-motion suppression, calibration and neutral tilt.
-- Full physics-driven matches reaching game over on all three difficulties.
-- Real socket pairing, validation, duplicate rejection, second-phone rejection, resume and host closure.
-- Two browser contexts pairing, touch calibration, serve, pause/resume, reload/recalibration with score preservation, keyboard controls and narrow-screen overflow.
-
-Append `?debug=1` to show FPS, phase, room and successful hits. The displayed ping is the measured round-trip time; no latency benchmark is claimed.
+See [the phase review and before/after captures](docs/implementation-review.md), [voice guide](docs/voice.md), [game design](docs/game-design.md), and [ten-point real-phone checklist](docs/playtest-checklist.md).
 
 ## Production
 
@@ -128,28 +104,20 @@ npm run build
 npm start
 ```
 
-The single Express service serves `web/dist`, `/c`, `/health`, and Socket.IO at **http://localhost:3001**. Put it behind an HTTPS reverse proxy that supports WebSocket upgrades, or deploy the included Dockerfile to a Node-capable service. Run **one instance**; rooms are in memory. Use an Asian region for players in the Philippines.
+One Express service serves the game, assets, `/c`, `/health` and Socket.IO on port 3001. The Dockerfile and push/PR CI are retained. Deploy one Node-capable instance behind a WebSocket-capable HTTPS proxy; rooms are in memory. Choose a nearby region. No deployment provider has been created or configured by this workspace.
 
-| Environment       | Default     | Purpose                                                       |
-| ----------------- | ----------- | ------------------------------------------------------------- |
-| `PORT`            | `3001`      | HTTP and WebSocket listener                                   |
-| `NODE_ENV`        | unset       | Set to `production`; disables local network-address discovery |
-| `ALLOWED_ORIGINS` | same origin | Comma-separated extra allowed WebSocket origins               |
+| Environment          | Default           | Purpose                                           |
+| -------------------- | ----------------- | ------------------------------------------------- |
+| `PORT`               | `3001`            | HTTP and WebSocket listener                       |
+| `NODE_ENV`           | unset             | Use `production` to disable LAN-address discovery |
+| `ALLOWED_ORIGINS`    | same origin       | Comma-separated additional allowed origins        |
+| `OPENAI_API_KEY`     | unset             | Optional build-time art generation only           |
+| `OPENAI_IMAGE_MODEL` | supported default | Explicit build-time image model                   |
 
-See `.env.example`. Environment variables must be set by your shell or hosting provider; the server does not automatically load `.env` files. No secrets are required. The per-IP join limiter uses the actual socket address; behind a proxy it may group users under the proxy's IP. Configure a trusted edge rate limiter for a public multi-user deployment rather than trusting arbitrary forwarded headers.
+Set variables in the shell/provider; `.env` files are not automatically loaded. Never expose image API credentials to Vite or a `VITE_` variable.
 
-GitHub Actions runs all checks and browser tests on pushes and pull requests. Deployment is intentionally provider-neutral: connect your chosen service to the repository and configure its build/start commands or Docker build. No hosted service has been created from this workspace.
+## Open gates and credits
 
-## Remaining real-world gates
+Physical iOS/Android accuracy, sensor behavior when rotating the phone, measured local Wi-Fi response under 100 ms, real integrated-GPU/controller FPS, hosted HTTPS acceptance and human art review remain unverified. The optional replay camera is deferred. The net collider conservatively uses post height across the width; the visible net sags at center. Serves are assisted rather than judging real-world underhand biomechanics.
 
-The code implements the playable MVP, but these acceptance criteria require physical devices or external services and are **not marked as measured or completed**:
-
-- iPhone Safari, Android Chrome and older-device playtests; recorded real sensor replay fixtures; 95% detection and false-positive targets.
-- Measured swing-to-hit latency, added-delay network tests, and Wi-Fi/airplane-mode reconnect timing on actual phones.
-- Five-minute physics stress run, integrated-GPU 60 FPS profiling, Safari/Firefox checks and three-player usability sessions.
-- Hosted HTTPS URL, provider-specific automatic deployment, external uptime monitor and a two-phone hosted acceptance pass.
-- A 30-second real-device demo video, GIF, and published portfolio write-up.
-
-## Credits
-
-All court geometry, characters, paddle artwork and synthesized audio were created for this project. No third-party model or sound packs are bundled. DM Sans and Manrope are loaded from Google Fonts under their SIL Open Font Licenses, with system fallbacks if unavailable. Runtime dependencies retain their upstream licenses; npm's lockfile pins the tested dependency graph.
+Generated art and original geometry/audio are project assets. No third-party model/sound packs are bundled. DM Sans, Manrope and IBM Plex Mono use their upstream SIL Open Font Licenses through Google Fonts, with system fallbacks. Dependencies retain upstream licenses and the lockfile pins the tested graph.

@@ -440,7 +440,7 @@ function App() {
                 setSettings(true);
               }}
             >
-              ⚙
+              <Icon name="settings" />
             </button>
             <button
               className="icon-button"

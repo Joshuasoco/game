@@ -7,20 +7,37 @@ const root = resolve(import.meta.dirname, ".."),
   publicDir = resolve(root, "web/public/art");
 await mkdir(publicDir, { recursive: true });
 await mkdir(resolve(root, "art/selected"), { recursive: true });
+await mkdir(resolve(root, "art/selected/sources"), { recursive: true });
 const jobs: ArtJob[] = JSON.parse(
   await readFile(resolve(root, "art/catalog.json"), "utf8"),
 );
 const candidates: Candidate[] = [];
+const curatedOnly = process.argv.includes("--curated-only");
 for (const name of await readdir(resolve(root, "art/candidates"))) {
   if (!name.endsWith(".json")) continue;
   const c: Candidate = JSON.parse(
     await readFile(resolve(root, "art/candidates", name), "utf8"),
   );
-  c.sha256 = createHash("sha256")
-    .update(await readFile(resolve(root, c.file)))
-    .digest("hex");
+  let raw: Buffer | undefined;
+  try {
+    if (!curatedOnly) raw = await readFile(resolve(root, c.file));
+  } catch {
+    if (c.selected)
+      raw = await readFile(
+        resolve(root, `art/selected/sources/${c.asset}.png`),
+      );
+  }
+  if (raw) c.sha256 = createHash("sha256").update(raw).digest("hex");
+  if (!/^[a-f0-9]{64}$/.test(c.sha256))
+    throw Error(
+      `Missing source or hash for ${name}. Regenerate candidates before processing.`,
+    );
   await writeFile(
-    resolve(root, `art/prompts/${c.asset}-v${c.variant}.md`),
+    resolve(root, "art/candidates", name),
+    JSON.stringify(c, null, 2),
+  );
+  await writeFile(
+    resolve(root, `art/prompts/${name.replace(/\.json$/, ".md")}`),
     `# ${c.asset} / variant ${c.variant}\n\n${c.prompt}\n`,
   );
   candidates.push(c);
@@ -34,7 +51,9 @@ const manifest: ArtManifest = {
   notes: [
     "Selection is assistant art-direction review, not a human approval.",
     "Built-in tool does not expose its underlying model; that provenance is never invented.",
-    "API generation requires OPENAI_API_KEY. No API generation was run without it.",
+    candidates.some((c) => c.provider === "OpenAI Images API")
+      ? "Includes API outputs with model names logged per candidate."
+      : "This manifest contains built-in tool outputs; API generation was not used.",
   ],
 };
 const palette = [
@@ -93,9 +112,27 @@ async function encode(id: string, input: Buffer, width: number, snap = false) {
   return out;
 }
 for (const job of jobs) {
-  const selected = candidates.find((c) => c.asset === job.id && c.selected);
+  const choices = candidates.filter((c) => c.asset === job.id && c.selected);
+  if (choices.length > 1)
+    throw Error(
+      `Multiple selections for ${job.id}. Select one candidate explicitly.`,
+    );
+  const selected = choices[0];
   if (!selected) continue;
-  const source = await readFile(resolve(root, selected.file));
+  let source: Buffer;
+  try {
+    source = await readFile(
+      resolve(
+        root,
+        curatedOnly ? `art/selected/sources/${job.id}.png` : selected.file,
+      ),
+    );
+  } catch {
+    source = await readFile(
+      resolve(root, `art/selected/sources/${job.id}.png`),
+    );
+  }
+  await writeFile(resolve(root, `art/selected/sources/${job.id}.png`), source);
   if (job.id === "style-frame")
     await sharp(source)
       .resize({ width: 1024, withoutEnlargement: true })

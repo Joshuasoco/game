@@ -46,6 +46,7 @@ export const phaseSchema = z.object({
   serving: z.enum(["player", "ai"]),
   rally: z.number().int().nonnegative(),
   message: z.string().max(200),
+  rival: z.enum(["pip", "rocket", "mabel", "june"]).optional(),
 });
 export const hapticSchema = z.object({
   pattern: z.array(z.number().int().min(0).max(250)).max(8),

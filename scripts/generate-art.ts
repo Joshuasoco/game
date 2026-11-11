@@ -119,7 +119,13 @@ for (const job of requested) {
       reviewer: "unreviewed",
     };
     await writeFile(
-      resolve(root, `art/candidates/${job.id}-api-v${i + 1}.json`),
+      resolve(
+        root,
+        `art/candidates/${file
+          .split("/")
+          .at(-1)!
+          .replace(/\.png$/, ".json")}`,
+      ),
       JSON.stringify(candidate, null, 2),
     );
   }

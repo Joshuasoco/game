@@ -12,7 +12,9 @@ export class LocalMetrics {
       /* Optional. */
     }
   }
-  record(event: "swing" | "hit" | "perfect" | "fault" | "point") {
+  record(
+    event: "swing" | "hit" | "perfect" | "good" | "late" | "fault" | "point",
+  ) {
     if (!this.enabled) return;
     this.counts[event] = (this.counts[event] ?? 0) + 1;
     try {
