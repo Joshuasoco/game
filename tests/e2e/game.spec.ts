@@ -20,14 +20,14 @@ test("laptop and phone pair, calibrate, serve, pause and reconnect", async ({
     .getByRole("button", { name: "I’d rather use touch controls" })
     .click();
   for (let i = 0; i < 3; i++)
-    await phone.getByRole("button", { name: "Tap to swing" }).click();
+    await phone.getByRole("button", { name: "Swing" }).click();
   await expect(
     page.getByRole("heading", { name: "Your serve." }),
   ).toBeVisible();
   await expect(
     phone.getByRole("heading", { name: "Your serve." }),
   ).toBeVisible();
-  await phone.getByRole("button", { name: "Tap to swing" }).click();
+  await phone.getByRole("button", { name: "Swing" }).click();
   await expect(page.locator(".debug")).toHaveCount(0);
   await expect(page.locator(".scoreboard")).toBeVisible();
   await phone.getByRole("button", { name: "Pause match" }).click();
@@ -50,7 +50,7 @@ test("laptop and phone pair, calibrate, serve, pause and reconnect", async ({
     .getByRole("button", { name: "I’d rather use touch controls" })
     .click();
   for (let i = 0; i < 3; i++)
-    await phone.getByRole("button", { name: "Tap to swing" }).click();
+    await phone.getByRole("button", { name: "Swing" }).click();
   await expect(
     page.getByRole("heading", { name: "A little breather." }),
   ).toHaveCount(0);

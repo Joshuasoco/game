@@ -57,7 +57,7 @@ test("rival identity and touch controller survive landscape and skin changes", a
     .getByRole("button", { name: "I’d rather use touch controls" })
     .click();
   for (let i = 0; i < 3; i++)
-    await phone.getByRole("button", { name: "Tap to swing" }).click();
+    await phone.getByRole("button", { name: "Swing" }).click();
   await expect(phone.locator(".phone-score")).toContainText("MABEL");
   await phone.getByRole("button", { name: "Settings", exact: true }).click();
   await phone
@@ -67,6 +67,7 @@ test("rival identity and touch controller survive landscape and skin changes", a
     phone.getByRole("button", { name: "Paddle skin 2", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await phone.getByRole("button", { name: "Done", exact: true }).click();
+  await phone.getByRole("button", { name: "Resume match" }).click();
   await phone.setViewportSize({ width: 844, height: 390 });
   const pauseBounds = await phone
     .getByRole("button", { name: "Pause match" })
