@@ -31,3 +31,14 @@ it("expires controller reservations at 60 seconds and inactive rooms at ten minu
   rooms.sweep(602000);
   expect(rooms.rooms.size).toBe(0);
 });
+it("expires a lost host after the recovery window even when the room was recently active", () => {
+  const rooms = new Rooms();
+  const room = rooms.create("host");
+  const now = Date.now();
+  room.hostDisconnectedAt = now - 60_001;
+  expect(
+    rooms.resumeHost(room.code, "replacement", room.hostId),
+  ).toBeUndefined();
+  expect(rooms.sweep(now).closed).toEqual([room]);
+  expect(rooms.rooms.size).toBe(0);
+});

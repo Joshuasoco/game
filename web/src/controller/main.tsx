@@ -6,6 +6,7 @@ import { useController } from "./use-controller";
 import { ThumbControls } from "./thumb-controls";
 import "../style.css";
 import "./phone.css";
+import { COPY } from "../game/readiness/config";
 
 const art = ART as Record<string, { file: string }>;
 function SettingsSheet({
@@ -120,7 +121,7 @@ function Phone() {
           </div>
         )}
         <span
-          className={`phone-connection ${c.ping !== undefined && c.ping > 150 ? "high-latency" : ""}`}
+          className={`phone-connection ${c.ping !== undefined && c.ping > 120 ? "high-latency" : ""}`}
           role="status"
           title={c.connected ? `Court ${c.room}` : status}
         >
@@ -182,9 +183,10 @@ function Phone() {
                 One great rally.
               </h1>
               <p>
-                Drag Aim. Tap Swing for a medium shot, or press to charge and
-                release to hit. Swipe up on Swing for a lob. Your feet take care
-                of themselves.
+                {COPY.instructions.model}{" "}
+                {c.readiness?.enabled
+                  ? COPY.instructions.phone
+                  : COPY.instructions.phoneBasics}
               </p>
               <p className="grip-notice">
                 For motion play, use a firm grip or wrist strap and make three
@@ -274,6 +276,7 @@ function Phone() {
               )}
             </div>
             <ThumbControls
+              readiness={c.stage === "ready" ? c.readiness : undefined}
               motion={c.motion}
               leftHanded={c.preferences.hand === "left"}
               disabled={
@@ -293,7 +296,7 @@ function Phone() {
                 {c.feedback === "perfect"
                   ? "Perfect!"
                   : c.feedback === "fault"
-                    ? "Out"
+                    ? COPY.faultLabel
                     : c.feedback === "point"
                       ? "Your point"
                       : "Hit!"}
@@ -303,7 +306,7 @@ function Phone() {
               {!c.connected
                 ? "Reconnecting · input paused"
                 : c.sensorStatus ||
-                  (c.ping !== undefined && c.ping > 150
+                  (c.ping !== undefined && c.ping > 120
                     ? "High latency · check your connection"
                     : c.motion
                       ? "Tilt to aim · swing to hit"

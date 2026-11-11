@@ -11,6 +11,11 @@ import {
 import { surface, disposeSurfaceTextures } from "./art-surface";
 import { ParkEnvironment, bevel } from "./environment";
 import { CourtPostProcessing } from "./post-processing";
+import { matchPointSide } from "./match-presentation";
+import { SwingFeedback } from "./swing-feedback";
+import type { ReadinessSnapshot } from "../game/readiness/evaluate";
+import type { FaultEvent } from "../game/rules";
+import type { ClarityPreferences } from "../game/readiness/preferences";
 const mat = (color: number, roughness = 0.9) =>
   [0xdbbda0, 0x367e69, 0x86b49c, 0xbd8860, 0x4b9274, 0xf0f3db].includes(color)
     ? surface(
@@ -79,7 +84,14 @@ function character(color: number, opponent = false, hat = "cap"): Character {
   const g = new T.Group();
   const skin =
     hat === "visor" ? 0xb78562 : hat === "headband" ? 0xc08f6c : 0xd6ac87;
-  g.add(capsule(0.29, 0.38, color, 0, 0.85, 0));
+  const jersey = capsule(0.29, 0.38, color, 0, 0.85, 0);
+  const jerseyEdge = new T.Mesh(
+    jersey.geometry.clone(),
+    new T.MeshBasicMaterial({ color: 0xf2efd8, side: T.BackSide }),
+  );
+  jerseyEdge.scale.setScalar(1.035);
+  jersey.add(jerseyEdge);
+  g.add(jersey);
   const shorts = capsule(0.255, 0.1, 0xf5f1df, 0, 0.47, 0);
   shorts.scale.z = 0.8;
   g.add(shorts);
@@ -136,13 +148,13 @@ function character(color: number, opponent = false, hat = "cap"): Character {
   const paddle = new T.Group();
   paddle.position.set(0.13, -0.55, -0.05);
   paddle.add(cylinder(0.035, 0.27, 0x263e36, 0, -0.03, 0));
-  const face = capsule(0.19, 0.17, 0x173d35, 0, -0.35, 0);
+  const face = capsule(0.19, 0.17, 0xfff8db, 0, -0.35, 0);
   face.scale.z = 0.18;
   paddle.add(face);
   const inset = capsule(
     0.155,
     0.15,
-    opponent ? 0xf2a278 : 0xd9ed9a,
+    opponent ? 0xf2a278 : 0xfff1b0,
     0,
     -0.35,
     -0.037,
@@ -156,6 +168,7 @@ function character(color: number, opponent = false, hat = "cap"): Character {
   return { group: g, paddle, leftLeg, rightLeg, arm, swing: 0, reaction: 0 };
 }
 export class CourtScene {
+  private swingFeedback = new SwingFeedback();
   readonly scene = new T.Scene();
   readonly renderer: T.WebGLRenderer;
   readonly camera = new T.PerspectiveCamera(40, 1, 0.1, 180);
@@ -167,6 +180,11 @@ export class CourtScene {
   private marker: T.Mesh;
   private trail: T.Mesh[] = [];
   private trailPoints: Vec[] = [];
+  private markerFade = 0;
+  private markerLanded = false;
+  private contactPulse = 0;
+  private lastBall = new T.Vector3();
+  private ballSpeed = 0;
   private disposed = false;
   private alternate = false;
   private active = false;
@@ -197,6 +215,7 @@ export class CourtScene {
   private pointerLeave = () => this.pointer.set(0, 0);
   private reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   constructor(private container: HTMLElement) {
+    this.scene.add(this.swingFeedback.group);
     this.scene.add(this.effects.group);
     this.renderer = new T.WebGLRenderer({
       antialias: true,
@@ -245,47 +264,61 @@ export class CourtScene {
     this.rivalContact = this.environment.contact(-1.1, -5.05, 1.5, 1.1);
     container.addEventListener("pointermove", this.pointerMove);
     container.addEventListener("pointerleave", this.pointerLeave);
-    this.ball = sphere(0.09, 0xe5f55b, 1.7, 1.1, 4.7);
+    this.ball = sphere(0.144, 0xe5f55b, 1.7, 1.1, 4.7);
+    (this.ball.material as T.Material).dispose();
     this.ball.material = new T.MeshStandardMaterial({
-      color: 0xe5d48a,
-      emissive: 0x554b24,
-      emissiveIntensity: 0.16,
+      color: 0xecff38,
+      emissive: 0xd5f52f,
+      emissiveIntensity: 0.28,
+      roughness: 0.55,
     });
-    this.scene.add(this.ball);
-    this.shadow = new T.Mesh(
-      new T.CircleGeometry(0.15, 24),
-      new T.MeshBasicMaterial({
-        color: 0x254b32,
-        transparent: true,
-        opacity: 0.24,
-        depthWrite: false,
-      }),
+    this.ball.add(
+      new T.Mesh(
+        new T.SphereGeometry(0.158, 16, 12),
+        new T.MeshBasicMaterial({ color: 0xfffdea, side: T.BackSide }),
+      ),
     );
-    this.shadow.rotation.x = -Math.PI / 2;
-    this.scene.add(this.shadow);
+    this.scene.add(this.ball);
+    this.ball.name = "match-ball";
+    this.ball.castShadow = false;
+    this.shadow = this.environment.contact(1.7, 4.7, 0.7, 0.7);
+    this.shadow.name = "ball-shadow";
     this.marker = new T.Mesh(
-      new T.RingGeometry(0.17, 0.205, 32),
+      new T.RingGeometry(0.24, 0.285, 32),
       new T.MeshBasicMaterial({
-        color: 0xe8f88f,
+        color: 0xf2ff85,
         side: T.DoubleSide,
         transparent: true,
         opacity: 0.85,
+        depthWrite: false,
       }),
     );
     this.marker.rotation.x = -Math.PI / 2;
+    this.marker.name = "landing-marker";
     this.marker.position.y = 0.035;
     this.marker.visible = false;
+    const markerEdge = new T.Mesh(
+      new T.RingGeometry(0.285, 0.32, 32),
+      new T.MeshBasicMaterial({
+        color: 0x24483f,
+        transparent: true,
+        depthWrite: false,
+      }),
+    );
+    this.marker.add(markerEdge);
     this.scene.add(this.marker);
     for (let i = 0; i < 7; i++) {
       const m = new T.Mesh(
-        new T.SphereGeometry(0.06, 8, 6),
+        new T.SphereGeometry(0.105, 8, 6),
         new T.MeshBasicMaterial({
           color: 0xecf8a2,
           transparent: true,
           opacity: (1 - i / 7) * 0.45,
+          depthWrite: false,
         }),
       );
       this.trail.push(m);
+      m.name = "ball-trail";
       this.scene.add(m);
     }
     this.camera.position.set(14, 16, 21);
@@ -387,8 +420,10 @@ export class CourtScene {
       this.environment.contact(x, x < 0 ? 2.9 : -2.8, 1.4, 2.5);
     }
     for (const z of [-8.1, 8.1]) {
+      const foreground = z > 0;
+      const fence = new T.Group();
       for (let x = -4.7; x <= 4.8; x += 1.2)
-        this.scene.add(
+        fence.add(
           cylinder(0.035, 1.25, 0x4c7260, x, 0.59, z),
           sphere(0.055, 0xaab89b, x, 1.23, z),
         );
@@ -400,18 +435,31 @@ export class CourtScene {
       }
       const mesh = new T.BufferGeometry();
       mesh.setAttribute("position", new T.Float32BufferAttribute(wire, 3));
-      this.scene.add(
+      fence.add(
         new T.LineSegments(
           mesh,
           new T.LineBasicMaterial({
             color: 0x648373,
             transparent: true,
-            opacity: 0.32,
+            opacity: foreground ? 0.09 : 0.26,
+            depthWrite: false,
           }),
         ),
       );
       for (const y of [0.4, 0.88, 1.2])
-        this.scene.add(box(9.6, 0.028, 0.028, 0x5c8069, 0, y, z));
+        fence.add(box(9.6, 0.028, 0.028, 0x5c8069, 0, y, z));
+      if (foreground) {
+        fence.scale.y = 0.45;
+        fence.traverse((object) => {
+          if (object instanceof T.Mesh) {
+            object.material.transparent = true;
+            object.material.opacity = 0.2;
+            object.material.depthWrite = false;
+            object.castShadow = false;
+          }
+        });
+      }
+      this.scene.add(fence);
     }
     const sign = box(1.45, 0.65, 0.1, 0xf1efdd, -4.5, 1.5, -6.3);
     this.scene.add(sign, cylinder(0.045, 1.4, 0x56715a, -4.5, 0.67, -6.3));
@@ -467,7 +515,7 @@ export class CourtScene {
     const sunset = theme === "sunset";
     this.environment.theme(sunset);
     this.scene.background = new T.Color(sunset ? 0xf2c39f : 0xefddbf);
-    this.scene.fog = new T.Fog(sunset ? 0xe6cbb2 : 0xc6d0c0, 30, 100);
+    this.scene.fog = new T.Fog(sunset ? 0x9e9991 : 0x879a95, 32, 105);
   }
   setRival(id: RivalId) {
     const old = this.ai;
@@ -528,16 +576,30 @@ export class CourtScene {
       value || matchMedia("(prefers-reduced-motion:reduce)").matches;
     document.documentElement.dataset.reducedMotion = String(this.reduced);
   }
+  setSwingFeedback(
+    snap: ReadinessSnapshot | undefined,
+    fault: FaultEvent | undefined,
+    preferences: ClarityPreferences,
+  ) {
+    this.swingFeedback.set(snap, fault, preferences);
+  }
+  playerScreenPosition(height = 2) {
+    const p = this.player.group.position.clone();
+    p.y += height;
+    p.project(this.camera);
+    return { x: (p.x + 1) * 50, y: (1 - p.y) * 50 };
+  }
   matchState(score: [number, number]) {
     this.environment.setScore(score);
-    this.matchPoint =
-      Math.max(...score) >= 10 && Math.abs(score[0] - score[1]) >= 1;
+    this.matchPoint = !!matchPointSide(score);
   }
   react(winner: "player" | "ai") {
     this.player.reaction = winner === "player" ? 1 : -1;
     this.ai.reaction = winner === "ai" ? 1 : -1;
   }
   impact(p: Vec, perfect: boolean, power: number, bounce = false) {
+    this.markerLanded = bounce;
+    if (!this.reduced) this.contactPulse = 1;
     this.effects.enabled = !this.reduced && this.quality !== "low";
     this.effects.impact(p, perfect, bounce);
     if (!bounce && !this.reduced) {
@@ -546,25 +608,40 @@ export class CourtScene {
     }
   }
   setBall(p: Vec, target?: Vec) {
-    this.ball.position.set(p.x, p.y, p.z);
-    this.shadow.position.set(p.x, 0.055, p.z);
+    this.ball.position.set(p.x, Math.max(0.15, p.y), p.z);
+    // Present the held ball beside the serving hand, clear of the torso.
+    // The physical ball and all launch calculations retain their existing positions.
+    if (!target && Math.abs(p.y - 0.85) < 0.001 && this.active)
+      this.ball.position.x += 0.48;
+    this.shadow.position.set(this.ball.position.x, 0.064, p.z);
     const scale = 1 + p.y * 0.2;
     this.shadow.scale.setScalar(scale);
-    this.marker.visible = !!target;
-    if (target) this.marker.position.set(target.x, 0.06, target.z);
+    (this.shadow.material as T.MeshBasicMaterial).opacity = 1 / (1 + p.y * 0.3);
+    if (target) {
+      if (!this.markerLanded) this.markerFade = 0.45;
+      this.marker.position.set(target.x, 0.066, target.z);
+    }
     this.trailPoints.unshift({ ...p });
     if (this.trailPoints.length > 21) this.trailPoints.pop();
   }
   hit(side: "player" | "ai", backhand = false, smash = false) {
+    this.markerLanded = false;
+    if (!this.reduced) this.contactPulse = 1;
     (side === "player" ? this.player : this.ai).swing = backhand ? -1 : 1;
     if (smash && !this.reduced) this.shake = 0.08;
   }
   render(dt: number, time: number, playing: boolean, roll = 0) {
     if (this.disposed) return;
+    this.swingFeedback.update(
+      this.player.group.position,
+      this.ball.position,
+      time,
+      this.reduced,
+    );
     this.intro = Math.max(0, this.intro - dt * 0.28);
     const menuMotion = !this.active && !this.reduced;
     const dest = this.cameraDestination;
-    if (this.alternate) dest.set(this.player.group.position.x * 0.2, 9.8, 17.5);
+    if (this.alternate) dest.set(this.player.group.position.x * 0.2, 9.3, 17.5);
     else
       dest.set(
         12 +
@@ -579,7 +656,11 @@ export class CourtScene {
       const target = new T.Vector3(this.ball.position.x * 0.08, 0.1, -0.4);
       this.camera.lookAt(target);
       this.hitPush = Math.max(0, this.hitPush - dt * 3);
-      const fov = 40 + this.hitPush * 3 - (this.matchPoint ? 2 : 0);
+      // Narrow framing on desktop; retain the full court on portrait screens.
+      const fov =
+        (this.camera.aspect >= 1.4 ? 34 : 40) +
+        this.hitPush * 2 -
+        (this.matchPoint ? 1 : 0);
       this.camera.fov += (fov - this.camera.fov) * Math.min(1, dt * 4);
       this.camera.updateProjectionMatrix();
     }
@@ -591,7 +672,7 @@ export class CourtScene {
       if (!this.reduced)
         this.ball.position.y = 0.18 + Math.abs(Math.sin(time * 2)) * 0.95;
     }
-    this.environment.update(time, this.reduced);
+    this.environment.update(time, this.reduced, this.active);
     if (this.playerContact)
       this.playerContact.position.set(
         this.player.group.position.x,
@@ -640,32 +721,34 @@ export class CourtScene {
         c.rightLeg.rotation.x = -walk;
       }
     }
+    this.ballSpeed =
+      this.lastBall.distanceTo(this.ball.position) / Math.max(dt, 0.001);
+    this.lastBall.copy(this.ball.position);
     this.trail.forEach((m, i) => {
       const p = this.trailPoints[(i + 1) * 2];
-      m.visible = playing && !!p;
+      m.visible = playing && !this.reduced && !!p && this.ballSpeed > 1.5;
       if (p) m.position.set(p.x, p.y, p.z);
-      m.scale.setScalar(
-        Math.max(
-          0.5,
-          Math.min(
-            1.7,
-            this.trailPoints.length > 2
-              ? Math.hypot(
-                  this.trailPoints[0].x - this.trailPoints[2].x,
-                  this.trailPoints[0].z - this.trailPoints[2].z,
-                ) * 6
-              : 1,
-          ),
-        ),
-      );
+      const speed = T.MathUtils.clamp(this.ballSpeed / 10, 0, 1);
+      m.scale.setScalar((1 - i / 9) * (0.5 + speed));
+      (m.material as T.MeshBasicMaterial).opacity = (1 - i / 7) * speed * 0.55;
     });
+    if (!playing) this.trailPoints.length = 0;
+    this.markerFade = Math.max(0, this.markerFade - dt);
+    this.marker.visible = this.markerFade > 0 && this.active;
     if (this.marker.visible) {
       this.marker.scale.setScalar(
-        this.reduced ? 1 : 1 + Math.sin(time * 4) * 0.09,
+        this.reduced ? 1 : 1 + Math.sin(time * 5) * 0.15,
       );
       (this.marker.material as T.MeshBasicMaterial).opacity =
-        0.5 + Math.sin(time * 3) * 0.15;
+        (this.markerFade / 0.45) *
+        (this.reduced ? 0.8 : 0.65 + Math.sin(time * 5) * 0.15);
+      (
+        (this.marker.children[0] as T.Mesh).material as T.MeshBasicMaterial
+      ).opacity = (this.marker.material as T.MeshBasicMaterial).opacity;
     }
+    this.contactPulse = Math.max(0, this.contactPulse - dt * 5);
+    (this.ball.material as T.MeshStandardMaterial).emissiveIntensity =
+      0.28 + this.contactPulse * 0.8;
     this.effects.update(dt, this.camera, this.ball);
     if (this.post) this.post.render(dt, this.active);
     else this.renderer.render(this.scene, this.camera);
@@ -693,8 +776,8 @@ export class CourtScene {
     if (this.scene.background instanceof T.Texture)
       this.scene.background.dispose();
     this.scene.traverse((o) => {
-      if (o instanceof T.Mesh || o instanceof T.LineSegments) {
-        o.geometry.dispose();
+      if (o instanceof T.Mesh || o instanceof T.Line || o instanceof T.Sprite) {
+        if (!(o instanceof T.Sprite)) o.geometry.dispose();
         const materials = Array.isArray(o.material) ? o.material : [o.material];
         materials.forEach((m) => {
           if ("map" in m && (m as T.MeshStandardMaterial).map)

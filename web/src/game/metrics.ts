@@ -1,4 +1,12 @@
 export class LocalMetrics {
+  private sessionId =
+    globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2);
+  private events: {
+    event: string;
+    sessionId: string;
+    at: number;
+    fields: Record<string, string | number | boolean>;
+  }[] = [];
   enabled = false;
   private counts: Record<string, number> = {};
   constructor() {
@@ -26,10 +34,41 @@ export class LocalMetrics {
   snapshot() {
     return { ...this.counts };
   }
+  event(
+    event:
+      | "whiff"
+      | "fault"
+      | "swing_in_reach"
+      | "tutorial_step"
+      | "first_rally_complete",
+    fields: Record<string, string | number | boolean>,
+  ) {
+    if (!this.enabled) return;
+    this.events.push({
+      event,
+      sessionId: this.sessionId,
+      at: Date.now(),
+      fields,
+    });
+    this.events = this.events.slice(-200);
+    try {
+      localStorage.setItem("dink-clarity-events", JSON.stringify(this.events));
+    } catch {
+      /* Optional. */
+    }
+  }
+  eventSnapshot() {
+    return this.events.map((event) => ({
+      ...event,
+      fields: { ...event.fields },
+    }));
+  }
   clear() {
     this.counts = {};
+    this.events = [];
     try {
       localStorage.removeItem("dink-metrics");
+      localStorage.removeItem("dink-clarity-events");
     } catch {
       /* Optional. */
     }

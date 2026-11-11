@@ -45,7 +45,16 @@ export class Audio {
   private silent = false;
   levels: AudioLevels = { master: 0.7, sfx: 0.7, music: 0.24, ambience: 0.18 };
   private sounds?: Record<
-    "hit" | "bounce" | "kitchen" | "net" | "perfect" | "point" | "ui",
+    | "hit"
+    | "bounce"
+    | "kitchen"
+    | "net"
+    | "perfect"
+    | "point"
+    | "ui"
+    | "ready"
+    | "whiff"
+    | "fault",
     Howl
   >;
   private stems: Howl[] = [];
@@ -81,6 +90,17 @@ export class Audio {
         perfect: sound(pop(1220, 0.09, 0)),
         point: sound(tone(660, 0.36, 700)),
         ui: sound(pop(420, 0.06, 0)),
+        ready: sound(tone(760, 0.12, 1600)),
+        whiff: sound(
+          wav(
+            (t, i) =>
+              (Math.sin(i * 8.173) + Math.sin(i * 0.731)) *
+              0.07 *
+              Math.exp(-t * 25),
+            0.16,
+          ),
+        ),
+        fault: sound(tone(440, 0.22, -900)),
       };
       this.stems = [0, 1, 2].map(
         (i) =>
@@ -156,7 +176,17 @@ export class Audio {
     this.targets = next;
   }
   play(
-    name: "hit" | "bounce" | "kitchen" | "point" | "net" | "perfect" | "ui",
+    name:
+      | "hit"
+      | "bounce"
+      | "kitchen"
+      | "point"
+      | "net"
+      | "perfect"
+      | "ui"
+      | "ready"
+      | "whiff"
+      | "fault",
     power = 0.6,
   ) {
     if (this.silent) return;

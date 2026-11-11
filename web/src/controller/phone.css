@@ -787,3 +787,50 @@ body:has(.phone-app) {
 .phone-app:not(.is-controller) .phone-connection {
   grid-column: 2;
 }
+.phone-app .swing-button[data-readiness] {
+  transition:
+    background-color 80ms,
+    border-color 80ms;
+}
+.phone-app .swing-button[data-readiness="FAR"],
+.phone-app .swing-button[data-readiness="NO_BALL"] {
+  background: #243b32;
+  border: 3px solid #adbbb1;
+  color: #fff4d6;
+}
+.phone-app .swing-button[data-readiness="GET_READY"] {
+  border: 4px dotted #ffe082;
+  background: #3d3824;
+  color: #fff4d6;
+}
+.phone-app .swing-button[data-readiness="IN_REACH"] {
+  background: #97e8a6;
+  border: 6px solid #193f35;
+  color: #102e23;
+}
+.phone-app .swing-button[data-readiness="WAIT_BOUNCE"],
+.phone-app .swing-button[data-readiness="WAIT_KITCHEN"] {
+  background: #ffbe77;
+  color: #182b24;
+  border: 6px double #182b24;
+}
+.phone-app .swing-button[data-readiness="RECOVERING"] {
+  background: #43594e;
+  color: #fff4d6;
+  border: 3px dashed #e3e8e3;
+}
+.swing-button[data-readiness] .swing-label {
+  font-size: clamp(12px, 3vw, 20px);
+  max-width: 90%;
+  line-height: 1.15;
+  text-align: center;
+}
+.bounce-lock {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  vertical-align: -3px;
+  margin-right: 4px;
+}

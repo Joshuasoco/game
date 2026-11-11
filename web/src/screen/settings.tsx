@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import type { Game } from "../game/engine";
 import type { AudioLevels } from "../game/audio";
 import {
+  readClarityPreferences,
+  saveClarityPreferences,
+} from "../game/readiness/preferences";
+import { COPY } from "../game/readiness/config";
+import {
   readPreferences,
   savePreferences,
   type QualityPreference,
@@ -16,6 +21,7 @@ export function Settings({
   const dialog = useRef<HTMLDialogElement>(null);
   const [levels, setLevels] = useState({ ...game.audio.levels });
   const [preferences, setPreferences] = useState(readPreferences);
+  const [clarity, setClarity] = useState(readClarityPreferences);
   useEffect(() => {
     dialog.current?.showModal();
     return () => dialog.current?.close();
@@ -70,6 +76,34 @@ export function Settings({
         Reduce motion
       </label>
       <h3>Audio</h3>
+      {(["swingCue", "highContrast", "minimal", "hideOnHard"] as const).map(
+        (key) => (
+          <label className="setting-check" key={key}>
+            <input
+              type="checkbox"
+              checked={clarity[key]}
+              onChange={(e) => {
+                const next = { ...clarity, [key]: e.target.checked };
+                setClarity(next);
+                saveClarityPreferences(next);
+                game.refreshClarity();
+              }}
+            />
+            {
+              COPY.settings[
+                (
+                  {
+                    swingCue: "cue",
+                    highContrast: "contrast",
+                    minimal: "minimal",
+                    hideOnHard: "hard",
+                  } as const
+                )[key]
+              ]
+            }
+          </label>
+        ),
+      )}
       {(["master", "sfx", "music", "ambience"] as (keyof AudioLevels)[]).map(
         (key) => (
           <label key={key} className="setting-row">

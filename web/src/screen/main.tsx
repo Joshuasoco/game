@@ -10,6 +10,10 @@ import { Settings } from "./settings";
 import { ChoiceGroup } from "./choice-group";
 import { RivalPortrait } from "./rival-portrait";
 import { RIVALS, type RivalId } from "../game/ai";
+import { matchPointSide, showKeyboardHints } from "./match-presentation";
+import { SwingHud, Instructions } from "./swing-hud";
+import { COPY } from "../game/readiness/config";
+import { clarityEnabled } from "../game/readiness/preferences";
 import "../style.css";
 import "./game-ui.css";
 const initial: Snapshot = {
@@ -66,7 +70,11 @@ function App() {
         if (s.phase === "matchover" && s.winner === "player") setUnlocked(true);
       });
       game.current = g;
-      g.onPhase = (p) => socket.current?.emit("game:phase", p);
+      g.onReadiness = (message) =>
+        socket.current?.emit("game:readiness", message);
+      g.onPhase = (p) => {
+        if (socket.current?.connected) socket.current.emit("game:phase", p);
+      };
       g.onHaptic = (kind) =>
         socket.current?.emit("haptic", {
           pattern:
@@ -98,13 +106,31 @@ function App() {
     };
   }, []);
   useEffect(() => {
-    const s = io({ transports: ["websocket"] });
+    const s: Socket<ServerEvents, ClientEvents> = io(window.location.origin, {
+      transports: ["websocket"],
+    });
     socket.current = s;
+    let hostSession: { roomCode: string; hostId: string } | undefined;
+    const createRoom = () =>
+      s.emit("host:create", (session) => {
+        hostSession = session;
+        setRoom(session.roomCode);
+      });
     s.on("connect", () => {
       setOnline(true);
-      s.emit("host:create", ({ roomCode }: { roomCode: string }) =>
-        setRoom(roomCode),
-      );
+      if (hostSession) {
+        s.emit("host:resume", hostSession, ({ ok }) => {
+          if (ok) {
+            const snapshot = game.current?.snapshot();
+            if (snapshot) s.emit("game:phase", snapshot);
+          } else {
+            setError(
+              "The reconnect window expired. Pair your phone with the new room.",
+            );
+            createRoom();
+          }
+        });
+      } else createRoom();
     });
     s.on("disconnect", () => {
       setOnline(false);
@@ -142,6 +168,7 @@ function App() {
     });
     if (
       import.meta.env.DEV &&
+      location.protocol === "http:" &&
       ["localhost", "127.0.0.1"].includes(location.hostname)
     )
       void fetch("/network")
@@ -184,17 +211,24 @@ function App() {
       }
       if (e.code === "Space" && !e.repeat && !modal) {
         e.preventDefault();
-        game.current?.input({
-          seq: ++seq,
-          power: 0.64,
-          ...(held.has("KeyC") ? { power: 0.24 } : {}),
-          side: "forehand",
-          tilt: held.has("ArrowLeft") ? -0.8 : held.has("ArrowRight") ? 0.8 : 0,
-          lob: held.has("ShiftLeft") || held.has("ShiftRight"),
-          drop: held.has("KeyD"),
-          spin: held.has("KeyX") ? -0.6 : 0.5,
-          tPhone: Date.now(),
-        });
+        game.current?.input(
+          {
+            seq: ++seq,
+            power: 0.64,
+            ...(held.has("KeyC") ? { power: 0.24 } : {}),
+            side: "forehand",
+            tilt: held.has("ArrowLeft")
+              ? -0.8
+              : held.has("ArrowRight")
+                ? 0.8
+                : 0,
+            lob: held.has("ShiftLeft") || held.has("ShiftRight"),
+            drop: held.has("KeyD"),
+            spin: held.has("KeyX") ? -0.6 : 0.5,
+            tPhone: Date.now(),
+          },
+          "keyboard",
+        );
       }
       if (e.code === "KeyP" && !modal) game.current?.pause();
       if (e.code === "Enter" && !modal) game.current?.skipTransition();
@@ -217,6 +251,11 @@ function App() {
     };
   }, [modal]);
   const playing = !["menu", "waiting", "calibrate"].includes(state.phase);
+  const matchPoint =
+    !state.challenge && state.phase !== "matchover"
+      ? matchPointSide(state.score)
+      : undefined;
+  const hintsVisible = showKeyboardHints(state.score);
   const close = () => {
     setModal(null);
     if (["waiting", "calibrate"].includes(game.current?.phase ?? ""))
@@ -250,10 +289,15 @@ function App() {
       prior?.focus();
     };
   }, [modal]);
-  const start = () => {
+  const start = (keyboard = false, replay = false) => {
     setModal(null);
-    game.current?.setRival(rival);
-    game.current?.start(difficulty, mode === "challenge");
+    game.current?.setRival(replay ? "pip" : rival);
+    game.current?.start(
+      replay ? "easy" : difficulty,
+      replay ? false : mode === "challenge",
+      keyboard,
+      replay,
+    );
   };
   const pair = () => {
     game.current?.audio.start();
@@ -378,9 +422,20 @@ function App() {
               Play with your phone
               <Icon name="arrow" />
             </button>
-            <button className="keyboard-button" onClick={start}>
+            <button className="keyboard-button" onClick={() => start(true)}>
               <Icon name="keyboard" />
               Just looking? Try with your keyboard
+            </button>
+            <button
+              className="text-button practice-replay"
+              onClick={() => {
+                setRival("pip");
+                setDifficulty("easy");
+                game.current?.setRival("pip");
+                start(true, true);
+              }}
+            >
+              {COPY.practice.replay}
             </button>
             <div className="title-record">
               <Icon name="trophy" size={15} />
@@ -414,21 +469,52 @@ function App() {
       )}
       {playing && (
         <div className="match-ui">
+          <SwingHud
+            state={state}
+            anchor={game.current?.scene.playerScreenPosition()}
+            ringAnchor={game.current?.scene.playerScreenPosition(0)}
+          />
           <div
             className="scoreboard"
             aria-label={`Score: you ${state.score[0]}, rival ${state.score[1]}`}
           >
-            <div>
+            <div
+              aria-label={state.serving === "player" ? "You, serving" : "You"}
+            >
               <span className="player-dot coral" />
               YOU <b>{state.score[0]}</b>
+              {state.serving === "player" && (
+                <span
+                  className="serve-indicator"
+                  aria-label="Serving"
+                  title="Your serve"
+                />
+              )}
             </div>
             <span className="score-divider">:</span>
-            <div>
+            <div
+              aria-label={`${RIVALS[state.rival].name}${state.serving === "ai" ? ", serving" : ""}`}
+            >
+              {state.serving === "ai" && (
+                <span
+                  className="serve-indicator"
+                  aria-label="Serving"
+                  title={`${RIVALS[state.rival].name} serves`}
+                />
+              )}
               <b>{state.score[1]}</b>
               <RivalPortrait id={state.rival} size={28} />
               {RIVALS[state.rival].name.toUpperCase()}{" "}
               <span className="player-dot lilac" />
             </div>
+            {matchPoint && (
+              <span className="match-point" role="status">
+                MATCH POINT ·{" "}
+                {matchPoint === "player"
+                  ? "YOU"
+                  : RIVALS[state.rival].name.toUpperCase()}
+              </span>
+            )}
           </div>
           <span className="rally-counter">
             RALLY <b>{state.rally.toString().padStart(2, "0")}</b>
@@ -459,7 +545,12 @@ function App() {
               <Icon name="pause" />
             </button>
           </div>
-          <div className="edge-toast" key={state.phase} role="status">
+          <div
+            className="edge-toast"
+            key={state.phase}
+            role="status"
+            data-timing={state.phase === "rally" ? state.timing : undefined}
+          >
             {state.phase === "serve" ? (
               <>
                 <h2>
@@ -476,19 +567,41 @@ function App() {
             ) : state.phase === "point" ? (
               <>
                 <h2>{state.message.split(" · ")[0]}</h2>
-                <p>Fault: {state.message.split(" · ")[1]}</p>
+                {!state.faultEvent && (
+                  <p>
+                    {game.current?.rules.reason
+                      ? COPY.faults[game.current.rules.reason]
+                      : state.message.split(" · ")[1]}
+                  </p>
+                )}
                 <button onClick={() => game.current?.skipTransition()}>
                   Next point ↵
                 </button>
               </>
-            ) : state.phase === "rally" ? (
+            ) : state.phase === "rally" &&
+              state.timing &&
+              !state.readinessEnabled ? (
+              <>
+                <span className="timing-label">SWING TIMING</span>
+                <h2>
+                  {state.timing === "perfect"
+                    ? "Perfect"
+                    : state.timing === "good"
+                      ? "Good"
+                      : "Late"}
+                </h2>
+              </>
+            ) : state.phase === "rally" &&
+              state.message.trim() &&
+              !state.readinessEnabled ? (
               <p>{state.message}</p>
             ) : null}
           </div>
-          <span className="control-hint">
-            {paired
-              ? "Phone connected · P to pause"
-              : "SPACE hit · ← → aim · SHIFT lob · P pause"}
+          <span
+            className={`control-hint${!hintsVisible ? " hints-hidden" : ""}`}
+            aria-hidden={!hintsVisible}
+          >
+            {paired ? "Phone connected · P to pause" : COPY.keyboardHint}
           </span>
           {state.tutorial && (
             <aside className="tutorial-card" role="status">
@@ -520,6 +633,24 @@ function App() {
               </button>
             </aside>
           )}
+          {state.practice && (
+            <aside
+              className={`tutorial-card guided-practice ${state.practice.hint ? "needs-hint" : ""}`}
+              role="status"
+            >
+              <span className="eyebrow">
+                {COPY.practice.title} {state.practice.step} / 5
+              </span>
+              <h3>{state.practice.line}</h3>
+              {state.practice.step === 5 && <p>{state.practice.hits} / 2</p>}
+              {state.practice.hint && (
+                <p className="practice-arrow">{COPY.practice.hint}</p>
+              )}
+              <button onClick={() => game.current?.skipTutorial()}>
+                {COPY.practice.skip}
+              </button>
+            </aside>
+          )}
           {state.phase === "paused" && (
             <div className="state-backdrop">
               <section
@@ -531,6 +662,10 @@ function App() {
                 <span className="eyebrow">PAUSED</span>
                 <h2 id="pause-title">A little breather.</h2>
                 <p>{state.message}</p>
+                <details className="pause-help">
+                  <summary>{COPY.instructions.title}</summary>
+                  <Instructions ringEnabled={!!state.readinessEnabled} />
+                </details>
                 <button
                   className="primary-button"
                   onClick={() => game.current?.pause()}
@@ -592,7 +727,10 @@ function App() {
                     : RIVALS[state.rival].lossQuip}
                   ” — {RIVALS[state.rival].name}
                 </p>
-                <button className="primary-button" onClick={start}>
+                <button
+                  className="primary-button"
+                  onClick={() => start(!paired)}
+                >
                   Rematch <Icon name="arrow" />
                 </button>
                 <button
@@ -651,7 +789,7 @@ function App() {
                 <p>
                   {paired
                     ? "Connected. Take three practice swings on your phone."
-                    : "Scan the code. Keep both devices on the same network."}
+                    : "Scan the code to connect your phone."}
                 </p>
                 {qr ? (
                   <img
@@ -690,53 +828,26 @@ function App() {
                 </button>
                 {base.startsWith("http:") && (
                   <p className="pair-note">
-                    HTTP supports touch controls. Motion requires HTTPS.
+                    HTTP supports touch controls. For motion, open the HTTPS URL
+                    printed by npm run dev:https on this laptop, then scan its
+                    QR.
                   </p>
                 )}
-                <button className="keyboard-button" onClick={start}>
+                <button className="keyboard-button" onClick={() => start(true)}>
                   Try with your keyboard instead →
                 </button>
               </>
             ) : (
               <>
                 <span className="eyebrow">HOW TO PLAY</span>
-                <h2 id="modal-title">Timing does the work.</h2>
-                <ol className="help-steps">
-                  <li>
-                    <b>Pair.</b> Scan the code and take three gentle forehand
-                    swings.
-                  </li>
-                  <li>
-                    <b>Return.</b> Swing near the ball. Tilt left or right to
-                    aim. Hold LOB for height.
-                  </li>
-                  <li>
-                    <b>Wait for the bounce.</b> The serve and first return must
-                    bounce. No volleys from the kitchen.
-                  </li>
-                </ol>
-                <div className="keyboard-guide">
-                  <div className="shot-legend">
-                    {["Dink", "Drive", "Drop", "Lob", "Smash"].map(
-                      (shot, i) => (
-                        <span key={shot}>
-                          <i
-                            style={{
-                              backgroundPosition: `-${(i % 4) * 32}px -${Math.floor(i / 4) * 32}px`,
-                            }}
-                          />
-                          {shot}
-                        </span>
-                      ),
-                    )}
-                  </div>
-                  <p>
-                    <kbd>Space</kbd> hit · <kbd>← →</kbd> aim
-                    <br />
-                    <kbd>Shift + Space</kbd> lob · <kbd>P</kbd> pause
-                  </p>
-                </div>
-                <p>Rally scoring. First to 11, win by two.</p>
+                <h2 id="modal-title">{COPY.instructions.title}</h2>
+                <Instructions
+                  ringEnabled={clarityEnabled(
+                    difficulty,
+                    rival,
+                    game.current?.readinessOverride,
+                  )}
+                />
                 <button className="primary-button" onClick={close}>
                   Got it. Let’s play. <Icon name="arrow" />
                 </button>

@@ -2,8 +2,11 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import type { MotionVisual } from "./use-controller";
 import { RelativeAim, SwingPress, TAP_POWER } from "./thumb-input";
 import { clamp } from "../game/solver";
+import type { ReadinessMessage } from "@dink/shared";
+import { COPY } from "../game/readiness/config";
 
 type Props = {
+  readiness?: ReadinessMessage;
   motion: boolean;
   leftHanded: boolean;
   disabled: boolean;
@@ -14,6 +17,12 @@ type Props = {
   onSwing: (shot: { power: number; lob: boolean; tilt?: number }) => void;
 };
 export function ThumbControls(props: Props) {
+  const readiness = props.readiness?.enabled ? props.readiness : undefined;
+  const label = readiness
+    ? readiness.serving
+      ? COPY.serve
+      : COPY.phone[readiness.state]
+    : "Swing";
   const latest = useRef(props);
   latest.current = props;
   const aim = useRef(new RelativeAim()),
@@ -197,7 +206,9 @@ export function ThumbControls(props: Props) {
         <button
           ref={button}
           className="swing-button paddle-button"
+          data-readiness={readiness?.state}
           aria-label="Swing"
+          aria-describedby="swing-readiness-label"
           disabled={props.disabled}
           onPointerDown={(e) => {
             if (
@@ -273,7 +284,18 @@ export function ThumbControls(props: Props) {
               "dd."
             )}
           </span>
-          <span className="swing-label">Swing</span>
+          <span id="swing-readiness-label" className="swing-label">
+            {readiness?.state.startsWith("WAIT_") && (
+              <svg
+                className="bounce-lock"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5z" />
+              </svg>
+            )}
+            {label}
+          </span>
         </button>
         {props.lobChip && !props.motion && (
           <button

@@ -38,6 +38,7 @@ function contactTexture() {
 export class ParkEnvironment {
   readonly group = new T.Group();
   private foliage: T.Group[] = [];
+  private foreground: T.Mesh[] = [];
   private sky: T.Mesh<T.SphereGeometry, T.ShaderMaterial>;
   private contactMap = contactTexture();
   private leafGeometry = new T.IcosahedronGeometry(1, 2);
@@ -63,23 +64,24 @@ export class ParkEnvironment {
       }),
     );
     this.group.add(this.sky);
-    const grass = bevel(42, 0.15, 38, 0x83966b, 0, -0.59, -2);
+    const grass = bevel(42, 0.15, 38, 0x52645a, 0, -0.59, -2);
     grass.material.dispose();
-    grass.material = surface(0x83966b, "grass");
+    grass.material = surface(0x52645a, "grass");
     grass.castShadow = false;
     this.group.add(grass);
     // Distant layers are progressively lighter, cooler and less contrasted.
     for (let layer = 0; layer < 3; layer++) {
       for (let i = 0; i < 5; i++) {
         const hill = new T.Mesh(
-          new T.SphereGeometry(1, 20, 12),
+          // Smooth, overlapping silhouettes avoid the old angular gray wedge.
+          new T.SphereGeometry(1, 64, 32),
           new T.MeshStandardMaterial({
-            color: [0xc1c5b5, 0xa5b6a3, 0x8da58a][layer],
+            color: [0x778780, 0x687c72, 0x596e63][layer],
             roughness: 1,
           }),
         );
-        hill.position.set(-45 + i * 22, -4, -44 + layer * 10);
-        hill.scale.set(18, 4 + Math.sin(i * 4 + layer) * 1.2, 7);
+        hill.position.set(-45 + i * 22, -6, -52 + layer * 9);
+        hill.scale.set(20, 6.5 + Math.sin(i * 4 + layer) * 0.6, 9);
         this.group.add(hill);
       }
     }
@@ -99,20 +101,19 @@ export class ParkEnvironment {
       [-7, -9, 1.4],
       [-7, -4, 1.1],
       [7, -9, 1.5],
-      [7, 7, 1.2],
-      [-7, 8, 1.1],
+      [10, 8, 0.55],
+      [-10, 8, 0.55],
       [-11, -14, 1.8],
       [12, -14, 1.7],
     ])
       this.tree(x, z, scale);
     // Low hedges, kept clear of the play area.
     for (const x of [-7.4, 7.4]) {
-      this.group.add(bevel(1, 0.55, 7, 0x5d7d50, x, -0.04, 0, 0.2));
+      this.group.add(bevel(1, 0.45, 7, 0x41594c, x, -0.09, 0, 0.2));
       this.contact(x, 0, 2, 8, -0.5);
     }
     this.clubhouse();
     this.scoreboard();
-    this.grass();
     this.contact(0, 0, 16, 23, -0.5);
   }
   contact(x: number, z: number, w: number, d: number, y = 0.063) {
@@ -136,7 +137,7 @@ export class ParkEnvironment {
     const crown = new T.Group();
     crown.position.set(x, 1, z);
     crown.scale.setScalar(scale);
-    const colors = [0x527c57, 0x73915d, 0x91a76b, 0x6b8c60, 0xa6b67b];
+    const colors = [0x344e45, 0x4a6154, 0x637363, 0x405c50, 0x71806b];
     // Flattened interlocking lobes form a broad crown, rather than stacked spheres.
     for (let i = 0; i < 7; i++) {
       const angle = i * 2.4;
@@ -157,32 +158,20 @@ export class ParkEnvironment {
       crown.add(leaf);
     }
     this.foliage.push(crown);
+    if (z > 0) {
+      this.foreground.push(trunk);
+      crown.traverse((object) => {
+        if (object instanceof T.Mesh) this.foreground.push(object);
+      });
+      for (const object of this.foreground) {
+        const material = object.material as T.MeshStandardMaterial;
+        material.transparent = true;
+        material.depthWrite = false;
+        object.castShadow = false;
+      }
+    }
     this.group.add(trunk, crown);
     this.contact(x, z, scale * 3, scale * 3, -0.5);
-  }
-  private grass() {
-    // All blades in one draw call, with deterministic placement outside the slab.
-    const mesh = new T.InstancedMesh(
-      new T.ConeGeometry(0.045, 0.28, 3),
-      new T.MeshStandardMaterial({ color: 0x718b51, roughness: 1 }),
-      500,
-    );
-    const transform = new T.Object3D();
-    const color = new T.Color();
-    for (let i = 0; i < 500; i++) {
-      const side = i % 2 ? 1 : -1;
-      transform.position.set(
-        side * (6.7 + ((i * 73) % 100) * 0.06),
-        -0.35,
-        ((i * 137) % 240) * 0.1 - 12,
-      );
-      transform.rotation.set(0, i * 1.7, Math.sin(i) * 0.18);
-      transform.scale.setScalar(0.6 + (i % 5) * 0.15);
-      transform.updateMatrix();
-      mesh.setMatrixAt(i, transform.matrix);
-      mesh.setColorAt(i, color.setHSL(0.22, 0.22, 0.4 + (i % 7) * 0.025));
-    }
-    this.group.add(mesh);
   }
   private clubhouse() {
     this.group.add(bevel(6, 2.1, 3, 0xd2c3a3, -11, 0.55, -19));
@@ -242,15 +231,17 @@ export class ParkEnvironment {
     this.scoreboardMap.needsUpdate = true;
   }
   theme(sunset: boolean) {
-    this.sky.material.uniforms.top.value.set(sunset ? "#969fbd" : "#79a8cb");
+    this.sky.material.uniforms.top.value.set(sunset ? "#737b8b" : "#647e8a");
     this.sky.material.uniforms.horizon.value.set(
-      sunset ? "#f2c39f" : "#f1c596",
+      sunset ? "#b3a091" : "#929d96",
     );
   }
-  update(time: number, reduced: boolean) {
+  update(time: number, reduced: boolean, active = false) {
     this.foliage.forEach((c, i) => {
       c.rotation.z = reduced ? 0 : Math.sin(time * 0.7 + i * 1.7) * 0.014;
     });
+    for (const object of this.foreground)
+      (object.material as T.MeshStandardMaterial).opacity = active ? 0.18 : 0.7;
   }
   dispose() {
     this.contactMap.dispose();

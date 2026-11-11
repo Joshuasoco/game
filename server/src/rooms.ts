@@ -4,6 +4,8 @@ export const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ";
 export interface Room {
   code: string;
   host: string;
+  hostId: string;
+  hostDisconnectedAt?: number;
   controller?: string;
   playerId?: string;
   lastActive: number;
@@ -25,6 +27,7 @@ export class Rooms {
     const room: Room = {
       code,
       host,
+      hostId: randomUUID(),
       lastActive: Date.now(),
       lastSwing: -1,
       lastPose: -1,
@@ -56,11 +59,29 @@ export class Rooms {
     room.lastActive = Date.now();
     return { room, playerId: room.playerId };
   }
+  resumeHost(code: string, socketId: string, hostId: string): Room | undefined {
+    const room = this.rooms.get(code);
+    if (
+      !room ||
+      room.hostId !== hostId ||
+      room.hostDisconnectedAt === undefined ||
+      Date.now() - room.hostDisconnectedAt > 60_000
+    )
+      return;
+    room.host = socketId;
+    room.hostDisconnectedAt = undefined;
+    room.lastActive = Date.now();
+    return room;
+  }
   sweep(now = Date.now()): { closed: Room[]; expired: Room[] } {
     const closed: Room[] = [];
     const expired: Room[] = [];
     for (const [code, r] of this.rooms) {
-      if (now - r.lastActive > 600_000) {
+      if (
+        now - r.lastActive > 600_000 ||
+        (r.hostDisconnectedAt !== undefined &&
+          now - r.hostDisconnectedAt > 60_000)
+      ) {
         closed.push(r);
         this.rooms.delete(code);
       } else if (r.disconnectedAt && now - r.disconnectedAt > 60_000) {

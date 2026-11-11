@@ -6,9 +6,12 @@ import type {
   GamePhase,
   JoinResult,
   Swing,
+  ReadinessMessage,
 } from "@dink/shared";
 import { SwingDetector, type DetectedSwing } from "./swing";
 import { clamp } from "../game/solver";
+import { ReadinessReceiver } from "../game/readiness/controller-sync";
+import { READINESS } from "../game/readiness/config";
 
 type Stage = "welcome" | "practice" | "ready";
 type Preferences = {
@@ -47,6 +50,8 @@ function readPreferences(): Preferences {
   }
 }
 export function useController() {
+  const [readiness, setReadiness] = useState<ReadinessMessage>();
+  const readinessReceiver = useRef(new ReadinessReceiver());
   const initial =
     new URLSearchParams(location.search).get("room")?.toUpperCase() ?? "";
   const [code, setCode] = useState(initial),
@@ -203,6 +208,8 @@ export function useController() {
   };
   useEffect(() => {
     if (!room) return;
+    readinessReceiver.current.reset();
+    setReadiness(undefined);
     const s = io(location.origin, { transports: ["websocket"] });
     socket.current = s;
     session.current = null;
@@ -271,6 +278,23 @@ export function useController() {
           hand: state.current.preferences.hand,
           swingSign: detector.current.swingSign,
         });
+    });
+    s.on("game:readiness", (message: ReadinessMessage) => {
+      const previous = readinessReceiver.current.current;
+      if (!readinessReceiver.current.accept(message)) return;
+      setReadiness(message);
+      if (
+        !message.enabled ||
+        !inputAllowed() ||
+        state.current.stage !== "ready"
+      )
+        return;
+      if (previous?.state !== message.state) {
+        if (message.state === "IN_REACH" && !message.serving)
+          vibrate(READINESS.haptics.enterReachMs);
+        else if (message.state === "GET_READY")
+          vibrate(READINESS.haptics.getReadyMs);
+      }
     });
     s.on("haptic", ({ pattern }) => {
       vibrate(pattern);
@@ -565,6 +589,7 @@ export function useController() {
     }
   };
   return {
+    readiness,
     code,
     setCode,
     room,

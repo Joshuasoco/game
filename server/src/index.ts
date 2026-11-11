@@ -9,10 +9,12 @@ import {
   calibrationSchema,
   joinSchema,
   resumeSchema,
+  hostResumeSchema,
   swingSchema,
   poseSchema,
   phaseSchema,
   hapticSchema,
+  readinessSchema,
   type ClientEvents,
   type ServerEvents,
 } from "../../shared/src/protocol.js";
@@ -88,14 +90,33 @@ export function createApp() {
       if (typeof ack !== "function") return;
       if (role === "controller") return;
       if (role === "host") {
-        ack({ roomCode: code! });
+        ack({ roomCode: code!, hostId: current()!.hostId });
         return;
       }
       const r = rooms.create(socket.id);
       role = "host";
       code = r.code;
       socket.join(code);
-      ack({ roomCode: code });
+      ack({ roomCode: code, hostId: r.hostId });
+    });
+    socket.on("host:resume", (data, ack) => {
+      if (typeof ack !== "function" || role) return;
+      const parsed = hostResumeSchema.safeParse(data);
+      const r = parsed.success
+        ? rooms.resumeHost(parsed.data.roomCode, socket.id, parsed.data.hostId)
+        : undefined;
+      if (!r) {
+        ack({ ok: false });
+        return;
+      }
+      code = r.code;
+      role = "host";
+      socket.join(code);
+      ack({ ok: true });
+      socket.emit("controller:status", {
+        connected: !!r.controller,
+        resumed: true,
+      });
     });
     const join = (data: unknown, ack: unknown, resume: boolean) => {
       if (typeof ack !== "function" || role) return;
@@ -177,6 +198,12 @@ export function createApp() {
         if (r.controller) io.to(r.controller).emit("game:phase", p.data);
       }
     });
+    socket.on("game:readiness", (d) => {
+      const r = role === "host" ? current() : undefined;
+      const p = readinessSchema.safeParse(d);
+      if (r?.controller && p.success)
+        io.to(r.controller).emit("game:readiness", p.data);
+    });
     socket.on("haptic", (d) => {
       const r = current();
       const p = hapticSchema.safeParse(d);
@@ -191,10 +218,15 @@ export function createApp() {
         typeof ack === "function" &&
         z.object({ tPhone: z.number().finite() }).safeParse(d).success
       ) {
+        // A successful phone-to-screen heartbeat counts as room activity,
+        // including touch mode when the player is holding still.
         io.to(r.host)
           .timeout(1500)
           .emit("net:ping", d, (err, replies) => {
-            if (!err && replies?.[0]) ack(replies[0]);
+            if (!err && replies?.[0]) {
+              r.lastActive = Date.now();
+              ack(replies[0]);
+            }
           });
       }
     });
@@ -209,10 +241,26 @@ export function createApp() {
       if (role === "controller" && r && p.success)
         io.to(r.host).emit("net:latency", p.data);
     });
-    socket.on("disconnect", () => {
+    socket.on("disconnect", (reason) => {
       const r = current();
       if (!r) return;
       if (role === "host") {
+        if (
+          ["transport close", "transport error", "ping timeout"].includes(
+            reason,
+          )
+        ) {
+          r.hostDisconnectedAt = Date.now();
+          if (r.phase) {
+            r.phase = {
+              ...r.phase,
+              phase: "paused",
+              message: "Game screen reconnecting. Your score is saved.",
+            };
+            io.to(code!).emit("game:phase", r.phase);
+          }
+          return;
+        }
         io.to(code!).emit("room:closed", {
           reason:
             "The game screen disconnected. Create a new room to play again.",
@@ -233,7 +281,10 @@ export function createApp() {
     const { closed, expired } = rooms.sweep();
     for (const r of closed) {
       io.to(r.code).emit("room:closed", {
-        reason: "Room expired after 10 minutes of inactivity.",
+        reason:
+          r.hostDisconnectedAt !== undefined
+            ? "Game screen reconnect timed out. Create a new room to play again."
+            : "Room expired after 10 minutes of inactivity.",
       });
       io.in(r.code).socketsLeave(r.code);
     }

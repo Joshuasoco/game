@@ -1,7 +1,29 @@
 import RAPIER from "@dimforge/rapier3d-compat";
-import type { Difficulty, GamePhase, Side, Swing } from "@dink/shared";
+import type {
+  Difficulty,
+  GamePhase,
+  Side,
+  Swing,
+  ReadinessMessage,
+} from "@dink/shared";
 import type { CourtScene } from "../screen/scene";
-import { Rules } from "./rules";
+import { Rules, type FaultEvent } from "./rules";
+import {
+  evaluateReadiness,
+  type ReadinessSnapshot,
+} from "./readiness/evaluate";
+import { ReadinessStore } from "./readiness/store";
+import { ControllerSync } from "./readiness/controller-sync";
+import {
+  clarityEnabled,
+  readClarityPreferences,
+} from "./readiness/preferences";
+import { COPY, READINESS } from "./readiness/config";
+import {
+  GuidedPractice,
+  type PracticeSnapshot,
+} from "./practice/guided-practice";
+import { practiceFeed } from "./practice/ball-machine";
 import {
   clamp,
   integrateVelocity,
@@ -27,6 +49,11 @@ import {
 import { judgeTiming, timingDelta, type Timing } from "./timing";
 import { assistedDepth, assistedShot } from "./assistance";
 export interface Snapshot extends GamePhase {
+  readiness?: ReadinessSnapshot;
+  readinessEnabled?: boolean;
+  practice?: PracticeSnapshot;
+  whiff?: string;
+  faultEvent?: FaultEvent;
   tutorial?: "serve" | "dink" | "lob";
   rival: RivalId;
   timing: Timing | undefined;
@@ -45,7 +72,47 @@ export interface MatchStats {
   timingTotalMs: number;
   timedSwings: number;
 }
+const emptyStats = (): MatchStats => ({
+  longestRally: 0,
+  winners: 0,
+  faults: 0,
+  timingTotalMs: 0,
+  timedSwings: 0,
+});
 export class Game {
+  readonly readiness = new ReadinessStore();
+  private clarity = readClarityPreferences();
+  private sync = new ControllerSync();
+  private cooldownUntil = 0;
+  private whiffText?: string;
+  private whiffUntil = 0;
+  private faultEvent?: FaultEvent;
+  private faultUntil = 0;
+  private cueShot = -1;
+  private inReachAt = 0;
+  private stateAtSwing?: string;
+  private practice?: GuidedPractice;
+  private nextFeed = 0;
+  private practiceReturnPending = false;
+  private firstRally = false;
+  private renderTime = 0;
+  private launchedAt = Date.now();
+  onReadiness?: (message: ReadinessMessage) => void;
+  get readinessEnabled() {
+    return clarityEnabled(
+      this.difficulty,
+      this.rival,
+      this.clarity.readiness_v2,
+    );
+  }
+  refreshClarity() {
+    this.clarity = readClarityPreferences();
+    this.updateReadiness();
+    this.emit(false);
+  }
+  get readinessOverride() {
+    return this.clarity.readiness_v2;
+  }
   readonly metrics = new LocalMetrics();
   private tutorial: Snapshot["tutorial"];
   private tutorialStarted = 0;
@@ -58,13 +125,7 @@ export class Game {
   private results: boolean[] = [];
   private adaptation = 1;
   private hitStop = 0;
-  private stats: MatchStats = {
-    longestRally: 0,
-    winners: 0,
-    faults: 0,
-    timingTotalMs: 0,
-    timedSwings: 0,
-  };
+  private stats: MatchStats = emptyStats();
   readonly audio = new Audio();
   readonly rules = new Rules();
   private world!: RAPIER.World;
@@ -77,7 +138,11 @@ export class Game {
   difficulty: Difficulty = "medium";
   challenge = false;
   private random = seeded(42);
-  private swing?: { input: Swing; expires: number };
+  private swing?: {
+    input: Swing;
+    expires: number;
+    readiness?: ReadinessSnapshot;
+  };
   private pointTimer = 0;
   private running = false;
   private disposed = false;
@@ -97,6 +162,7 @@ export class Game {
   private prev: Vec = { x: 1.7, y: 1.1, z: 4.7 };
   private elapsed = 0;
   private lastSwing = -1;
+  private lastKeyboardSwing = -1;
   private roll = 0;
   private history: { at: number; p: Vec }[] = [];
   private clockOffset = 0;
@@ -113,6 +179,10 @@ export class Game {
     this.scene.setReducedMotion?.(preferences.reducedMotion);
     try {
       this.best = Number(localStorage.getItem("dink-best") ?? 0) || 0;
+      const firstLaunch = Number(localStorage.getItem("dink-first-launch"));
+      if (firstLaunch > 0 && firstLaunch <= Date.now())
+        this.launchedAt = firstLaunch;
+      else localStorage.setItem("dink-first-launch", String(this.launchedAt));
     } catch {
       /* Storage is optional. */
     }
@@ -158,7 +228,7 @@ export class Game {
     if (!this.running) return;
     const dt = Math.min((now - this.last) / 1000, 0.05);
     this.last = now;
-    this.elapsed += dt;
+    if (this.phase !== "paused") this.elapsed += dt;
     if (this.tutorial && this.elapsed - this.tutorialStarted > 30)
       this.skipTutorial();
     this.frame++;
@@ -184,6 +254,26 @@ export class Game {
       this.pointTimer -= dt;
       if (this.pointTimer <= 0) this.serve("ai");
     }
+    if (
+      this.practice &&
+      this.phase === "rally" &&
+      this.nextFeed &&
+      this.elapsed >= this.nextFeed
+    )
+      this.feedPractice(this.practiceReturnPending);
+    this.updateReadiness();
+    if (this.whiffText && this.elapsed >= this.whiffUntil) {
+      this.whiffText = undefined;
+      this.emit(false);
+    }
+    if (
+      this.faultEvent &&
+      this.elapsed >= this.faultUntil &&
+      this.phase !== "paused"
+    ) {
+      this.faultEvent = undefined;
+      this.emit(false);
+    }
     const p = this.body.translation();
     if (this.phase === "rally") {
       const a = clamp(this.accumulator / PHYSICS.dt, 0, 1);
@@ -196,7 +286,14 @@ export class Game {
         this.target,
       );
     } else this.scene.setBall(p);
-    this.scene.render(dt, now / 1000, this.phase === "rally", this.roll);
+    const frozen = this.phase === "paused" || !!this.faultEvent;
+    if (!frozen) this.renderTime += dt;
+    this.scene.render(
+      frozen ? 0 : dt,
+      this.renderTime,
+      this.phase === "rally",
+      this.roll,
+    );
     requestAnimationFrame(this.loop);
   };
   snapshot(): Snapshot {
@@ -216,6 +313,11 @@ export class Game {
       tutorial: this.tutorial,
       rival: this.rival,
       timing: this.timing,
+      readiness: this.readiness.current,
+      readinessEnabled: this.readinessEnabled,
+      practice: this.practice?.snapshot(this.elapsed * 1000),
+      whiff: this.whiffText,
+      faultEvent: this.faultEvent,
     };
   }
   private emit(network = true) {
@@ -229,6 +331,7 @@ export class Game {
     this.phase = phase;
     this.message = message;
     this.accumulator = 0;
+    if (this.body) this.updateReadiness();
     this.emit();
   }
   wait() {
@@ -237,7 +340,23 @@ export class Game {
   calibrate() {
     this.setPhase("calibrate", "Three easy practice swings on your phone.");
   }
-  start(difficulty: Difficulty, challenge = false) {
+  start(
+    difficulty: Difficulty,
+    challenge = false,
+    keyboard = false,
+    replayPractice = false,
+  ) {
+    this.practice = undefined;
+    this.practiceReturnPending = false;
+    this.clarity = readClarityPreferences();
+    if (replayPractice) this.clarity.readiness_v2 = true;
+    this.cooldownUntil = 0;
+    this.faultUntil = 0;
+    this.nextFeed = 0;
+    this.stateAtSwing = undefined;
+    this.whiffText = undefined;
+    this.faultEvent = undefined;
+    this.readiness.reset();
     try {
       this.tutorial = localStorage.getItem("dink-tutorial")
         ? undefined
@@ -250,25 +369,46 @@ export class Game {
     this.timing = undefined;
     this.spin = 0;
     this.intent = 0;
-    this.stats = {
-      longestRally: 0,
-      winners: 0,
-      faults: 0,
-      timingTotalMs: 0,
-      timedSwings: 0,
-    };
+    this.stats = emptyStats();
     this.difficulty = difficulty;
+    if (this.readinessEnabled) this.tutorial = undefined;
     this.challenge = challenge;
     this.rules.score = [0, 0];
     this.rules.serving = "player";
     this.rally = 0;
     this.hitCount = 0;
     this.lastSwing = -1;
+    this.lastKeyboardSwing = -1;
     this.audio.start();
     this.scene.setActive(true);
     this.prepareServe();
+    let skipped = false;
+    try {
+      skipped = !!localStorage.getItem("dink-practice-skipped");
+    } catch {
+      /* Optional. */
+    }
+    if (
+      replayPractice ||
+      (keyboard &&
+        !challenge &&
+        difficulty === "easy" &&
+        this.rival === "pip" &&
+        this.readinessEnabled &&
+        !GuidedPractice.completed() &&
+        !skipped)
+    ) {
+      this.tutorial = undefined;
+      this.practice = new GuidedPractice(this.elapsed * 1000, replayPractice);
+      this.practice.onStep = (data) =>
+        this.metrics.event("tutorial_step", data);
+      this.feedPractice();
+    }
   }
   menu() {
+    this.practice = undefined;
+    this.faultEvent = undefined;
+    this.whiffText = undefined;
     this.phase = "menu";
     this.scene.setActive(false);
     this.body.setTranslation({ x: 1.7, y: 1.1, z: 4.7 }, true);
@@ -282,9 +422,19 @@ export class Game {
     this.clockOffset = offset;
   }
   skipTransition() {
-    if (this.phase === "point") this.prepareServe();
+    if (this.phase === "point" && this.elapsed >= this.faultUntil)
+      this.prepareServe();
   }
   skipTutorial() {
+    if (this.practice) {
+      this.practice.skip(this.elapsed * 1000);
+      this.practice = undefined;
+      this.rules.score = [0, 0];
+      this.stats = emptyStats();
+      this.rally = this.hitCount = 0;
+      this.rules.serving = "player";
+      this.prepareServe();
+    }
     this.tutorial = undefined;
     try {
       localStorage.setItem("dink-tutorial", "seen");
@@ -319,13 +469,18 @@ export class Game {
       this.beforePause = this.phase;
       this.setPhase(
         "paused",
-        "Paddle disconnected. Reconnecting for up to 60 seconds…",
+        "Controller lost. Reconnecting for up to 60 seconds. Keyboard controls are available.",
       );
     }
   }
-  input(input: Swing) {
-    if (input.seq <= this.lastSwing) return;
-    this.lastSwing = input.seq;
+  input(input: Swing, source: "controller" | "keyboard" = "controller") {
+    if (
+      input.seq <=
+      (source === "keyboard" ? this.lastKeyboardSwing : this.lastSwing)
+    )
+      return;
+    if (source === "keyboard") this.lastKeyboardSwing = input.seq;
+    else this.lastSwing = input.seq;
     this.assisted = input.assisted ?? false;
     this.metrics.record("swing");
     if (this.phase === "serve" && this.rules.serving === "player") {
@@ -333,6 +488,33 @@ export class Game {
       return;
     }
     if (this.phase !== "rally") return;
+    if (this.readinessEnabled) {
+      if (this.swing) return;
+      const raw = this.rawReadiness();
+      this.stateAtSwing = raw.state;
+      if (raw.state === "RECOVERING") return;
+      if (
+        raw.state === "IN_REACH" &&
+        this.readiness.current?.state !== "IN_REACH"
+      )
+        this.inReachAt = this.elapsed;
+      if (
+        raw.state === "IN_REACH" ||
+        raw.state === "WAIT_BOUNCE" ||
+        raw.state === "WAIT_KITCHEN"
+      ) {
+        this.hit("player", input);
+      } else if (raw.state === "GET_READY") {
+        // Only legal near misses may be buffered. Rule warnings never queue input.
+        this.swing = {
+          input,
+          expires: this.elapsed + READINESS.inputBufferMs / 1000,
+          readiness: raw,
+        };
+      } else this.whiff(input, raw);
+      this.updateReadiness();
+      return;
+    }
     const at = clamp(
       input.tPhone + this.clockOffset,
       Date.now() - Math.min(200, this.rtt / 2 + 100),
@@ -349,6 +531,10 @@ export class Game {
       this.hit("player", input, historical.p);
   }
   private prepareServe() {
+    this.cooldownUntil = 0;
+    this.faultEvent = undefined;
+    this.whiffText = undefined;
+    this.cueShot = -1;
     this.history = [];
     if (this.rules.winner && !this.challenge) {
       this.results.push(this.rules.winner === "player");
@@ -412,6 +598,10 @@ export class Game {
     this.aiWait = 0;
     this.aiMiss = this.random() < SKILL[this.difficulty].miss;
     this.setPhase("rally", "Let it bounce.");
+    if (this.practice?.step === 4 && side === "player") {
+      this.practiceReturnPending = true;
+      this.nextFeed = this.elapsed + READINESS.practiceReturnDelayMs / 1000;
+    }
     if (input) this.onHaptic?.("hit");
   }
   private launch(p: Vec, target: Vec, shot: Shot, power = 0.65) {
@@ -422,6 +612,8 @@ export class Game {
     this.shot = shot;
   }
   private canHit(side: Side, p: Vec) {
+    if (side === "player" && this.readinessEnabled)
+      return this.rawReadiness(p).state === "IN_REACH";
     const c = side === "player" ? this.scene.player : this.scene.ai;
     if (this.rules.lastHitter === side) return false;
     if (side === "player" ? p.z < 0.2 : p.z > -0.2) return false;
@@ -443,6 +635,12 @@ export class Game {
     if (result) {
       this.finish(result.winner, result.fault);
       return;
+    }
+    if (side === "player" && this.readinessEnabled) {
+      this.cooldownUntil = this.elapsed + READINESS.hitCooldownMs / 1000;
+      this.metrics.event("swing_in_reach", {
+        timeSinceInReachMs: Math.max(0, (this.elapsed - this.inReachAt) * 1000),
+      });
     }
     const skill = SKILL[this.difficulty];
     let power = input?.power ?? 0.35 + this.random() * 0.5;
@@ -518,6 +716,12 @@ export class Game {
     if (side === "player" && this.timing === "perfect")
       this.audio.play("perfect");
     this.rally++;
+    if (this.rally >= 2 && !this.firstRally && !this.practice) {
+      this.firstRally = true;
+      this.metrics.event("first_rally_complete", {
+        secondsSinceFirstLaunch: (Date.now() - this.launchedAt) / 1000,
+      });
+    }
     this.stats.longestRally = Math.max(this.stats.longestRally, this.rally);
     this.hitCount++;
     this.swing = undefined;
@@ -526,7 +730,7 @@ export class Game {
       this.random() <
       (skill.miss * RIVALS[this.rival].error) / this.adaptation +
         (this.rally > 5 ? RIVALS[this.rival].pressure * 0.16 : 0);
-    if (this.rally > this.best) {
+    if (this.rally > this.best && !this.practice) {
       this.best = this.rally;
       try {
         localStorage.setItem("dink-best", String(this.best));
@@ -537,6 +741,11 @@ export class Game {
     if (side === "player")
       this.onHaptic?.(this.timing === "perfect" ? "perfect" : "hit");
     this.message = "";
+    if (this.practice && side === "player") {
+      this.practice.observe("hit", this.elapsed * 1000, input?.tilt);
+      if (this.practice.done) this.completePractice();
+      else this.nextFeed = this.elapsed + READINESS.practiceFeedDelayMs / 1000;
+    }
     this.emit();
   }
   private step() {
@@ -621,10 +830,27 @@ export class Game {
       pos.x += dx * amount;
       pos.z += dz * amount;
     }
-    if (this.swing && this.elapsed > this.swing.expires) this.swing = undefined;
+    if (this.swing && this.elapsed > this.swing.expires) {
+      const pending = this.swing;
+      this.swing = undefined;
+      if (this.readinessEnabled)
+        this.whiff(
+          pending.input,
+          pending.readiness ?? { ...this.rawReadiness(), state: "GET_READY" },
+        );
+    }
     if (this.swing && this.canHit("player", p))
       this.hit("player", this.swing.input);
-    if (this.rules.lastHitter === "player") {
+    if (
+      this.practice &&
+      this.practice.step === 1 &&
+      this.rawReadiness().state === "IN_REACH"
+    ) {
+      this.practice.observe("arrive", this.elapsed * 1000);
+      this.nextFeed = this.elapsed + READINESS.practiceFeedDelayMs / 1000;
+      this.emit(false);
+    }
+    if (!this.practice && this.rules.lastHitter === "player") {
       this.aiWait += dt;
       if (
         !this.aiMiss &&
@@ -645,19 +871,149 @@ export class Game {
     }
   }
   private finish(winner: Side, fault: string) {
+    if (this.practice) {
+      this.rules.score = [0, 0];
+      this.nextFeed = this.elapsed + READINESS.practiceRetryDelayMs / 1000;
+      this.swing = undefined;
+      this.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      this.emit(false);
+      return;
+    }
+    if (this.readinessEnabled && this.rules.reason) {
+      this.faultEvent = {
+        reason: this.rules.reason,
+        ballPos: { ...this.body.translation() },
+        bounces: this.rules.bounceSpots.map((p) => ({ ...p })),
+        side: winner === "player" ? "ai" : "player",
+      };
+      this.faultUntil = this.elapsed + READINESS.faultCardMs / 1000;
+      this.metrics.event("fault", {
+        reason: this.rules.reason,
+        shotNumber: this.rules.shots,
+        readinessStateAtSwing: this.stateAtSwing ?? "NO_BALL",
+      });
+      this.audio.play("fault");
+    }
     this.metrics.record(winner === "player" ? "point" : "fault");
     this.scene.react?.(winner);
     this.onHaptic?.(winner === "player" ? "point" : "fault");
     if (winner === "ai") this.stats.faults++;
     else if (fault === "missed return" || fault === "double bounce")
       this.stats.winners++;
-    this.audio.play("point");
+    if (!this.readinessEnabled) this.audio.play("point");
     this.pointTimer = 2.2;
     this.swing = undefined;
     this.setPhase(
       "point",
-      `${winner === "player" ? "Your point" : `Point to ${RIVALS[this.rival].name}`} · ${fault}.`,
+      `${winner === "player" ? "Your point" : `Point to ${RIVALS[this.rival].name}`} · ${this.readinessEnabled && this.rules.reason ? COPY.faults[this.rules.reason] : fault}.`,
     );
+  }
+  private rawReadiness(position = this.body.translation()) {
+    const player = this.scene.player.group.position;
+    return evaluateReadiness({
+      ball: {
+        pos: position,
+        velocity: this.body.linvel(),
+        alive: this.phase === "rally" && !this.rules.ended,
+        incoming: this.rules.lastHitter !== "player",
+      },
+      player: {
+        contactPoint: { x: player.x, y: 1.1, z: player.z },
+        feetZ: player.z,
+        id: this.rival,
+        swingCooldownUntil: this.cooldownUntil,
+      },
+      rally: this.rules,
+      difficulty: this.difficulty,
+      now: this.elapsed,
+      serving: this.phase === "serve" && this.rules.serving === "player",
+    });
+  }
+  private updateReadiness() {
+    if (!this.body) return;
+    const raw = this.rawReadiness();
+    const prior = this.readiness.current?.state;
+    const changed = this.readiness.update(raw);
+    if (raw.state === "IN_REACH" && prior !== "IN_REACH") {
+      this.inReachAt = this.elapsed;
+      if (
+        this.readinessEnabled &&
+        this.phase === "rally" &&
+        this.cueShot !== this.rules.shots
+      ) {
+        this.cueShot = this.rules.shots;
+        if (this.clarity.swingCue) this.audio.play("ready");
+      }
+    }
+    const snap = this.readiness.current!;
+    const message = this.sync.message(
+      snap,
+      performance.now(),
+      this.phase === "serve" && this.rules.serving === "player",
+      this.readinessEnabled,
+    );
+    if (message) this.onReadiness?.(message);
+    this.scene.setSwingFeedback?.(
+      this.readinessEnabled ? snap : undefined,
+      this.faultEvent,
+      {
+        ...this.clarity,
+        minimal:
+          this.clarity.minimal ||
+          (this.difficulty === "hard" && this.clarity.hideOnHard),
+      },
+    );
+    if (changed) this.emit(false);
+  }
+  private whiff(input: Swing, snap: ReadinessSnapshot) {
+    this.swing = undefined;
+    this.scene.hit("player", input.side === "backhand");
+    this.audio.play("whiff");
+    this.whiffText =
+      COPY.whiffs[snap.state as keyof typeof COPY.whiffs] ?? COPY.whiffs.FAR;
+    this.whiffUntil = this.elapsed + READINESS.whiffToastMs / 1000;
+    this.cooldownUntil =
+      this.elapsed + READINESS.whiffCooldownMs[this.difficulty] / 1000;
+    this.metrics.event("whiff", {
+      state: snap.state,
+      distance: snap.distance,
+      difficulty: this.difficulty,
+      pointIndex: this.rules.score[0] + this.rules.score[1],
+    });
+    if (this.practice?.observe("whiff", this.elapsed * 1000))
+      this.nextFeed = this.elapsed + READINESS.practiceFeedDelayMs / 1000;
+    this.emit(false);
+  }
+  private feedPractice(returning = false) {
+    if (!this.practice) return;
+    this.practiceReturnPending = false;
+    if (this.practice.step === 4 && !returning) {
+      this.nextFeed = 0;
+      this.rules.serving = "player";
+      this.prepareServe();
+      return;
+    }
+    const feed = practiceFeed(this.practice.step);
+    this.nextFeed = 0;
+    this.cooldownUntil = 0;
+    this.cueShot = -1;
+    this.swing = undefined;
+    this.rules.start("ai", feed.origin.x);
+    this.rules.score = [0, 0];
+    if (!feed.mustBounce) this.rules.shots = 3;
+    else this.rules.shots = 2;
+    this.scene.player.group.position.set(-1.4, 0, 5.8);
+    this.launch(feed.origin, feed.target, "serve");
+    this.setPhase("rally", "");
+  }
+  private completePractice() {
+    this.practice = undefined;
+    this.nextFeed = 0;
+    this.rules.score = [0, 0];
+    this.rules.serving = "player";
+    this.rally = this.hitCount = 0;
+    this.stats = emptyStats();
+    this.prepareServe();
   }
   dispose() {
     this.disposed = true;
