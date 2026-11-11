@@ -1,4 +1,5 @@
 import * as T from "three";
+import { surface } from "./art-surface";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
 export function bevel(
@@ -40,6 +41,8 @@ export class ParkEnvironment {
   private sky: T.Mesh<T.SphereGeometry, T.ShaderMaterial>;
   private contactMap = contactTexture();
   private leafGeometry = new T.IcosahedronGeometry(1, 2);
+  private scoreboardMap!: T.CanvasTexture;
+  private displayedScore: [number, number] = [-1, -1];
   constructor() {
     this.sky = new T.Mesh(
       new T.SphereGeometry(110, 32, 16),
@@ -47,12 +50,12 @@ export class ParkEnvironment {
         side: T.BackSide,
         depthWrite: false,
         uniforms: {
-          top: { value: new T.Color("#9ebdca") },
+          top: { value: new T.Color("#79a8cb") },
           horizon: { value: new T.Color("#f4d5b5") },
         },
         vertexShader: `varying vec3 direction; void main() { direction = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
         fragmentShader: `uniform vec3 top; uniform vec3 horizon; varying vec3 direction;
-        void main() { float h = smoothstep(-.08, .65, normalize(direction).y);
+        void main() { float h = smoothstep(-.65, .05, normalize(direction).y);
           gl_FragColor = vec4(mix(horizon, top, h), 1.0);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
@@ -61,6 +64,8 @@ export class ParkEnvironment {
     );
     this.group.add(this.sky);
     const grass = bevel(42, 0.15, 38, 0x83966b, 0, -0.59, -2);
+    grass.material.dispose();
+    grass.material = surface(0x83966b, "grass");
     grass.castShadow = false;
     this.group.add(grass);
     // Distant layers are progressively lighter, cooler and less contrasted.
@@ -86,8 +91,8 @@ export class ParkEnvironment {
     });
     for (let i = 0; i < 7; i++) {
       const cloud = new T.Mesh(this.leafGeometry, cloudMaterial);
-      cloud.scale.set(5 + (i % 3), 0.55, 1.6);
-      cloud.position.set(-35 + i * 12, 13 + (i % 3) * 2.4, -42 - (i % 2) * 8);
+      cloud.scale.set(3.5 + (i % 3), 0.45, 1.3);
+      cloud.position.set(-30 + i * 10, 4 + (i % 3) * 1.2, -26 - (i % 2) * 8);
       this.group.add(cloud);
     }
     for (const [x, z, scale] of [
@@ -196,21 +201,12 @@ export class ParkEnvironment {
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 256;
-    const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#29483e";
-    ctx.fillRect(0, 0, 512, 256);
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#e9e8c9";
-    ctx.font = "24px sans-serif";
-    ctx.fillText("EVERGREEN  /  COURT 01", 256, 52);
-    ctx.font = "bold 96px monospace";
-    ctx.fillText("00 : 00", 256, 164);
-    ctx.font = "20px sans-serif";
-    ctx.fillText("A LITTLE FRIENDLY COMPETITION", 256, 220);
+    this.scoreboardMap = new T.CanvasTexture(canvas);
+    this.setScore([0, 0]);
     const board = bevel(2.7, 1.4, 0.14, 0xddd8bb, 3, 1.85, -9);
     const face = new T.Mesh(
       new T.PlaneGeometry(2.55, 1.25),
-      new T.MeshBasicMaterial({ map: new T.CanvasTexture(canvas) }),
+      new T.MeshBasicMaterial({ map: this.scoreboardMap }),
     );
     face.position.set(3, 1.85, -8.92);
     this.group.add(
@@ -220,10 +216,35 @@ export class ParkEnvironment {
       bevel(0.09, 1.5, 0.09, 0x476051, 3.9, 0.55, -9),
     );
   }
+  setScore(score: [number, number]) {
+    if (
+      score[0] === this.displayedScore[0] &&
+      score[1] === this.displayedScore[1]
+    )
+      return;
+    this.displayedScore = [...score];
+    const canvas = this.scoreboardMap.image as HTMLCanvasElement;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = "#29483e";
+    ctx.fillRect(0, 0, 512, 256);
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#e9e8c9";
+    ctx.font = "24px sans-serif";
+    ctx.fillText("EVERGREEN  /  COURT 01", 256, 52);
+    ctx.font = "bold 96px monospace";
+    ctx.fillText(
+      score.map((points) => String(points).padStart(2, "0")).join(" : "),
+      256,
+      164,
+    );
+    ctx.font = "20px sans-serif";
+    ctx.fillText("A LITTLE FRIENDLY COMPETITION", 256, 220);
+    this.scoreboardMap.needsUpdate = true;
+  }
   theme(sunset: boolean) {
-    this.sky.material.uniforms.top.value.set(sunset ? "#969fbd" : "#9ebdca");
+    this.sky.material.uniforms.top.value.set(sunset ? "#969fbd" : "#79a8cb");
     this.sky.material.uniforms.horizon.value.set(
-      sunset ? "#f2c39f" : "#efddbf",
+      sunset ? "#f2c39f" : "#f1c596",
     );
   }
   update(time: number, reduced: boolean) {

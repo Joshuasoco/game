@@ -529,6 +529,7 @@ export class CourtScene {
     document.documentElement.dataset.reducedMotion = String(this.reduced);
   }
   matchState(score: [number, number]) {
+    this.environment.setScore(score);
     this.matchPoint =
       Math.max(...score) >= 10 && Math.abs(score[0] - score[1]) >= 1;
   }
@@ -566,12 +567,12 @@ export class CourtScene {
     if (this.alternate) dest.set(this.player.group.position.x * 0.2, 9.8, 17.5);
     else
       dest.set(
-        11 +
+        12 +
           (menuMotion
             ? Math.sin(time * 0.12) * 0.35 + this.pointer.x * 0.7
             : 0),
-        13 + (menuMotion ? this.pointer.y * 0.45 + this.intro * 2.5 : 0),
-        17 + (menuMotion ? this.intro * 3 : 0),
+        10.8 + (menuMotion ? this.pointer.y * 0.45 + this.intro * 2.5 : 0),
+        19.8 + (menuMotion ? this.intro * 3 : 0),
       );
     this.camera.position.lerp(dest, Math.min(1, dt * 2));
     if (this.active) {

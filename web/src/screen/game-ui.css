@@ -915,3 +915,58 @@ select:focus-visible {
     animation: none !important;
   }
 }
+
+/* Compact vertical rhythm leaves the club footer unobscured on laptop displays. */
+.title-card {
+  padding: 22px 26px;
+}
+.title-card h1 {
+  margin: 10px 0;
+  font-size: 37px;
+}
+.title-settings {
+  gap: 10px;
+  margin: 16px 0 12px;
+}
+.choice-options {
+  padding: 3px;
+}
+.choice-option > span {
+  min-height: 38px;
+  padding: 7px 4px;
+}
+.rival-summary {
+  padding: 7px 10px;
+  margin-bottom: 12px;
+}
+.rival-summary .rival-portrait,
+.rival-summary .portrait-fallback {
+  width: 42px !important;
+  height: 42px !important;
+}
+.title-record {
+  margin-top: 12px;
+  padding-top: 8px;
+}
+.title-location,
+.title-connection {
+  pointer-events: none;
+}
+@media (max-height: 820px) and (min-width: 601px) {
+  .title-card {
+    top: 88px;
+  }
+  .title-card h1 {
+    font-size: 32px;
+  }
+  .title-card > p {
+    line-height: 1.4;
+  }
+  .title-settings {
+    margin: 12px 0;
+    gap: 8px;
+  }
+  .title-location {
+    display: none;
+  }
+}

@@ -23,6 +23,11 @@ export function ChoiceGroup<T extends string>({
               type="radio"
               name={name}
               value={option.value}
+              aria-label={
+                option.caption
+                  ? `${option.label} ${option.caption}`
+                  : option.label
+              }
               checked={value === option.value}
               onChange={() => onChange(option.value)}
             />

@@ -1,6 +1,6 @@
 import { it, expect, vi, afterEach } from "vitest";
 import { LocalMetrics } from "../web/src/game/metrics";
-import { readPreferences } from "../web/src/game/preferences";
+import { readPreferences, detectQuality } from "../web/src/game/preferences";
 afterEach(() => vi.unstubAllGlobals());
 it("collects no local metrics until opt in and sends nothing over the network", () => {
   const save = vi.fn();
@@ -26,7 +26,7 @@ it("collects no local metrics until opt in and sends nothing over the network", 
 it("rejects corrupted preferences and never enables analytics by default", () => {
   vi.stubGlobal("localStorage", { getItem: () => "{broken" });
   expect(readPreferences()).toEqual({
-    quality: "medium",
+    quality: "auto",
     reducedMotion: false,
     analytics: false,
   });
@@ -39,7 +39,7 @@ it("rejects corrupted preferences and never enables analytics by default", () =>
       }),
   });
   expect(readPreferences()).toEqual({
-    quality: "medium",
+    quality: "auto",
     reducedMotion: false,
     analytics: false,
   });
@@ -59,5 +59,24 @@ it("normal text palette pairs meet WCAG AA", () => {
   ]) {
     const values = [luminance(a), luminance(b)].sort((x, y) => y - x);
     expect((values[0] + 0.05) / (values[1] + 0.05)).toBeGreaterThanOrEqual(4.5);
+  }
+});
+
+it("auto quality starts conservatively on desktop and avoids effects on constrained devices", () => {
+  vi.stubGlobal("navigator", { hardwareConcurrency: 8, deviceMemory: 8 });
+  vi.stubGlobal("matchMedia", () => ({ matches: false }));
+  expect(detectQuality()).toBe("medium");
+  vi.stubGlobal("navigator", { hardwareConcurrency: 4, deviceMemory: 4 });
+  expect(detectQuality()).toBe("low");
+  vi.stubGlobal("navigator", { hardwareConcurrency: 12, deviceMemory: 16 });
+  vi.stubGlobal("matchMedia", () => ({ matches: true }));
+  expect(detectQuality()).toBe("low");
+});
+it("keeps a saved explicit quality preset and accepts automatic quality", () => {
+  for (const quality of ["auto", "low", "medium", "high"]) {
+    vi.stubGlobal("localStorage", {
+      getItem: () => JSON.stringify({ quality }),
+    });
+    expect(readPreferences().quality).toBe(quality);
   }
 });

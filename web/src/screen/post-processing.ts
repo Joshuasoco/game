@@ -1,6 +1,7 @@
 import * as T from "three";
 import {
   BloomEffect,
+  FXAAEffect,
   DepthOfFieldEffect,
   EffectComposer,
   EffectPass,
@@ -18,6 +19,7 @@ import type { Quality } from "../game/preferences";
 export class CourtPostProcessing {
   private composer: EffectComposer;
   private depth?: DepthOfFieldEffect;
+  private depthPass?: EffectPass;
   constructor(
     renderer: T.WebGLRenderer,
     scene: T.Scene,
@@ -31,7 +33,7 @@ export class CourtPostProcessing {
     });
     this.composer.addPass(new RenderPass(scene, camera));
     if (quality === "high") {
-      const normals = new NormalPass(scene, camera);
+      const normals = new NormalPass(scene, camera, { resolutionScale: 0.5 });
       this.composer.addPass(normals);
       this.composer.addPass(
         new EffectPass(
@@ -50,10 +52,11 @@ export class CourtPostProcessing {
       this.depth = new DepthOfFieldEffect(camera, {
         focusRange: 18,
         bokehScale: 0.65,
-        resolutionScale: 0.5,
+        resolutionScale: 0.35,
       });
       this.depth.target = new T.Vector3(0, 0, 0);
-      this.composer.addPass(new EffectPass(camera, this.depth));
+      this.depthPass = new EffectPass(camera, this.depth);
+      this.composer.addPass(this.depthPass);
     }
     this.composer.addPass(
       new EffectPass(
@@ -76,6 +79,7 @@ export class CourtPostProcessing {
         new VignetteEffect({ offset: 0.3, darkness: 0.24 }),
       ),
     );
+    this.composer.addPass(new EffectPass(camera, new FXAAEffect()));
   }
   resize(w: number, h: number) {
     this.composer.setSize(w, h);
@@ -83,6 +87,7 @@ export class CourtPostProcessing {
   render(dt: number, active: boolean) {
     // Keep every shot sharp during play.
     if (this.depth) this.depth.bokehScale = active ? 0 : 0.65;
+    if (this.depthPass) this.depthPass.enabled = !active;
     this.composer.render(dt);
   }
   dispose() {

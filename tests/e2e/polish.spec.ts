@@ -38,7 +38,10 @@ test("rival identity and touch controller survive landscape and skin changes", a
   browser,
 }) => {
   await page.goto("/");
-  await page.getByLabel("Rival", { exact: true }).selectOption("mabel");
+  await page
+    .getByRole("group", { name: "Rival", exact: true })
+    .getByRole("radio", { name: "Mabel", exact: true })
+    .check();
   await page
     .getByRole("button", { name: "Play with your phone", exact: true })
     .click();
@@ -81,4 +84,53 @@ test("rival identity and touch controller survive landscape and skin changes", a
     phone.getByText("No motion readings yet.", { exact: false }),
   ).toHaveCount(0);
   await context.close();
+});
+
+test("menu choices support keyboard navigation and all quality presets survive resize", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/");
+  const modes = page.getByRole("group", { name: "Game mode", exact: true });
+  const quick = modes.getByRole("radio", { name: "Quick match First to 11" });
+  await quick.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(
+    modes.getByRole("radio", { name: "Rally challenge Keep it going" }),
+  ).toBeChecked();
+  await page.keyboard.press("Space");
+  await expect(page.locator(".title-card")).toBeVisible();
+  await expect(page.locator(".title-card select")).toHaveCount(0);
+  for (const quality of ["high", "low", "medium", "auto"]) {
+    await page.getByRole("button", { name: "Settings", exact: true }).click();
+    await page.getByLabel("Graphics quality").selectOption(quality);
+    await page.getByRole("button", { name: "Done", exact: true }).click();
+    if (quality !== "auto")
+      await expect(page.locator("canvas")).toHaveAttribute(
+        "data-quality",
+        quality,
+      );
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  const challenge = modes
+    .locator("label")
+    .filter({ hasText: "Rally challenge" });
+  await challenge.scrollIntoViewIfNeeded();
+  expect(await challenge.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(
+    true,
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByLabel("Reduce motion").check();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-reduced-motion",
+    "true",
+  );
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+  expect(errors).toEqual([]);
 });
