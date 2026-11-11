@@ -5,6 +5,9 @@ test("Pip + Easy onboards, can skip and replay, and exposes accessible settings"
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  // Hold simulation time while inspecting a short, legal warning window.
+  await page.clock.install();
+  await page.clock.pauseAt(new Date());
   await page.addInitScript(() =>
     localStorage.setItem(
       "dink-preferences",
@@ -23,9 +26,14 @@ test("Pip + Easy onboards, can skip and replay, and exposes accessible settings"
   await expect(page.locator(".swing-status")).toHaveText("SERVE");
   await page.screenshot({ path: "artifacts/swing-clarity/laptop-serve.png" });
   await page.keyboard.press("Space");
+  for (let frame = 0; frame < 400; frame++) {
+    if (await page.locator(".swing-status[data-state='WAIT_BOUNCE']").count())
+      break;
+    await page.clock.runFor(16);
+  }
   await expect(
     page.locator(".swing-status[data-state='WAIT_BOUNCE']"),
-  ).toBeVisible({ timeout: 30000 });
+  ).toBeVisible();
   await page.keyboard.press("Space");
   await expect(page.locator(".fault-card")).toContainText(
     "First return must bounce before you hit it",

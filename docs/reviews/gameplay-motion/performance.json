@@ -1,0 +1,176 @@
+[
+  {
+    "name": "baseline",
+    "quality": "high",
+    "viewport": "1440x900",
+    "warmupSeconds": 5,
+    "sampleSeconds": 60,
+    "rallyFrames": 2985,
+    "p50": 16.69999999999709,
+    "p95": 17.600000000000364,
+    "max": 17.80000000000291,
+    "allFrames": 3601,
+    "phases": {
+      "rally": 2985,
+      "point": 531,
+      "serve": 85
+    },
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1, Unspecified Version)",
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+    "rematches": [
+      {
+        "heap": 23397233,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23390713,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23405157,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23407865,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23201433,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23407093,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23412549,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23432981,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23423585,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23432473,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23428609,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      }
+    ]
+  },
+  {
+    "name": "final",
+    "quality": "high",
+    "viewport": "1440x900",
+    "warmupSeconds": 5,
+    "sampleSeconds": 60,
+    "rallyFrames": 2984,
+    "p50": 16.69999999999709,
+    "p95": 18.400000000001455,
+    "max": 18.80000000000291,
+    "allFrames": 3600,
+    "phases": {
+      "rally": 2984,
+      "point": 530,
+      "serve": 86
+    },
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1, Unspecified Version)",
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+    "rematches": [
+      {
+        "heap": 23582388,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23589580,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23604584,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23610692,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23615040,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23615712,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23611064,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23646264,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23632436,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23632052,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      },
+      {
+        "heap": 23632936,
+        "geometry": 220,
+        "textures": 41,
+        "programs": 33
+      }
+    ]
+  }
+]
