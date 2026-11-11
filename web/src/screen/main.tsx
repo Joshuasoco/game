@@ -6,6 +6,7 @@ import type { ClientEvents, ServerEvents, Difficulty } from "@dink/shared";
 import { CourtScene } from "./scene";
 import { Game, type Snapshot } from "../game/engine";
 import { Icon } from "./icons";
+import { ScoreDigit } from "./score-digit";
 import { Settings } from "./settings";
 import { ChoiceGroup } from "./choice-group";
 import { RivalPortrait } from "./rival-portrait";
@@ -61,6 +62,7 @@ function App() {
   const config = useRef({ difficulty, mode, rival });
   config.current = { difficulty, mode, rival };
   const dialog = useRef<HTMLDivElement>(null);
+  const matchDialog = useRef<HTMLElement>(null);
   useEffect(() => {
     let cancelled = false;
     let g: Game | undefined;
@@ -198,6 +200,18 @@ function App() {
     const held = new Set<string>();
     const down = (e: KeyboardEvent) => {
       if (
+        e.code === "KeyP" &&
+        !e.repeat &&
+        !modal &&
+        game.current?.phase === "paused" &&
+        e.target instanceof HTMLElement &&
+        e.target.closest(".result-card")
+      ) {
+        e.preventDefault();
+        game.current.pause();
+        return;
+      }
+      if (
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLSelectElement ||
         (e.target instanceof HTMLElement &&
@@ -262,14 +276,19 @@ function App() {
       game.current?.menu();
   };
   useEffect(() => {
-    if (!modal) return;
+    const matchPanel = ["paused", "matchover"].includes(state.phase);
+    if ((!modal && !matchPanel) || settings) return;
+    const activeDialog = modal ? dialog : matchDialog;
     const prior = document.activeElement as HTMLElement;
-    dialog.current?.querySelector<HTMLElement>("button")?.focus();
+    activeDialog.current?.querySelector<HTMLElement>("button")?.focus();
     const key = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") {
+        if (modal) close();
+        else if (game.current?.phase === "paused") game.current.pause();
+      }
       if (e.key === "Tab") {
-        const nodes = dialog.current?.querySelectorAll<HTMLElement>(
-          "button,a,input,select",
+        const nodes = activeDialog.current?.querySelectorAll<HTMLElement>(
+          "button,a,input,select,summary",
         );
         if (!nodes?.length) return;
         const a = nodes[0],
@@ -288,7 +307,7 @@ function App() {
       window.removeEventListener("keydown", key);
       prior?.focus();
     };
-  }, [modal]);
+  }, [modal, state.phase, settings]);
   const start = (keyboard = false, replay = false) => {
     setModal(null);
     game.current?.setRival(replay ? "pip" : rival);
@@ -476,13 +495,15 @@ function App() {
           />
           <div
             className="scoreboard"
+            aria-live="polite"
+            aria-atomic="true"
             aria-label={`Score: you ${state.score[0]}, rival ${state.score[1]}`}
           >
             <div
               aria-label={state.serving === "player" ? "You, serving" : "You"}
             >
               <span className="player-dot coral" />
-              YOU <b>{state.score[0]}</b>
+              YOU <ScoreDigit value={state.score[0]} />
               {state.serving === "player" && (
                 <span
                   className="serve-indicator"
@@ -502,7 +523,7 @@ function App() {
                   title={`${RIVALS[state.rival].name} serves`}
                 />
               )}
-              <b>{state.score[1]}</b>
+              <ScoreDigit value={state.score[1]} />
               <RivalPortrait id={state.rival} size={28} />
               {RIVALS[state.rival].name.toUpperCase()}{" "}
               <span className="player-dot lilac" />
@@ -603,7 +624,7 @@ function App() {
           >
             {paired ? "Phone connected · P to pause" : COPY.keyboardHint}
           </span>
-          {state.tutorial && (
+          {state.tutorial && ["serve", "rally"].includes(state.phase) && (
             <aside className="tutorial-card" role="status">
               <span className="eyebrow">
                 PRACTICE{" "}
@@ -633,7 +654,7 @@ function App() {
               </button>
             </aside>
           )}
-          {state.practice && (
+          {state.practice && ["serve", "rally"].includes(state.phase) && (
             <aside
               className={`tutorial-card guided-practice ${state.practice.hint ? "needs-hint" : ""}`}
               role="status"
@@ -655,6 +676,7 @@ function App() {
             <div className="state-backdrop">
               <section
                 className="result-card"
+                ref={matchDialog}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="pause-title"
@@ -685,6 +707,7 @@ function App() {
             <div className="state-backdrop">
               <section
                 className="result-card"
+                ref={matchDialog}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="result-title"

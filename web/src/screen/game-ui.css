@@ -454,7 +454,7 @@ select:focus-visible {
   padding: 13px 17px;
   border-left: 3px solid var(--clay);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  animation: state-in var(--transition);
+  transition: opacity var(--motion-fast) var(--ease-out);
 }
 .edge-toast:empty {
   display: none;
@@ -505,7 +505,7 @@ html[data-reduced-motion="true"] .control-hint {
   background: #17382e69;
   backdrop-filter: blur(5px);
   pointer-events: auto;
-  animation: state-in var(--transition);
+  transition: opacity var(--motion-standard) var(--ease-out);
 }
 .result-card {
   background: var(--paper);
@@ -515,7 +515,6 @@ html[data-reduced-motion="true"] .control-hint {
   width: 420px;
   max-width: calc(100% - 40px);
   box-shadow: var(--shadow-soft);
-  animation: state-in var(--transition);
   text-align: left;
 }
 .result-card h2 {
@@ -1169,4 +1168,44 @@ html[data-reduced-motion="true"] .fault-card {
   .fault-card {
     animation: fault-fade 150ms ease-out !important;
   }
+}
+
+/* State panels move once; live score and rally containers stay fixed. */
+.score-digit {
+  display: inline-block;
+  transform-origin: center;
+}
+.result-card,
+.settings-dialog,
+.game-app .modal {
+  opacity: 1;
+  transform: translateY(0);
+  animation: none;
+  transition:
+    opacity var(--motion-panel) var(--ease-out),
+    transform var(--motion-panel) var(--ease-out);
+}
+@starting-style {
+  .state-backdrop {
+    opacity: 0;
+  }
+  .result-card,
+  .settings-dialog[open],
+  .game-app .modal {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .result-card,
+  .settings-dialog,
+  .game-app .modal {
+    transform: none;
+    transition: none;
+  }
+}
+html[data-reduced-motion="true"] .result-card,
+html[data-reduced-motion="true"] .settings-dialog,
+html[data-reduced-motion="true"] .game-app .modal {
+  transform: none;
 }

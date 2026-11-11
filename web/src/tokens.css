@@ -23,5 +23,9 @@
   --font-text: "DM Sans", sans-serif;
   --font-score: "IBM Plex Mono", monospace;
   --ease: cubic-bezier(0.22, 0.75, 0.2, 1);
-  --transition: 280ms var(--ease);
+  --motion-fast: 120ms;
+  --motion-standard: 200ms;
+  --motion-panel: 240ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --transition: var(--motion-standard) var(--ease-out);
 }

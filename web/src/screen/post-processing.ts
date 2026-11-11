@@ -42,7 +42,7 @@ export class CourtPostProcessing {
             samples: 8,
             rings: 3,
             radius: 0.12,
-            intensity: 0.8,
+            intensity: 0.6,
             bias: 0.025,
             resolutionScale: 0.5,
             luminanceInfluence: 0.6,
