@@ -1,11 +1,24 @@
 export type Quality = "low" | "medium" | "high";
+export type QualityPreference = Quality | "auto";
+export function detectQuality(): Quality {
+  const memory =
+    (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
+  if (
+    memory <= 4 ||
+    navigator.hardwareConcurrency <= 4 ||
+    matchMedia("(pointer: coarse)").matches
+  )
+    return "low";
+  // Start conservatively; sustained frame-time monitoring can lower this further.
+  return "medium";
+}
 export interface Preferences {
-  quality: Quality;
+  quality: QualityPreference;
   reducedMotion: boolean;
   analytics: boolean;
 }
 export const defaults: Preferences = {
-  quality: "medium",
+  quality: "auto",
   reducedMotion: false,
   analytics: false,
 };
@@ -13,9 +26,9 @@ export function readPreferences(): Preferences {
   try {
     const value = JSON.parse(localStorage.getItem("dink-preferences") ?? "{}");
     return {
-      quality: ["low", "medium", "high"].includes(value.quality)
+      quality: ["auto", "low", "medium", "high"].includes(value.quality)
         ? value.quality
-        : "medium",
+        : "auto",
       reducedMotion:
         typeof value.reducedMotion === "boolean" ? value.reducedMotion : false,
       analytics: value.analytics === true,

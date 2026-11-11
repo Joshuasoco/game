@@ -4,7 +4,7 @@ import type { AudioLevels } from "../game/audio";
 import {
   readPreferences,
   savePreferences,
-  type Quality,
+  type QualityPreference,
 } from "../game/preferences";
 export function Settings({
   game,
@@ -41,12 +41,16 @@ export function Settings({
           aria-label="Graphics quality"
           value={preferences.quality}
           onChange={(e) => {
-            const next = { ...preferences, quality: e.target.value as Quality };
+            const next = {
+              ...preferences,
+              quality: e.target.value as QualityPreference,
+            };
             setPreferences(next);
             savePreferences(next);
             game.scene.setQuality(next.quality);
           }}
         >
+          <option value="auto">Auto · adapts to your device</option>
           <option value="low">Low · no shadows or particles</option>
           <option value="medium">Medium · balanced</option>
           <option value="high">High · full effects</option>

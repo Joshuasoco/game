@@ -3,13 +3,25 @@ import { COURT } from "../game/tuning";
 import type { Vec } from "../game/solver";
 import { RIVALS, type RivalId } from "../game/ai";
 import { ImpactEffects } from "./effects";
-import type { Quality } from "../game/preferences";
-import { surface, assets } from "./art-surface";
+import {
+  detectQuality,
+  type Quality,
+  type QualityPreference,
+} from "../game/preferences";
+import { surface, disposeSurfaceTextures } from "./art-surface";
+import { ParkEnvironment, bevel } from "./environment";
+import { CourtPostProcessing } from "./post-processing";
 const mat = (color: number, roughness = 0.9) =>
-  [0xdbbda0, 0x367e69, 0x86b49c, 0xbd8860].includes(color)
+  [0xdbbda0, 0x367e69, 0x86b49c, 0xbd8860, 0x4b9274, 0xf0f3db].includes(color)
     ? surface(
         color,
-        color === 0xdbbda0 ? "clay" : color === 0xbd8860 ? "wood" : "court",
+        color === 0xdbbda0
+          ? "clay"
+          : color === 0xbd8860
+            ? "wood"
+            : color === 0xf0f3db
+              ? "paint"
+              : "court",
       )
     : new T.MeshStandardMaterial({ color, roughness });
 function box(
@@ -21,7 +33,9 @@ function box(
   y = 0,
   z = 0,
 ) {
-  const m = new T.Mesh(new T.BoxGeometry(w, h, d), mat(color));
+  const m = bevel(w, h, d, color, 0, 0, 0, h < 0.04 ? 0.003 : 0.045);
+  m.material.dispose();
+  m.material = mat(color);
   m.position.set(x, y, z);
   m.castShadow = true;
   m.receiveShadow = true;
@@ -161,6 +175,26 @@ export class CourtScene {
   private matchPoint = false;
   private quality: Quality = "medium";
   private shake = 0;
+  private environment = new ParkEnvironment();
+  private post?: CourtPostProcessing;
+  private automatic = true;
+  private frameTotal = 0;
+  private frameCount = 0;
+  private warmup = 4;
+  private intro = 1;
+  private pointer = new T.Vector2();
+  private cameraDestination = new T.Vector3();
+  private playerContact?: T.Mesh;
+  private rivalContact?: T.Mesh;
+  private pointerMove = (event: PointerEvent) => {
+    if (event.pointerType !== "mouse") return;
+    const rect = this.container.getBoundingClientRect();
+    this.pointer.set(
+      (event.clientX - rect.left) / rect.width - 0.5,
+      (event.clientY - rect.top) / rect.height - 0.5,
+    );
+  };
+  private pointerLeave = () => this.pointer.set(0, 0);
   private reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   constructor(private container: HTMLElement) {
     this.scene.add(this.effects.group);
@@ -183,23 +217,34 @@ export class CourtScene {
     this.renderer.domElement.setAttribute("role", "img");
     this.scene.background = new T.Color(0xe8eedf);
     this.scene.fog = new T.Fog(0xe8eedf, 40, 85);
-    this.scene.add(new T.HemisphereLight(0xffeed3, 0x718564, 2));
-    const sun = new T.DirectionalLight(0xffdcad, 3.2);
-    sun.position.set(-10, 13, 8);
+    this.scene.add(new T.HemisphereLight(0xb7d5ee, 0x71694d, 1.45));
+    const rim = new T.DirectionalLight(0xc5e1ed, 1.5);
+    rim.position.set(6, 5, -10);
+    this.scene.add(rim);
+    const sun = new T.DirectionalLight(0xffd0a0, 3.1);
+    sun.position.set(-9, 11, 7);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
     sun.shadow.camera.left = -15;
     sun.shadow.camera.right = 15;
     sun.shadow.camera.top = 18;
     sun.shadow.camera.bottom = -18;
-    sun.shadow.normalBias = 0.04;
+    sun.shadow.camera.near = 0.5;
+    sun.shadow.camera.far = 55;
+    sun.shadow.normalBias = 0.025;
+    sun.shadow.radius = 3;
     sun.shadow.bias = -0.0001;
     this.scene.add(sun);
+    this.scene.add(this.environment.group);
     this.court();
     this.park();
     this.player.group.position.set(1.35, 0, 5.15);
     this.ai.group.position.set(-1.1, 0, -5.05);
     this.scene.add(this.player.group, this.ai.group);
+    this.playerContact = this.environment.contact(1.35, 5.15, 1.5, 1.1);
+    this.rivalContact = this.environment.contact(-1.1, -5.05, 1.5, 1.1);
+    container.addEventListener("pointermove", this.pointerMove);
+    container.addEventListener("pointerleave", this.pointerLeave);
     this.ball = sphere(0.09, 0xe5f55b, 1.7, 1.1, 4.7);
     this.ball.material = new T.MeshStandardMaterial({
       color: 0xe5d48a,
@@ -243,7 +288,7 @@ export class CourtScene {
       this.trail.push(m);
       this.scene.add(m);
     }
-    this.camera.position.set(12, 14.5, 18);
+    this.camera.position.set(14, 16, 21);
     this.camera.lookAt(0, 0, 0);
     this.observer = new ResizeObserver(() => this.resize());
     this.observer.observe(container);
@@ -324,38 +369,47 @@ export class CourtScene {
     );
   }
   private park() {
-    const tree = (x: number, z: number, s = 1) => {
-      const g = new T.Group();
-      g.add(cylinder(0.11, 1.2, 0x9e8162, 0, 0.5, 0));
-      g.add(
-        sphere(0.68, 0x76a77e, -0.2, 1.6, 0),
-        sphere(0.74, 0x97b682, 0.25, 1.9, 0.12),
-        sphere(0.63, 0x659873, 0.05, 2.3, 0),
-      );
-      g.position.set(x, 0, z);
-      g.scale.setScalar(s);
-      this.scene.add(g);
-    };
-    tree(-5.1, -7.6, 1.2);
-    tree(-5.3, -4, 0.95);
-    tree(5.15, -7.7, 1.15);
-    tree(5.3, 6.9, 0.9);
-    tree(-5.2, 7.6, 0.8);
     for (const x of [-4.1, 4.1]) {
       const g = new T.Group();
       g.add(
-        box(0.38, 0.12, 1.8, 0xbd8860, 0, 0.52, 0),
-        box(0.12, 0.45, 1.8, 0xbd8860, 0.19, 0.77, 0),
+        box(0.17, 0.09, 1.9, 0xbd8860, -0.12, 0.52, 0),
+        box(0.17, 0.09, 1.9, 0xbd8860, 0.08, 0.52, 0),
+        box(0.09, 0.16, 1.9, 0xbd8860, 0.24, 0.74, 0),
+        box(0.09, 0.16, 1.9, 0xbd8860, 0.24, 0.94, 0),
+        box(0.45, 0.05, 0.06, 0x345b49, 0, 0.76, -0.75),
+        box(0.45, 0.05, 0.06, 0x345b49, 0, 0.76, 0.75),
         box(0.28, 0.45, 0.12, 0x345b49, 0, 0.25, -0.65),
         box(0.28, 0.45, 0.12, 0x345b49, 0, 0.25, 0.65),
       );
       g.position.set(x, 0, x < 0 ? 2.9 : -2.8);
       if (x < 0) g.rotation.y = Math.PI;
       this.scene.add(g);
+      this.environment.contact(x, x < 0 ? 2.9 : -2.8, 1.4, 2.5);
     }
     for (const z of [-8.1, 8.1]) {
       for (let x = -4.7; x <= 4.8; x += 1.2)
-        this.scene.add(cylinder(0.035, 1.25, 0x4c7260, x, 0.59, z));
+        this.scene.add(
+          cylinder(0.035, 1.25, 0x4c7260, x, 0.59, z),
+          sphere(0.055, 0xaab89b, x, 1.23, z),
+        );
+      // A single batched diamond-wire fence mesh per end.
+      const wire: number[] = [];
+      for (let x = -4.8; x < 4.8; x += 0.18) {
+        const end = Math.min(x + 0.7, 4.8);
+        wire.push(x, 0.08, z, end, 1.18, z, x, 1.18, z, end, 0.08, z);
+      }
+      const mesh = new T.BufferGeometry();
+      mesh.setAttribute("position", new T.Float32BufferAttribute(wire, 3));
+      this.scene.add(
+        new T.LineSegments(
+          mesh,
+          new T.LineBasicMaterial({
+            color: 0x648373,
+            transparent: true,
+            opacity: 0.32,
+          }),
+        ),
+      );
       for (const y of [0.4, 0.88, 1.2])
         this.scene.add(box(9.6, 0.028, 0.028, 0x5c8069, 0, y, z));
     }
@@ -385,8 +439,10 @@ export class CourtScene {
       [4.6, -5.8],
     ]) {
       this.scene.add(
-        cylinder(0.25, 0.5, 0xe5c5a0, x, 0.22, z),
-        sphere(0.28, 0x5c966d, x, 0.58, z),
+        bevel(0.65, 0.5, 0.65, 0xc49170, x, 0.22, z),
+        bevel(0.72, 0.09, 0.72, 0xe0b58d, x, 0.47, z),
+        sphere(0.3, 0x5c966d, x, 0.64, z),
+        sphere(0.22, 0x8ba76b, x + 0.12, 0.8, z),
       );
     }
     this.scene.add(box(0.75, 0.06, 0.4, 0xf1cf9b, 4.5, 0.08, 1.7));
@@ -396,6 +452,7 @@ export class CourtScene {
       h = this.container.clientHeight;
     if (!w || !h) return;
     this.renderer.setSize(w, h);
+    this.post?.resize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
   }
@@ -407,26 +464,10 @@ export class CourtScene {
     this.alternate = !this.alternate;
   }
   setTheme(theme: string) {
-    const plate = assets[theme === "sunset" ? "sky-sunset" : "sky-day"];
-    if (plate)
-      new T.TextureLoader().load(plate.file, (texture) => {
-        if (this.disposed) {
-          texture.dispose();
-          return;
-        }
-        texture.colorSpace = T.SRGBColorSpace;
-        if (this.scene.background instanceof T.Texture)
-          this.scene.background.dispose();
-        this.scene.background = texture;
-      });
-    this.scene.background = new T.Color(
-      theme === "sunset" ? 0xedd8c6 : 0xe8eedf,
-    );
-    this.scene.fog = new T.Fog(
-      theme === "sunset" ? 0xedd8c6 : 0xe8eedf,
-      40,
-      85,
-    );
+    const sunset = theme === "sunset";
+    this.environment.theme(sunset);
+    this.scene.background = new T.Color(sunset ? 0xf2c39f : 0xefddbf);
+    this.scene.fog = new T.Fog(sunset ? 0xe6cbb2 : 0xc6d0c0, 30, 100);
   }
   setRival(id: RivalId) {
     const old = this.ai;
@@ -445,25 +486,41 @@ export class CourtScene {
     this.ai.group.position.copy(position);
     this.scene.add(this.ai.group);
   }
-  setQuality(value: Quality) {
+  setQuality(value: QualityPreference) {
+    this.automatic = value === "auto";
+    this.applyQuality(value === "auto" ? detectQuality() : value);
+  }
+  private applyQuality(value: Quality) {
     this.quality = value;
+    this.warmup = 4;
+    this.frameTotal = this.frameCount = 0;
+    this.post?.dispose();
+    this.post = undefined;
+    this.renderer.autoClear = true;
+    this.renderer.toneMapping = T.ACESFilmicToneMapping;
     this.renderer.setPixelRatio(
       Math.min(
         devicePixelRatio,
-        value === "low" ? 1 : value === "medium" ? 1.4 : 1.75,
+        value === "low" ? 1 : value === "medium" ? 1.25 : 1.5,
       ),
     );
     this.renderer.shadowMap.enabled = value !== "low";
     this.effects.budget = value === "low" ? 0 : value === "medium" ? 16 : 32;
     const sun = this.scene.children.find(
-      (o) => o instanceof T.DirectionalLight,
-    ) as T.DirectionalLight | undefined;
-    if (sun) {
-      const size = value === "high" ? 2048 : 1024;
-      sun.shadow.mapSize.set(size, size);
-      sun.shadow.map?.dispose();
-      sun.shadow.map = null;
-    }
+      (o) => o instanceof T.DirectionalLight && o.castShadow,
+    ) as T.DirectionalLight;
+    const size = value === "high" ? 2048 : 1024;
+    sun.shadow.mapSize.set(size, size);
+    sun.shadow.map?.dispose();
+    sun.shadow.map = null;
+    if (value !== "low")
+      this.post = new CourtPostProcessing(
+        this.renderer,
+        this.scene,
+        this.camera,
+        value,
+      );
+    this.renderer.domElement.dataset.quality = value;
     this.resize();
   }
   setReducedMotion(value: boolean) {
@@ -503,14 +560,19 @@ export class CourtScene {
   }
   render(dt: number, time: number, playing: boolean, roll = 0) {
     if (this.disposed) return;
-    const dest = this.alternate
-      ? new T.Vector3(this.player.group.position.x * 0.2, 9.8, 17.5)
-      : new T.Vector3(
-          12 +
-            (!this.active && !this.reduced ? Math.sin(time * 0.12) * 1.2 : 0),
-          14.5,
-          18,
-        );
+    this.intro = Math.max(0, this.intro - dt * 0.28);
+    const menuMotion = !this.active && !this.reduced;
+    const dest = this.cameraDestination;
+    if (this.alternate) dest.set(this.player.group.position.x * 0.2, 9.8, 17.5);
+    else
+      dest.set(
+        11 +
+          (menuMotion
+            ? Math.sin(time * 0.12) * 0.35 + this.pointer.x * 0.7
+            : 0),
+        13 + (menuMotion ? this.pointer.y * 0.45 + this.intro * 2.5 : 0),
+        17 + (menuMotion ? this.intro * 3 : 0),
+      );
     this.camera.position.lerp(dest, Math.min(1, dt * 2));
     if (this.active) {
       const target = new T.Vector3(this.ball.position.x * 0.08, 0.1, -0.4);
@@ -520,7 +582,27 @@ export class CourtScene {
       this.camera.fov += (fov - this.camera.fov) * Math.min(1, dt * 4);
       this.camera.updateProjectionMatrix();
     }
-    if (!this.active) this.camera.lookAt(0, 0.1, 0);
+    if (!this.active) {
+      // Shift the court to the open side of the menu card on desktop.
+      this.camera.lookAt(this.camera.aspect > 1.2 ? -2.2 : 0, 0.1, 0);
+      this.camera.fov += (40 - this.camera.fov) * Math.min(1, dt * 4);
+      this.camera.updateProjectionMatrix();
+      if (!this.reduced)
+        this.ball.position.y = 0.18 + Math.abs(Math.sin(time * 2)) * 0.95;
+    }
+    this.environment.update(time, this.reduced);
+    if (this.playerContact)
+      this.playerContact.position.set(
+        this.player.group.position.x,
+        0.063,
+        this.player.group.position.z,
+      );
+    if (this.rivalContact)
+      this.rivalContact.position.set(
+        this.ai.group.position.x,
+        0.063,
+        this.ai.group.position.z,
+      );
     this.shake = Math.max(0, this.shake - dt * 0.4);
     this.camera.position.x += Math.sin(time * 95) * this.shake;
     for (const [i, c] of [this.player, this.ai].entries()) {
@@ -546,11 +628,13 @@ export class CourtScene {
       )
         c.arm.rotation.x -= 0.24;
       if (c.reaction < 0) c.arm.rotation.z += Math.abs(c.reaction) * 0.4;
+      const menuScale = this.active ? 1 : 1.12;
+      c.group.scale.setScalar(menuScale);
       if (!this.reduced) {
         const walk = playing
           ? Math.sin(time * 12 + c.group.position.x) * 0.16
           : Math.sin(time * 2 + i) * 0.025;
-        c.group.scale.y = 1 + Math.sin(time * 2 + i) * 0.012;
+        c.group.scale.y = menuScale * (1 + Math.sin(time * 2 + i) * 0.012);
         c.leftLeg.rotation.x = walk;
         c.rightLeg.rotation.x = -walk;
       }
@@ -582,11 +666,31 @@ export class CourtScene {
         0.5 + Math.sin(time * 3) * 0.15;
     }
     this.effects.update(dt, this.camera, this.ball);
-    this.renderer.render(this.scene, this.camera);
+    if (this.post) this.post.render(dt, this.active);
+    else this.renderer.render(this.scene, this.camera);
+    // Ignore hidden tabs and shader warmup before evaluating sustained frame times.
+    if (this.automatic && this.quality !== "low" && !document.hidden) {
+      if (this.warmup > 0) this.warmup -= dt;
+      else {
+        this.frameTotal += dt;
+        this.frameCount++;
+        if (this.frameTotal >= 3) {
+          if (this.frameTotal / this.frameCount > 0.019)
+            this.applyQuality(this.quality === "high" ? "medium" : "low");
+          this.frameTotal = this.frameCount = 0;
+        }
+      }
+    }
   }
   dispose() {
     this.disposed = true;
     this.observer.disconnect();
+    this.container.removeEventListener("pointermove", this.pointerMove);
+    this.container.removeEventListener("pointerleave", this.pointerLeave);
+    this.post?.dispose();
+    this.environment.dispose();
+    if (this.scene.background instanceof T.Texture)
+      this.scene.background.dispose();
     this.scene.traverse((o) => {
       if (o instanceof T.Mesh || o instanceof T.LineSegments) {
         o.geometry.dispose();
@@ -598,6 +702,7 @@ export class CourtScene {
         });
       }
     });
+    disposeSurfaceTextures();
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }

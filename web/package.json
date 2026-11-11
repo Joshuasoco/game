@@ -8,9 +8,10 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@dink/shared": "*",
     "@dimforge/rapier3d-compat": "^0.19.2",
+    "@dink/shared": "*",
     "howler": "^2.2.4",
+    "postprocessing": "^6.39.6",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
