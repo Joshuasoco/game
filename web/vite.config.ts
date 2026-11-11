@@ -17,8 +17,19 @@ export default defineConfig({
   ],
   server: {
     host: "0.0.0.0",
+    port: 5173,
+    strictPort: true,
+    // The HTTPS launcher allows only its generated tunnel hostname.
+    allowedHosts: process.env.DINK_PUBLIC_HOST
+      ? [process.env.DINK_PUBLIC_HOST]
+      : [],
     proxy: {
-      "/socket.io": { target: "http://localhost:3001", ws: true },
+      // Preserve Host and Origin for the relay's same-origin handshake check.
+      "/socket.io": {
+        target: "http://localhost:3001",
+        ws: true,
+        changeOrigin: false,
+      },
       "/health": "http://localhost:3001",
       "/network": "http://localhost:3001",
     },

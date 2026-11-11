@@ -1,0 +1,97 @@
+{
+  "prompts": {
+    "NO_BALL": "",
+    "FAR": "Ball coming. Your character runs. Swing when it’s close.",
+    "GET_READY": "Get ready…",
+    "IN_REACH": "SWING NOW",
+    "WAIT_BOUNCE": "Let it bounce first",
+    "WAIT_KITCHEN": "In the kitchen. Wait for the bounce.",
+    "RECOVERING": "Recovering…"
+  },
+  "waiting": "Waiting…",
+  "serve": "SERVE",
+  "keyboardHint": "You aim and time. Your character runs. · SPACE swing once · ← → aim · P pause",
+  "faultLabel": "Fault",
+  "whiffs": {
+    "FAR": "Too far. Wait for the ring to glow.",
+    "GET_READY": "Too early. Wait for green.",
+    "NO_BALL": "No ball to hit"
+  },
+  "faults": {
+    "NET": "Hit the net",
+    "OUT": "Landed outside the court",
+    "DOUBLE_BOUNCE": "Bounced twice on your side",
+    "EARLY_SERVE_HIT": "Serve must bounce before you hit it",
+    "EARLY_RETURN_HIT": "First return must bounce before you hit it",
+    "KITCHEN_VOLLEY": "Kitchen: no hitting before the bounce",
+    "WRONG_SERVICE_COURT": "Serve must land diagonally beyond the kitchen",
+    "MISSED_RETURN": "Missed the return"
+  },
+  "phone": {
+    "NO_BALL": "Swing (ball too far)",
+    "FAR": "Swing (ball too far)",
+    "GET_READY": "Almost…",
+    "IN_REACH": "SWING",
+    "WAIT_BOUNCE": "Wait for bounce",
+    "WAIT_KITCHEN": "Wait for bounce",
+    "RECOVERING": "Recovering…"
+  },
+  "practice": {
+    "title": "Guided practice",
+    "skip": "Skip practice",
+    "replay": "Replay guided practice",
+    "hint": "Watch the ring ↓",
+    "steps": [
+      "Pip runs for you. You just choose when to swing.",
+      "Press Space when the ring turns green.",
+      "Try pressing now. Too early does nothing. No penalty.",
+      "The first return must bounce. Wait for orange to become green.",
+      "Hold ← or → while you press Space. Aim two hits to the same side."
+    ]
+  },
+  "settings": {
+    "cue": "Swing cue sound",
+    "contrast": "High Contrast Ring",
+    "minimal": "Minimal swing HUD",
+    "hard": "Hide ring on Hard"
+  },
+  "instructions": {
+    "title": "How to play",
+    "model": "You aim and time. Your character runs.",
+    "intro": "Your character automatically runs toward the ball. You decide when to swing and where the ball goes.",
+    "steps": [
+      "Serve. When the screen says ‘Your serve,’ press Space or tap Swing on your phone. The serve goes diagonally across the net.",
+      "Watch the ring. Green = swing now. Yellow = almost there. Orange = let it bounce first.",
+      "Swing once. Press Space once per swing. Holding Space does not keep swinging.",
+      "Aim. Hold ← or → while you press Space to aim left or right."
+    ],
+    "whiff": "Swinging when the ball is far away does nothing, and it doesn’t cost you a point. The character only hits when the ball is inside the ring.",
+    "legacyWatch": "Time your swing. Press Swing when the ball is close to your character. You decide when to hit.",
+    "legacyWhiff": "Swinging when the ball is far away doesn’t cost you a point. Your character can only hit a ball within reach.",
+    "legacyWhen": "Your serve, or when the ball is close",
+    "lose": "You lose the point if you:",
+    "faults": [
+      "Hit the ball into the net or outside the court.",
+      "Let it bounce twice on your side.",
+      "Hit the serve or first return before it bounces.",
+      "Hit the ball before it bounces while standing in the kitchen (next to the net)."
+    ],
+    "scoring": "First to 11 wins, by 2 points. The point winner serves next.",
+    "phone": "Tap Swing when the ring turns green. The button glows and buzzes when it is time. Drag Aim to steer. Short tap = medium shot. Hold and release = stronger shot. Swipe up on Swing = high lob.",
+    "phoneBasics": "Drag Aim to steer. Short tap = medium shot. Hold and release = stronger shot. Swipe up on Swing = high lob. In motion mode, tilt to aim and swing to hit.",
+    "controls": [
+      [
+        "Serve or hit",
+        "Space (once per swing)",
+        "When the ring is green, or on your serve"
+      ],
+      [
+        "Aim left or right",
+        "Hold ← / → while pressing Space",
+        "At the moment of the swing"
+      ],
+      ["Pause", "P", "Any time"]
+    ],
+    "headings": ["Action", "Control", "When"]
+  }
+}

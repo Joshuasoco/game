@@ -1,0 +1,23 @@
+{
+  "measuredAt": "2026-11-11T09:01:37.973Z",
+  "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001638) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "hardwareConcurrency": 12,
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+  "viewport": [
+    1440,
+    900
+  ],
+  "quality": "medium",
+  "frames": 599,
+  "elapsedMs": 10004,
+  "averageFps": 59.87604958016793,
+  "p95FrameMs": 16.80000000000109,
+  "framesOver33ms": 0,
+  "phaseFrames": {
+    "serve": 253,
+    "rally": 341,
+    "point": 5
+  },
+  "method": "Raw requestAnimationFrame intervals during scripted keyboard gameplay; 4s warmup, 10s sample; Vite development server.",
+  "laptopClassification": "Unverified: the browser exposes the GPU and logical CPU count, not the laptop model or power profile."
+}

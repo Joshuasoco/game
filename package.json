@@ -9,6 +9,7 @@
     "web"
   ],
   "scripts": {
+    "dev:https": "node scripts/dev-https.mjs",
     "dev": "concurrently -k -n relay,web \"npm run dev -w server\" \"npm run dev -w web\"",
     "build": "npm run build -w web && npm run build -w server",
     "start": "node server/dist/server/src/index.js",

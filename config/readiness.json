@@ -1,0 +1,22 @@
+{
+  "getReadyMultiplier": 1.6,
+  "hysteresisExit": 1.08,
+  "minStateFrames": 2,
+  "reachRadius": {
+    "easy": { "base": 1.35 },
+    "medium": { "base": 1.1 },
+    "hard": { "base": 0.9 }
+  },
+  "characterReachBonus": { "pip": 0.15 },
+  "whiffCooldownMs": { "easy": 250, "medium": 350, "hard": 450 },
+  "hitCooldownMs": 200,
+  "inputBufferMs": 80,
+  "faultCardMs": 1200,
+  "longHintPointsShown": 5,
+  "hintAfterMs": 20000,
+  "whiffToastMs": 1200,
+  "practiceFeedDelayMs": 650,
+  "practiceRetryDelayMs": 700,
+  "practiceReturnDelayMs": 800,
+  "haptics": { "enterReachMs": 25, "getReadyMs": 8 }
+}
